@@ -5,7 +5,7 @@
  */
 package com.generic.test;
 
-import com.generic.Result.Result;
+import com.generic.result.Result;
 
 /**
  *
