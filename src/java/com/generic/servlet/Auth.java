@@ -43,14 +43,14 @@ public class Auth extends HttpServlet {
         
         /**
          * authDo   :: carpeLogin
-         *              :: carpeMail
-         *              :: carpePass
+         *              :: cduMail
+         *              :: cduPass
          *          :: carpeLogout
          *          :: carpeRegister          
          *
          * 
          * !! KISALTMALAR !!
-         * carpe diem user --> cdu
+         * carpe diem user --> cdu          
          *
          */
         HttpSession session = request.getSession(true);
@@ -58,7 +58,7 @@ public class Auth extends HttpServlet {
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.SUCCESS_EMPTY;               
-                
+                 
         
         try{            
             
@@ -67,20 +67,27 @@ public class Auth extends HttpServlet {
                     
                     case "carpeLogin": 
                         
-                            String query  = String.format( resource.getPropertyValue("selectUserFromEmail") , request.getParameter("cduMail"));
-                            System.out.println(query);
+                            if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
+                                                                                    
+                                    String query  = String.format( resource.getPropertyValue("selectUserFromEmail") , request.getParameter("cduMail"), request.getParameter("cduPass"));
+                                    System.out.println(query);
 
-                            
-                            ResultSet rs=mysql.getResultSet(query);
-                            String id = "";
-                            while(rs.next()){      
-                                id = rs.getString("mu_id");
-                                System.out.println(id);
+
+                                    ResultSet rs=mysql.getResultSet(query);
+                                    String id = "";
+                                    while(rs.next()){      
+                                        id = rs.getString("mu_id");
+                                        System.out.println(id);
+                                    }
+
+                                    
+                                    
+                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
+
+                                    res = Result.SUCCESS.setContent(id);
+                            }else{
+                                    res = Result.FAILURE_PARAM_MISMATCH;
                             }
-
-                            System.out.println("Incoming call from client");                     
-
-                            res = Result.SUCCESS.setContent(id);                            
                         
                         break;
                     case "carpeLogout":
@@ -104,10 +111,11 @@ public class Auth extends HttpServlet {
             res = Result.FAILURE_DB;
             
         }finally{                        
-            
+                                                
             mysql.closeAllConnection();
             out.write(gson.toJson(res));
             out.close();
+            
         }
     }
 

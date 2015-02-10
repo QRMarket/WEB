@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 
 /**
  *
- * @author kemal
+ * @author Kemal Sami KARACA
  */
 public class ResourceProperty{
     
