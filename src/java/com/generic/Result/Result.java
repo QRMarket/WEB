@@ -22,6 +22,7 @@ public class Result <T> implements Serializable{
     public static Result FAILURE_AUTH_MEBBIS;
     public static Result FAILURE_AUTH_SSO;
     public static Result FAILURE_AUTH_WRONG;
+    public static Result FAILURE_AUTH_MULTIPLE;
     public static Result FAILURE_CODE_GAME;
     public static Result FAILURE_CODE_CLASS_SESSION;
     public static Result FAILURE_COOKIE_CREATION;
@@ -147,6 +148,7 @@ public class Result <T> implements Serializable{
         FAILURE_AUTH_MEBBIS         = new Result("EBA.023", rs.getString("result.eba.023"));
         FAILURE_AUTH_SSO            = new Result("EBA.007", rs.getString("result.eba.007"));
         FAILURE_AUTH_WRONG          = new Result("EBA.004", rs.getString("result.eba.004"));
+        FAILURE_AUTH_MULTIPLE       = new Result("EBA.034", rs.getString("result.eba.034"));
         FAILURE_CODE_GAME           = new Result("EBA.014", rs.getString("result.eba.014"));
         FAILURE_COOKIE_CREATION     = new Result("EBA.020", rs.getString("result.eba.020"));
         FAILURE_DB                  = new Result("EBA.008", rs.getString("result.eba.008"));

@@ -5,6 +5,7 @@
  */
 package com.generic.servlet;
 
+import com.generic.checker.Checker;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -53,62 +55,106 @@ public class Auth extends HttpServlet {
          * carpe diem user --> cdu          
          *
          */
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
         Gson gson = new Gson();
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.SUCCESS_EMPTY;               
                  
         
-        try{            
+        /**
+         *  NOT ::  Kullanıcı her "Login Case" e girdiklerinde kullanıcı adı ve şifresi
+         *          doğru verilmesi durumunda yeni bir token yaratmaktadır.Bu işlem 
+         *          araştırılacak(yararları ve zararları)
+         * 
+         *  Öncelikle kullanıcı authentication sağlanıp sağlanmadığına bakılır
+         *      İlk olarak kullanıcının session'ı var mı diye bakılır
+         *          Yoksa kullanıcı auth değildir
+         *          Varsa sessiondan alınan token ile kullanıcıdan gelen token karşılaştırılır
+         *              Eğer kullanıcı auth ise kullanıcı bilgileri yüklenecek sayfana yönlendirilir
+         *      
+         *              Eğer kullanıcı auth değilse bu durumda aşağıdaki işlemler yapılır 
+         * 
+         *  
+         */
+        
+        try{                                    
             
             if(request.getParameter("authDo")!=null){                 
-                switch(request.getParameter("authDo")){   
+                switch(request.getParameter("authDo")){ 
                     
+                //**************************************************************
+                //**************************************************************
+                //**                    LOGIN CASE
+                //**************************************************************
+                //**************************************************************
                     case "carpeLogin": 
-                        
+
                             if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
-                                                                                    
+
+                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));                                    
                                     String query  = String.format( resource.getPropertyValue("selectUserFromEmail") , request.getParameter("cduMail"), request.getParameter("cduPass"));
-                                    System.out.println(query);
 
+                                    /**
+                                     * If resultSet is empty -> user OR password is wrong
+                                     * else if resultSet size is equals 1 -> user match 
+                                     * else resultSet size > 1 -> multiple row returned
+                                     */
+                                    ResultSet mysqlResult = mysql.getResultSet(query);
+                                    if(mysql.resultSetIsEmpty()){       
 
-                                    ResultSet rs=mysql.getResultSet(query);
-                                    String id = "";
-                                    while(rs.next()){      
-                                        id = rs.getString("mu_id");
-                                        System.out.println(id);
-                                    }
+                                        res = Result.FAILURE_AUTH_WRONG;
+                                        
+                                    }else if(mysql.getResultSetSize()==1){                                                  
+                                        
+                                        session = request.getSession(true);
+                                        session.setAttribute("cduToken", UUID.randomUUID().toString());
+                                        session.setAttribute("cduName", request.getParameter("cduMail"));
+                                        res = Result.SUCCESS.setContent(session.getAttribute("cduToken"));
+                                        
+                                    }else{
 
-                                    
-                                    
-                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
+                                        res = Result.FAILURE_AUTH_MULTIPLE;
+                                    }                                    
 
-                                    res = Result.SUCCESS.setContent(id);
                             }else{
                                     res = Result.FAILURE_PARAM_MISMATCH;
                             }
-                        
+
                         break;
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    LOGOUT CASE
+                //**************************************************************
+                //**************************************************************
                     case "carpeLogout":
                         break;
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    REGISTER CASE
+                //**************************************************************
+                //**************************************************************
                     case "carpeRegister":
                         break;
+                              
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    DEFAULT CASE
+                //**************************************************************
+                //**************************************************************
                     default:
                         res = Result.FAILURE_PARAM_WRONG;
                         break;
                 }
-                
+
             }else{
                 res = Result.FAILURE_PARAM_MISMATCH;
             }
             
-            
-        } catch (SQLException ex) {
-            /**
-             * !!! SQLException ERROR !!!
-             */
-            res = Result.FAILURE_DB;
             
         }finally{                        
                                                 

@@ -5,10 +5,13 @@
  */
 package com.generic.servlet;
 
+import com.generic.checker.Checker;
 import com.generic.result.Result;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -37,13 +40,27 @@ public class MarketServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");        
         PrintWriter out = response.getWriter();
         
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
         Gson gson = new Gson();        
         
         try{
            
-            session.setAttribute("name", "id");
+            if(Checker.isAuth(request)){
+                session.setAttribute("MarketServlet", "edit by MarketServlet");
+                System.out.println("Session exist");
+            }else{                
+                session = request.getSession(true);
+                session.setAttribute("cduToken", UUID.randomUUID().toString());
+                System.out.println("Session does not exist");
+            }
             
+            if(false){                            
+                Enumeration<String> headerKeys = request.getHeaderNames();
+                while(headerKeys.hasMoreElements()){
+                    String keys = headerKeys.nextElement();
+                    System.out.println("\nkey:" + keys + " \nvalue:"+request.getHeader(keys)+ "\n--" );
+                }                
+            }
             
         }finally{                        
                         

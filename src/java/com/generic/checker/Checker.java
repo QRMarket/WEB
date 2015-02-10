@@ -16,10 +16,30 @@ public class Checker {
     
     private boolean isAuthentication=false;
     
-    public Checker(HttpServletRequest request){
-        HttpSession session = request.getSession(true);
+    public Checker(){
+        
                 
     }
+    
+    /**
+     * 
+     * @param HttpServletRequest request parameter will be used to get session 
+     * @return 
+     */
+    public static boolean isAuth(HttpServletRequest request){
+        
+        HttpSession session = request.getSession(false);
+        String token = request.getParameter("cdu-token");
+        if(session!=null){            
+            if(session.getAttribute("cduToken")!=null && token!=null){
+                return ((String)session.getAttribute("cduToken")).equalsIgnoreCase(token);
+            }                       
+        }        
+        return false;
+        
+    }
+    
+    
     
     
     
