@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -77,7 +79,11 @@ public class Auth extends HttpServlet {
          * 
          *  
          */
-        
+        Enumeration<String> enume = request.getParameterNames();
+        while(enume.hasMoreElements()){
+            System.out.println("Incoming parameters :: " + enume.nextElement());
+        }
+                
         try{                                    
             
             if(request.getParameter("authDo")!=null){                 
