@@ -14,6 +14,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -364,7 +366,7 @@ public class MysqlDBOperations {
     /**
      * 
      * @param columnName
-     * @return
+     * @return ArrayList
      * 
      * @will
      *      - if columnName=='*' then result all column
@@ -386,5 +388,44 @@ public class MysqlDBOperations {
         }
         return columnValues;
     }
+    
+    
+    /**
+     * 
+     * @param columnName
+     * @return Map
+     * 
+     * @will - @WORK
+     *      - if columnName=='*' then result all column
+     *      - if column type is different than String then return arraylist with
+     *          that values
+     */
+    public Map selectedColumnValues(){        
+        Map resultRow = new HashMap();        
+        
+        try {
+            
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            if(!resultSetIsEmpty()){   
+                resultSet.beforeFirst();                                
+                        
+                while(resultSet.next()){                                    
+                    ResultSetMetaData resultMeta = resultSet.getMetaData();
+                    for(int j=0; j<resultMeta.getColumnCount(); j++){
+                        String columnName = resultMeta.getColumnName(j);
+                        String columnTypeName = resultMeta.getColumnTypeName(j);
+                        System.out.println("Column Name : " + columnName + " - ColumnType : " + columnTypeName);
+                    }
+                }
+            }            
+        } catch (SQLException ex) {            
+            Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return resultRow;
+    }
+    
+    
+    
+    
     
 }

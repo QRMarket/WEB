@@ -4,9 +4,25 @@
         <servlet-name>MarketServlet</servlet-name>
         <servlet-class>com.generic.servlet.MarketServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProductServlet</servlet-name>
+        <servlet-class>com.generic.servlet.ProductServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderServlet</servlet-name>
+        <servlet-class>com.generic.servlet.OrderServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>MarketServlet</servlet-name>
         <url-pattern>/MarketServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProductServlet</servlet-name>
+        <url-pattern>/ProductServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderServlet</servlet-name>
+        <url-pattern>/OrderServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
