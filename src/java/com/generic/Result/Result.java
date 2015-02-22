@@ -19,36 +19,15 @@ public class Result <T> implements Serializable{
     
     public static Result SUCCESS;
     public static Result SUCCESS_EMPTY;
-    public static Result FAILURE_AUTH_MEBBIS;
-    public static Result FAILURE_AUTH_SSO;
+    public static Result SUCCESS_LOGOUT;                
+    public static Result FAILURE_AUTH;
     public static Result FAILURE_AUTH_WRONG;
     public static Result FAILURE_AUTH_MULTIPLE;
-    public static Result FAILURE_CODE_GAME;
-    public static Result FAILURE_CODE_CLASS_SESSION;
-    public static Result FAILURE_COOKIE_CREATION;
     public static Result FAILURE_DB;
-    public static Result FAILURE_DB_DUPLICATE_ENTRY;
-    public static Result FAILURE_DB_HIBERNATE;
-    public static Result FAILURE_DB_MONGO;
+    public static Result FAILURE_DB_EFFECTED_ROW_NUM;
     public static Result FAILURE_DB_PRIMARY_KEY;
-    public static Result FAILURE_EMAIL_SEND;
-    public static Result FAILURE_INDEX;
-    public static Result FAILURE_JSON_MALFORMED;
-    public static Result FAILURE_LOCKED_USER;
-    public static Result FAILURE_LOGIN_UNSUCCESSFUL;
-    public static Result FAILURE_MAC_WRONG;
-    public static Result FAILURE_PASSWORD_WRONG;
-    public static Result FAILURE_PASSWORD_MATCH;
     public static Result FAILURE_PARAM_WRONG;
-    public static Result FAILURE_PARAM_MISMATCH;
-    public static Result FAILURE_PROCESS;
-    public static Result FAILURE_SCHOOL_CODE;
-    public static Result FAILURE_SCHOOL_SAME;
-    public static Result FAILURE_TCKN_WRONG;
-    public static Result FAILURE_WS_NULL;
-    public static Result FAILURE_SESSION_CLOSED;
-    public static Result FAILURE_ELASTICSEARCH;
-    //Last Code : EBA.029 - FAILURE_ELASTICSEARCH
+    public static Result FAILURE_PARAM_MISMATCH;              
     
     static{
         initializeStaticObjects(ResourceBundle.getBundle("com.generic.resources.resultProp", Locale.ENGLISH));
@@ -143,37 +122,17 @@ public class Result <T> implements Serializable{
      * @param rs Resource Bundle that contains a properties file with desired language
      */
     private static void initializeStaticObjects(ResourceBundle rs){
-        SUCCESS                     = new Result("EBA.001", rs.getString("result.eba.001"));
-        SUCCESS_EMPTY               = new Result("EBA.101", rs.getString("result.eba.101"));
-        FAILURE_AUTH_MEBBIS         = new Result("EBA.023", rs.getString("result.eba.023"));
-        FAILURE_AUTH_SSO            = new Result("EBA.007", rs.getString("result.eba.007"));
-        FAILURE_AUTH_WRONG          = new Result("EBA.004", rs.getString("result.eba.004"));
-        FAILURE_AUTH_MULTIPLE       = new Result("EBA.034", rs.getString("result.eba.034"));
-        FAILURE_CODE_GAME           = new Result("EBA.014", rs.getString("result.eba.014"));
-        FAILURE_COOKIE_CREATION     = new Result("EBA.020", rs.getString("result.eba.020"));
-        FAILURE_DB                  = new Result("EBA.008", rs.getString("result.eba.008"));
-        FAILURE_DB_DUPLICATE_ENTRY  = new Result("EBA.017", rs.getString("result.eba.017"));
-        FAILURE_DB_HIBERNATE        = new Result("EBA.009", rs.getString("result.eba.009"));
-        FAILURE_DB_MONGO            = new Result("EBA.022", rs.getString("result.eba.022"));
-        FAILURE_DB_PRIMARY_KEY      = new Result("EBA.018", rs.getString("result.eba.018"));
-        FAILURE_EMAIL_SEND          = new Result("EBA.026", rs.getString("result.eba.026"));
-        FAILURE_INDEX               = new Result("EBA.025", rs.getString("result.eba.025"));
-        FAILURE_JSON_MALFORMED      = new Result("EBA.019", rs.getString("result.eba.019"));
-        FAILURE_LOCKED_USER         = new Result("EBA.021", rs.getString("result.eba.021"));
-        FAILURE_LOGIN_UNSUCCESSFUL  = new Result("EBA.013", rs.getString("result.eba.013"));
-        FAILURE_MAC_WRONG           = new Result("EBA.015", rs.getString("result.eba.015"));
-        FAILURE_PASSWORD_WRONG      = new Result("EBA.003", rs.getString("result.eba.003"));
-        FAILURE_PASSWORD_MATCH      = new Result("EBA.011", rs.getString("result.eba.011"));
-        FAILURE_PARAM_WRONG         = new Result("EBA.005", rs.getString("result.eba.005"));
-        FAILURE_PARAM_MISMATCH      = new Result("EBA.024", rs.getString("result.eba.024"));
-        FAILURE_PROCESS             = new Result("EBA.006", rs.getString("result.eba.006"));
-        FAILURE_SCHOOL_CODE         = new Result("EBA.010", rs.getString("result.eba.010"));
-        FAILURE_SCHOOL_SAME         = new Result("EBA.016", rs.getString("result.eba.016"));
-        FAILURE_TCKN_WRONG          = new Result("EBA.002", rs.getString("result.eba.002"));
-        FAILURE_WS_NULL             = new Result("EBA.012", rs.getString("result.eba.012"));
-        FAILURE_CODE_CLASS_SESSION  = new Result("EBA.027", rs.getString("result.eba.027"));
-        FAILURE_SESSION_CLOSED      = new Result("EBA.028", rs.getString("result.eba.028"));
-        FAILURE_ELASTICSEARCH       = new Result("EBA.029", rs.getString("result.eba.029"));
+        SUCCESS                     = new Result("GUPPY.001", rs.getString("result.guppy.001"));
+        SUCCESS_EMPTY               = new Result("GUPPY.010", rs.getString("result.guppy.010"));
+        SUCCESS_LOGOUT              = new Result("GUPPY.090", rs.getString("result.guppy.090"));
+        FAILURE_AUTH                = new Result("GUPPY.101", rs.getString("result.guppy.101"));
+        FAILURE_AUTH_WRONG          = new Result("GUPPY.111", rs.getString("result.guppy.111"));
+        FAILURE_AUTH_MULTIPLE       = new Result("GUPPY.121", rs.getString("result.guppy.121"));
+        FAILURE_DB                  = new Result("GUPPY.201", rs.getString("result.guppy.201"));
+        FAILURE_DB_EFFECTED_ROW_NUM = new Result("GUPPY.241", rs.getString("result.guppy.241"));
+        FAILURE_DB_PRIMARY_KEY      = new Result("GUPPY.251", rs.getString("result.guppy.251"));
+        FAILURE_PARAM_WRONG         = new Result("GUPPY.501", rs.getString("result.guppy.501"));
+        FAILURE_PARAM_MISMATCH      = new Result("GUPPY.511", rs.getString("result.guppy.511"));
     }
     
     /*Default Getters-Setters*/

@@ -287,9 +287,9 @@ public class MysqlDBOperations {
      */
     public ResultSet getResultSet(String query){
         try {            
-            this.resultSet = getPreparedStatement(query).executeQuery();                            
+            this.resultSet = getPreparedStatement(query).executeQuery();
             this.resultSet.beforeFirst();
-        } catch (Exception e) {
+        } catch (Exception e) {            
             e.printStackTrace();            
         }
         return this.resultSet;
@@ -318,7 +318,7 @@ public class MysqlDBOperations {
         try {
             empty = !(this.resultSet.first());
             this.resultSet.beforeFirst();
-        } catch (SQLException ex) {
+        } catch (SQLException ex) {            
             Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
         }
         

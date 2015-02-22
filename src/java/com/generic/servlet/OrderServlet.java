@@ -5,9 +5,11 @@
  */
 package com.generic.servlet;
 
+import com.generic.checker.Checker;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.MarketOrder;
 import com.generic.util.MarketProduct;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -15,9 +17,11 @@ import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +31,8 @@ import javax.servlet.http.HttpSession;
  *
  * @author Kemal Sami KARACA
  */
+
+@WebServlet(name = "OrderServlet", urlPatterns = {"/OrderServlet"})
 public class OrderServlet extends HttpServlet {
 
     /**
@@ -69,6 +75,14 @@ public class OrderServlet extends HttpServlet {
          *  Bu servlet(servis)'in amacı order ile ilgili işlemlerin yapılmasıdır
          *  Kullanıcıya sipariş oluşturma, sipariş listesi silme, sipariş listesine
          *  ürün eklemek gibi işlemleri gerçekleştirir
+         * 
+         *  Kullanıcının filter'dan geçtiği göze alınır Yani kullanıcı bilgisi session
+         *  üzerinden alınır
+         * 
+         *  addToOrderList ::
+         *  Kullanıcı, sepet(orderList) belirtmemişse bu durumda yeni bir sepet 
+         *  yaratılır Eğer servise belirli bir sepet id'si ile gelmişse bu durumda
+         *  ürün ilgili sepete eklenir
          *  
          */
         Enumeration<String> enume = request.getParameterNames();
@@ -85,14 +99,14 @@ public class OrderServlet extends HttpServlet {
                     
                 //**************************************************************
                 //**************************************************************
-                //**                    GET ORDER LIST CASE
+                //**                    ADD TO ORDERLIST CASE
                 //**************************************************************
                 //**************************************************************
                     case "addToOrderList": 
 
-                            if(request.getParameter("cdpUID")!=null){
+                            if(request.getParameter("cdoID")!=null){
 
-                                    System.out.println("--> /ProductServlet?cdpsDo=getProduct&cdpUID="+request.getParameter("cdpUID")); 
+                                    System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdoID="+request.getParameter("cdoID")); 
                                     String query  = String.format( resource.getPropertyValue("selectProductByUID") , request.getParameter("cdpUID"));
                                     System.out.println("--> " + query);
 
@@ -110,7 +124,7 @@ public class OrderServlet extends HttpServlet {
                                         
                                         if(mysqlResult.first()){
                                             
-                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("pid"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
+                                            //res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("pid"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
                                         
                                         }else{
                                             
@@ -121,15 +135,35 @@ public class OrderServlet extends HttpServlet {
                                         res = Result.FAILURE_AUTH_MULTIPLE;
                                     }                                    
 
-                            }else{
-                                    res = Result.FAILURE_PARAM_MISMATCH;
+                            }else{                                    
+                                    /**
+                                     *  No initial order-list, add product case
+                                     * 
+                                     *  If "user has not active order-list" AND "try to add product to order-list"
+                                     *          then "Create new order-list"
+                                     *  Else "there is not any product"
+                                     *          then "FAILURE_PARAM_MISMATCH"
+                                     */                                    
+                                    String cdpUID = request.getParameter("cdpUID");
+                                    String cdpAmount = request.getParameter("cdpAmount");
+                                    if(!Checker.anyParameterNull(cdpUID,cdpAmount)){
+                                        
+                                        System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
+                                                                                
+                                        res = MarketOrder.addProductToOrderList( (String)session.getAttribute("cduUserId"), cdpUID, Double.parseDouble(cdpAmount) );                                         
+                                        
+                                    }else{
+                                        
+                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                    }                                    
+                                    
                             }
 
                         break;
                  
                 //**************************************************************
                 //**************************************************************
-                //**                    ADD TO ORDER LISTS CASE
+                //**                    GET ORDER-LIST CASE
                 //**************************************************************
                 //**************************************************************
                     case "getOrderList":
@@ -138,7 +172,7 @@ public class OrderServlet extends HttpServlet {
                         
                 //**************************************************************
                 //**************************************************************
-                //**                    ADD TO ORDER LIST CASE
+                //**                    GET ORDER-LISTS CASE
                 //**************************************************************
                 //**************************************************************
                     case "getOrderLists":
@@ -171,7 +205,7 @@ public class OrderServlet extends HttpServlet {
         } catch (SQLException ex) {
             Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
         }finally{                        
-                                                
+                        
             mysql.closeAllConnection();
             out.write(gson.toJson(res));
             out.close();

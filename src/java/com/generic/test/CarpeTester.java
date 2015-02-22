@@ -14,7 +14,7 @@ import com.generic.result.Result;
 public class CarpeTester {
     
     public static void main(String[] args){
-        Result res = Result.FAILURE_DB_MONGO;
+        Result res = Result.FAILURE_AUTH_WRONG;
         
         Student s = new Student();
                 

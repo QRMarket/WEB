@@ -17,8 +17,11 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -95,10 +98,10 @@ public class Auth extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "carpeLogin": 
-
+                            
                             if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
 
-                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));                                    
+                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
                                     String query  = String.format( resource.getPropertyValue("selectUserFromEmail") , request.getParameter("cduMail"), request.getParameter("cduPass"));
 
                                     /**
@@ -113,10 +116,18 @@ public class Auth extends HttpServlet {
                                         
                                     }else if(mysql.getResultSetSize()==1){                                                  
                                         
-                                        session = request.getSession(true);
-                                        session.setAttribute("cduToken", UUID.randomUUID().toString());
-                                        session.setAttribute("cduName", request.getParameter("cduMail"));
-                                        res = Result.SUCCESS.setContent(session.getAttribute("cduToken"));
+                                        if(mysqlResult.first()){                                                                                        
+                                            session = request.getSession(true);
+                                            String token = UUID.randomUUID().toString();
+                                            session.setAttribute("cduToken", token);
+                                            session.setAttribute("cduName", request.getParameter("cduMail"));
+                                            session.setAttribute("cduUserId", mysqlResult.getString("mu_id"));      // Add product to order-list durumunda kullanılmaktadır
+                                            response.addCookie(new Cookie("cduToken", token));
+                                            res = Result.SUCCESS.setContent(session.getAttribute("cduToken"));
+                                        }else{
+                                            res = Result.FAILURE_AUTH_MULTIPLE;
+                                        }
+                                        
                                         
                                     }else{
 
@@ -135,6 +146,10 @@ public class Auth extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "carpeLogout":
+                        
+                        session.invalidate();
+                        res = Result.SUCCESS_LOGOUT; 
+                                                
                         break;
                         
                         
@@ -162,6 +177,8 @@ public class Auth extends HttpServlet {
             }
             
             
+        } catch (SQLException ex) {
+            Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
         }finally{                        
                                                 
             mysql.closeAllConnection();

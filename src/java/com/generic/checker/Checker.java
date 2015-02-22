@@ -16,10 +16,10 @@ public class Checker {
     
     private boolean isAuthentication=false;
     
-    public Checker(){
-        
+    public Checker(){        
                 
     }
+    
     
     /**
      * 
@@ -35,8 +35,24 @@ public class Checker {
                 return ((String)session.getAttribute("cduToken")).equalsIgnoreCase(token);
             }                       
         }        
-        return false;
+        return false;        
+    }
+    
+    
+    /**
+     * 
+     * @param args
+     * @return 
+     * 
+     * This function check that any parameter is null 
+     */
+    public static boolean anyParameterNull(String... args){
         
+        boolean notNull=true;
+        for(String arg:args)
+            notNull = notNull && ( arg!=null );
+                
+        return !notNull;
     }
     
     
