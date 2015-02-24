@@ -5,6 +5,7 @@
  */
 package com.generic.test;
 
+import com.generic.db.DBOrder;
 import com.generic.result.Result;
 
 /**
@@ -14,18 +15,11 @@ import com.generic.result.Result;
 public class CarpeTester {
     
     public static void main(String[] args){
-        Result res = Result.FAILURE_AUTH_WRONG;
         
-        Student s = new Student();
-                
+        Result res = DBOrder.getCartInfo("or_71e57d9d-05fe-423d-b8c7-ab32778f8d1c");
         
-        Result resNew = res.setContent(s); 
+        System.out.println(res.getResultCode());
+        System.out.println(res.getResultText());
         
-        
-        Student s2 = (Student) res.getContent();
-        
-        System.out.println(resNew.getResultCode());
-        System.out.println(resNew.getResultText());
-        System.out.println(resNew.getContent().toString());
     }
 }

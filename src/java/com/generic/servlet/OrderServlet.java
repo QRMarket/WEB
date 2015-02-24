@@ -6,20 +6,17 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.db.DBOrder;
+import com.generic.db.DBProduct;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
-import com.generic.util.MarketOrder;
 import com.generic.util.MarketProduct;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -62,6 +59,7 @@ public class OrderServlet extends HttpServlet {
          * carpe diem order             --> cdo
          * carpe diem order servlet     --> cdos
          * carpe diem product unique id --> cdpUID
+         * carpe diem user              --> cdu          
          *
          */
         HttpSession session = request.getSession(false);
@@ -103,70 +101,94 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "addToOrderList": 
+                        
+                            System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
 
-                            if(request.getParameter("cdoID")!=null){
-
-                                    System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdoID="+request.getParameter("cdoID")); 
-                                    String query  = String.format( resource.getPropertyValue("selectProductByUID") , request.getParameter("cdpUID"));
-                                    System.out.println("--> " + query);
-
-                                    /**
-                                     * If resultSet is empty -> there is not any product with that id
-                                     * else if resultSet size is equals 1 -> product exist 
-                                     * else resultSet size > 1 -> multiple row returned
-                                     */
-                                    ResultSet mysqlResult = mysql.getResultSet(query);
-                                    if(mysql.resultSetIsEmpty()){       
-
-                                        res = Result.FAILURE_AUTH_WRONG;
-                                        
-                                    }else if(mysql.getResultSetSize()==1){                                                  
-                                        
-                                        if(mysqlResult.first()){
+                            String cdpUID = request.getParameter("cdpUID");
+                            String cdpAmount = request.getParameter("cdpAmount");
+                            if(!Checker.anyParameterNull(cdpUID,cdpAmount)){                                
+                                /**
+                                 * IF session exist "cduPlist" value
+                                 *      -1.1-get "cduPList" arraylist
+                                 *      -1.2-get Product info with given cdpUID
+                                 *      -1.2-set 
+                                 */
+                                if(session.getAttribute("cduPList")!=null){                                   
+                                    try{
+                                        ArrayList<MarketProduct> pList = (ArrayList<MarketProduct>) session.getAttribute("cduPList"); 
+                                        Result product = DBProduct.getProductInfo(cdpUID);
+                                        if(product.checkResult(Result.SUCCESS)){
+                                            // set "MarketProduct"
+                                            MarketProduct y = (MarketProduct) DBProduct.getProductInfo(cdpUID).getContent();
+                                            y.setAmount(Double.parseDouble(cdpAmount));
                                             
-                                            //res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("pid"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
-                                        
-                                        }else{
+                                            // add new "MarketProduct" to session
+                                            pList.add(y);
+                                            session.setAttribute("cduPList", pList); 
                                             
-                                        }                                                                                
+                                            // set result
+                                            res = Result.SUCCESS;
+                                        }
                                         
-                                    }else{
-
-                                        res = Result.FAILURE_AUTH_MULTIPLE;
+                                    }catch(ClassCastException e){
+                                        res = Result.FAILURE_PROCESS_CASTING;
                                     }                                    
-
-                            }else{                                    
-                                    /**
-                                     *  No initial order-list, add product case
-                                     * 
-                                     *  If "user has not active order-list" AND "try to add product to order-list"
-                                     *          then "Create new order-list"
-                                     *  Else "there is not any product"
-                                     *          then "FAILURE_PARAM_MISMATCH"
-                                     */                                    
-                                    String cdpUID = request.getParameter("cdpUID");
-                                    String cdpAmount = request.getParameter("cdpAmount");
-                                    if(!Checker.anyParameterNull(cdpUID,cdpAmount)){
+                                }else{
+                                    ArrayList<MarketProduct> pList = new ArrayList();
+                                    Result product = DBProduct.getProductInfo(cdpUID);
+                                    if(product.checkResult(Result.SUCCESS)){
+                                        // set "MarketProduct"
+                                        MarketProduct y = (MarketProduct) DBProduct.getProductInfo(cdpUID).getContent();
+                                        y.setAmount(Double.parseDouble(cdpAmount));
                                         
-                                        System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
-                                                                                
-                                        res = MarketOrder.addProductToOrderList( (String)session.getAttribute("cduUserId"), cdpUID, Double.parseDouble(cdpAmount) );                                         
+                                        // add new "MarketProduct" to session
+                                        pList.add(y);
+                                        session.setAttribute("cduPList", pList);
                                         
-                                    }else{
-                                        
-                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                        // set result
+                                        res = Result.SUCCESS;
                                     }                                    
-                                    
-                            }
+                                }
+                                
+                            }else{
+
+                                res = Result.FAILURE_PARAM_MISMATCH;
+                            }                                                     
 
                         break;
-                 
+                
+                        
                 //**************************************************************
                 //**************************************************************
-                //**                    GET ORDER-LIST CASE
+                //**          GET CURRENT ORDER-LIST INFO CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getOrderList":
+                    case "getCurrentOrderInfo":                                                        
+                                                        
+                            if(session.getAttribute("cduPList")!=null){                                                                
+                                try{                                                     
+                                    res = Result.SUCCESS.setContent(session.getAttribute("cduPList"));
+                                }catch(ClassCastException e){
+                                    res = Result.FAILURE_PROCESS_CASTING;
+                                }                                    
+                            }else{
+                                res = Result.SUCCESS_EMPTY;
+                            }                                                        
+                            
+                        break;
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                GET ORDER-LIST INFO CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getOrderInfo":
+                                                                            
+                            if(request.getParameter("cdoID")!=null){
+                                res = DBOrder.getCartInfo(request.getParameter("cdoID"));
+                            }
+                            
                         break;
                         
                         
@@ -175,7 +197,11 @@ public class OrderServlet extends HttpServlet {
                 //**                    GET ORDER-LISTS CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getOrderLists":
+                    case "getOrderLists":                                                        
+                                     
+                            // because of cduUserId taken from session, if it is not exist then result returns FAILURE
+                            res = session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartList((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH; 
+                        
                         break;
                         
                         
@@ -185,6 +211,10 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "removeOrderList":
+                                                
+                            System.out.println("--> /OrderServlet?cdosDo=removeOrderList"); 
+                            res = Result.SUCCESS.setContent("deneme").setContent("denem");
+                        
                         break;
                               
                         
@@ -202,8 +232,6 @@ public class OrderServlet extends HttpServlet {
                 res = Result.FAILURE_PARAM_MISMATCH;
             }
          
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
         }finally{                        
                         
             mysql.closeAllConnection();

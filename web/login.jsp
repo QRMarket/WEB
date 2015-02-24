@@ -1,17 +1,32 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-        <script src="com/js/lib/jquery-1.11.0.js"></script>        
-        <script>
+        <!--META-->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Login Form</title>
+
+        <!--STYLESHEETS-->
+        <link href="com/css/style.css" rel="stylesheet" type="text/css" />
+
+        <!--SCRIPTS-->
+        <script src="com/js/lib/jquery-1.11.0.js"></script>
+        <!--Slider-in icons-->
+        <script type="text/javascript">
+            $(document).ready(function () {
+                    $(".username").focus(function () {
+                        $(".user-icon").css("left", "-48px");
+                    });
+                    $(".username").blur(function () {
+                        $(".user-icon").css("left", "0px");
+                    });
+
+                    $(".password").focus(function () {
+                        $(".pass-icon").css("left", "-48px");
+                    });
+                    $(".password").blur(function () {
+                        $(".pass-icon").css("left", "0px");
+                    });
+            });
             
             $(document).on("click" , "#login" , function(){                  
                 $.post('Auth', { 
@@ -24,22 +39,56 @@ and open the template in the editor.
                     if(jsonObj['resultCode']==='GUPPY.001'){                           
                         $('#productServletTest').css('display','visible');
                         window.location.href = "testPanel.jsp";
+                    }else{
+                        $('#loginInfo').html("Username or Password Wrong!!!");                        
                     }
                 });                
             });
-                        
-            
         </script>
-        
+
     </head>
     <body>
-        
-        <div>
-            User name: <input id="userMail" type="text" name="cduMail"><br>
-            User pass: <input id="userPass" type="password" name="cduPass"><br>
-            <input id="login" type="submit" value="Submit">
+
+        <!--WRAPPER-->
+        <div id="wrapper">
+
+            <!--SLIDE-IN ICONS-->
+            <div class="user-icon"></div>
+            <div class="pass-icon"></div>
+            <!--END SLIDE-IN ICONS-->
+
+            <!--LOGIN FORM-->
+            <div class="login-form" >
+
+                <!--HEADER-->
+                <div class="header">
+                    <h1>Login Form</h1>
+                    <span id="loginInfo"></span>
+                    
+                </div>
+                <!--END HEADER-->
+
+                <!--CONTENT-->
+                <div class="content">
+                    <input id="userMail" name="username" type="text" class="input username" value="Username" onfocus="this.value = ''" />
+                    <input id="userPass" name="password" type="password" class="input password" value="Password" onfocus="this.value = ''" />
+                </div>
+                <!--END CONTENT-->
+
+                <!--FOOTER-->
+                <div class="footer">
+                    <input id="login" type="submit" name="submit" value="Login" class="button" />
+                    <input id="register" type="submit" name="submit" value="Register" class="register" />
+                </div>
+                <!--END FOOTER-->
+
+            </div>
+            <!--END LOGIN FORM-->
+
         </div>
-        
-        
+        <!--END WRAPPER-->
+
+        <!--GRADIENT--><div class="gradient"></div><!--END GRADIENT-->
+
     </body>
 </html>

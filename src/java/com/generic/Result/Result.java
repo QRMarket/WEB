@@ -24,10 +24,13 @@ public class Result <T> implements Serializable{
     public static Result FAILURE_AUTH_WRONG;
     public static Result FAILURE_AUTH_MULTIPLE;
     public static Result FAILURE_DB;
+    public static Result FAILURE_DB_UPDATE;    
     public static Result FAILURE_DB_EFFECTED_ROW_NUM;
     public static Result FAILURE_DB_PRIMARY_KEY;
     public static Result FAILURE_PARAM_WRONG;
-    public static Result FAILURE_PARAM_MISMATCH;              
+    public static Result FAILURE_PARAM_MISMATCH; 
+    public static Result FAILURE_PROCESS; 
+    public static Result FAILURE_PROCESS_CASTING; 
     
     static{
         initializeStaticObjects(ResourceBundle.getBundle("com.generic.resources.resultProp", Locale.ENGLISH));
@@ -127,12 +130,15 @@ public class Result <T> implements Serializable{
         SUCCESS_LOGOUT              = new Result("GUPPY.090", rs.getString("result.guppy.090"));
         FAILURE_AUTH                = new Result("GUPPY.101", rs.getString("result.guppy.101"));
         FAILURE_AUTH_WRONG          = new Result("GUPPY.111", rs.getString("result.guppy.111"));
-        FAILURE_AUTH_MULTIPLE       = new Result("GUPPY.121", rs.getString("result.guppy.121"));
+        FAILURE_AUTH_MULTIPLE       = new Result("GUPPY.121", rs.getString("result.guppy.121"));        
         FAILURE_DB                  = new Result("GUPPY.201", rs.getString("result.guppy.201"));
+        FAILURE_DB_UPDATE           = new Result("GUPPY.221", rs.getString("result.guppy.221"));
         FAILURE_DB_EFFECTED_ROW_NUM = new Result("GUPPY.241", rs.getString("result.guppy.241"));
         FAILURE_DB_PRIMARY_KEY      = new Result("GUPPY.251", rs.getString("result.guppy.251"));
         FAILURE_PARAM_WRONG         = new Result("GUPPY.501", rs.getString("result.guppy.501"));
         FAILURE_PARAM_MISMATCH      = new Result("GUPPY.511", rs.getString("result.guppy.511"));
+        FAILURE_PROCESS             = new Result("GUPPY.600", rs.getString("result.guppy.600"));
+        FAILURE_PROCESS_CASTING     = new Result("GUPPY.610", rs.getString("result.guppy.610"));
     }
     
     /*Default Getters-Setters*/

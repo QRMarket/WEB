@@ -15,14 +15,27 @@ public class MarketProduct {
     private String productName;
     private String priceType;
     private double price; 
+    private double amount;
+    
+    public MarketProduct(String productID , double amount){
+        this.productID = productID;
+        this.amount = amount;
+    }
     
     public MarketProduct(String productID , String productName, String productionType , double price){
         this.productID = productID;
         this.productName = productName;
         this.priceType = productionType;
-        this.price = price;
+        this.price = price;        
     }
     
+    public MarketProduct(String productID , String productName, String productionType , double price , double amount){
+        this.productID = productID;
+        this.productName = productName;
+        this.priceType = productionType;
+        this.price = price;
+        this.amount = amount;
+    }            
 
     /**
      * @return the productID
@@ -78,6 +91,20 @@ public class MarketProduct {
      */
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    /**
+     * @return the amount
+     */
+    public double getAmount() {
+        return amount;
+    }
+
+    /**
+     * @param amount the amount to set
+     */
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
     
 }

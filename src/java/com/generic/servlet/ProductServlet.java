@@ -116,7 +116,7 @@ public class ProductServlet extends HttpServlet {
                                         
                                         if(mysqlResult.first()){
                                             
-                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("pid"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
+                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("cprID"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
                                         
                                         }else{
                                             
