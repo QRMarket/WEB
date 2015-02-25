@@ -6,12 +6,81 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Kemal Sami KARACA
  */
 public class DBOrder {
     
+    
+    /**
+     * 
+     * @return 
+     */
+    public static String orderIDGenerator(){
+        return "order_"+UUID.randomUUID().toString();
+    }
+    
+    /**
+     *   
+     * @return  
+     */
+    public static Result confirmCart(HttpSession session){
+            
+            MysqlDBOperations mysql = new MysqlDBOperations();
+                        
+            try{                                
+                ArrayList<MarketProduct> proList = (ArrayList<MarketProduct>) session.getAttribute("cduPList");
+                String query;
+                
+                // GENERATE ORDER-ID
+                String oid = orderIDGenerator();
+                
+                // GET USER-ID
+                String userID = (String) session.getAttribute("cduUserId");
+                
+                // GET CURRENT ORDERLIST ID FROM DB                 
+                query = String.format(  "INSERT INTO orders " + 
+                                        "(oid, user_id, type, date)" +
+                                        "VALUES ('%s','%s','SERVER', NOW())" , oid , userID );
+                                
+                int effectedRowNum = mysql.execUpdate(query); 
+                boolean isSuccessInsertion = (proList.size()>0);
+                if(effectedRowNum==1){                    
+                    
+                    insertionFail:
+                    for(MarketProduct pro:proList){
+                        query = String.format(  "INSERT INTO opRelation " + 
+                                        "(oid, pid, quantity)" +
+                                        "VALUES ('%s','%s',%f)" , oid , pro.getProductID() , pro.getAmount() );
+                        if(mysql.execUpdate(query)!=1){
+                            isSuccessInsertion = false;
+                            break insertionFail;
+                        }                                                    
+                    }
+                    
+                    if(isSuccessInsertion){
+                        mysql.commitAndCloseConnection();
+                        return Result.SUCCESS;
+                    }else{
+                        mysql.rollbackAndCloseConnection();
+                        return Result.FAILURE_DB_UPDATE;
+                    }
+                    
+                    
+                }else{
+                    mysql.rollbackAndCloseConnection();
+                    return Result.FAILURE_DB_UPDATE;
+                }                           
+                
+            }catch(ClassCastException e){
+                return Result.FAILURE_PROCESS_CASTING;
+            }finally{
+                mysql.closeAllConnection();
+            }                
+        
+    }
     
     /**
      * 
@@ -60,9 +129,6 @@ public class DBOrder {
         
     }
     
-    
-    
-    
     /**
      * 
      * @param uid 
@@ -99,14 +165,7 @@ public class DBOrder {
     
     
     
-    
-    /**
-     * 
-     * @return 
-     */
-    public static String orderIDGenerator(){
-        return "or_"+UUID.randomUUID().toString();
-    }
+        
     
     
     

@@ -118,6 +118,8 @@
                     console.log(jsonObj);
                     if(jsonObj['resultCode']=='GUPPY.001'){
                         $("#cartProductInfo").children().remove();
+                        
+                        $("#confirmCart").show();
                         for(i=0; i<jsonObj['content'].length; i++){                                    
                             row = '<tr>' + '<td class="info">' + jsonObj['content'][i]['productID'] +'</td>';
                             row = row + '<td class="info">' + jsonObj['content'][i]['productName'] +'</td>';
@@ -128,6 +130,8 @@
                             row = row + '</tr>'
                             $("#cartProductInfo").append(row);                                
                         }
+                    }else{
+                        alert('Current Basket empty');
                     }                                                            
                     
                 }); 
@@ -140,6 +144,7 @@
                     var jsonObj = jQuery.parseJSON( data );                      
                     console.log(jsonObj);                    
                     if(jsonObj['resultCode']=='GUPPY.001'){
+                        $("#orderSelected").children().remove();
                         for(i=0; i<jsonObj['content'].length; i++){                            
                             option = '<option>'+jsonObj['content'][i]+'</div>';
                             $("#orderSelected").append(option);
@@ -158,6 +163,7 @@
                     console.log(jsonObj);
                     if(jsonObj['resultCode']=='GUPPY.001'){
                         $("#cartProductInfo").children().remove();
+                        $("#confirmCart").css('display' , 'none');
                         for(i=0; i<jsonObj['content'].length; i++){                                    
                             row = '<tr>' + '<td class="info">' + jsonObj['content'][i]['productID'] +'</td>';
                             row = row + '<td class="info">' + jsonObj['content'][i]['productName'] +'</td>';
@@ -170,6 +176,27 @@
                         }
                     }                                                                                
                 }); 
+            });
+            
+            
+            /**
+             *******************************************************************
+             *******************************************************************
+                                CONFIRM CART OPERATION
+             ******************************************************************* 
+             *******************************************************************
+             */
+            
+            $(document).on('click', '#confirmCart' , function(){       
+                $.post('OrderServlet', {
+                    "cdosDo":"confirmOrderList"}, function(data) {             
+
+                    var jsonObj = jQuery.parseJSON( data );                      
+                    console.log(jsonObj);
+                    if(jsonObj['resultCode']=='GUPPY.001'){
+                        
+                    }                                                                                
+                });
             });
             
                                                 
@@ -225,7 +252,8 @@
                                 <tr><td class="info">Price</td><td id="tr_price"></td></tr>
                                 <tr><td class="info">Price T</td><td id="tr_priceType"></td></tr>
                                 <tr><td class="info">Image</td><td id="tr_productImage">Product Image will come</td></tr>
-                            </table>                                                
+                            </table>  
+                            
                         </div>
 
                         <div>                            
@@ -278,7 +306,8 @@
                 <div id="cartInfo" class="col-md-4" style="padding: 5px;" >
                     <table class="table table-hover" id="cartProductInfo" style="margin: 5px;">
                         
-                    </table>  
+                    </table> 
+                    <input style="margin: 5px; display: none;" id="confirmCart" class="btn btn-default" type="button" value="Confirm Cart">
                 </div>
                                 
                 

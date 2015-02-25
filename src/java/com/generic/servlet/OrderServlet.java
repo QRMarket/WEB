@@ -191,6 +191,7 @@ public class OrderServlet extends HttpServlet {
                             
                         break;
                         
+                
                         
                 //**************************************************************
                 //**************************************************************
@@ -203,6 +204,31 @@ public class OrderServlet extends HttpServlet {
                             res = session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartList((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH; 
                         
                         break;
+                        
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    GET ORDER-LISTS CASE
+                //**************************************************************
+                //**************************************************************
+                    case "confirmOrderList":                                                        
+                                                                 
+                            if(session.getAttribute("cduPList")!=null){                                                                
+                                try{                                        
+                                    res = DBOrder.confirmCart(session);
+                                    if(res.checkResult(Result.SUCCESS)){
+                                        session.setAttribute("cduPList",null);
+                                    }
+                                }catch(ClassCastException e){
+                                    res = Result.FAILURE_PROCESS_CASTING;
+                                }                                    
+                            }else{
+                                res = Result.SUCCESS_EMPTY;
+                            }                            
+                        
+                        break;
+                        
                         
                         
                 //**************************************************************
