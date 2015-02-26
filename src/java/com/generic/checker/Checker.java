@@ -46,10 +46,10 @@ public class Checker {
      * 
      * This function check that any parameter is null 
      */
-    public static boolean anyParameterNull(String... args){
+    public static <T> boolean anyNull(T... args){
         
         boolean notNull=true;
-        for(String arg:args)
+        for(T arg:args)
             notNull = notNull && ( arg!=null );
                 
         return !notNull;

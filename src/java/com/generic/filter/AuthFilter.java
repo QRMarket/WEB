@@ -5,6 +5,8 @@
  */
 package com.generic.filter;
 
+import com.generic.checker.Checker;
+import com.generic.util.Guppy;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -25,7 +27,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Kemal Sami KARACA
  */
-@WebFilter(filterName = "AuthFilter", urlPatterns = {"/*"})
+//@WebFilter(filterName = "AuthFilter", urlPatterns = {"/*"})
 public class AuthFilter implements Filter {
     
     private static final boolean debug = true;
@@ -101,50 +103,56 @@ public class AuthFilter implements Filter {
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet error occurs
+     * 
+     * This filter is used for authentication therefore it will be checked every page
+     *      -1- 
+     * 
      */
     public void doFilter(ServletRequest request, ServletResponse response,
                     FilterChain chain)
                     throws IOException, ServletException {
         
+            System.out.println("AuthFilter CALLED");            
+        
             HttpServletRequest req  = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
-            HttpSession session     = req.getSession(false);                                
-
-            String loginPage = "login.jsp";        
-            String testPanel = "testPanel.jsp";
-            String uri = req.getRequestURI();          
+            HttpSession session     = req.getSession(false);
+            
+            String uri = req.getRequestURI();  
+            Cookie[] cookies = req.getCookies();
             boolean isAuth = false;                                     
             
             if(session!=null && (uri.endsWith("jsp") || uri.endsWith("html") || uri.endsWith("/QR_Market_Web/"))){
-                
-                System.out.println(uri);
-                
-                Cookie[] cookies = req.getCookies(); 
-                Cookie cduCookie=null;
-                String cduToken = (String) session.getAttribute("cduToken");
                 if(cookies != null){
+                    
+                    Cookie cduCookie=null;
+                    String cduToken = (String) session.getAttribute("cduToken");
+                    
                     for(Cookie cookie : cookies){
                         if(cookie.getName().equalsIgnoreCase("cduToken")){
                             cduCookie = cookie;
                         }
                     }                                
 
-                    if(cduCookie!=null && cduToken!=null ){
+                    if(!Checker.anyNull(cduCookie,cduToken)){
                         if(cduCookie.getValue().equalsIgnoreCase(cduToken)){                        
                             isAuth = true;
                         }
-                    }              
+                    }                       
                 }
 
                 if(!isAuth && !uri.endsWith("login.jsp")){                       
-                    res.sendRedirect(loginPage);
-                }else if(isAuth && (uri.endsWith("login.jsp") || uri.endsWith("/QR_Market_Web/"))){
-                    res.sendRedirect(testPanel);
-                }
+                    res.sendRedirect(Guppy.page_login);
+                }else if(isAuth){
+                                        
+                    if( uri.endsWith("login.jsp") || uri.endsWith("/QR_Market_Web/") ){
+                        res.sendRedirect(Guppy.page_userMain);
+                    }
+                }                
                 
             }
             
-            chain.doFilter(request, response);                    
+            chain.doFilter(request, response);
         
     }
 

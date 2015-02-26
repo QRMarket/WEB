@@ -43,7 +43,7 @@ public class DBOrder {
                 // GET CURRENT ORDERLIST ID FROM DB                 
                 query = String.format(  "INSERT INTO orders " + 
                                         "(oid, user_id, type, date)" +
-                                        "VALUES ('%s','%s','SERVER', NOW())" , oid , userID );
+                                        "VALUES ('%s','%s','UNDELIVERED', NOW())" , oid , userID );
                                 
                 int effectedRowNum = mysql.execUpdate(query); 
                 boolean isSuccessInsertion = (proList.size()>0);

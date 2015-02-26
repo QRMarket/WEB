@@ -5,14 +5,6 @@
  */
 package com.generic.util;
 
-import com.generic.db.MysqlDBOperations;
-import com.generic.result.Result;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author Kemal Sami KARACA

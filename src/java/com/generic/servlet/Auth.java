@@ -9,6 +9,7 @@ import com.generic.checker.Checker;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Guppy;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -122,12 +123,21 @@ public class Auth extends HttpServlet {
                                             session.setAttribute("cduToken", token);
                                             session.setAttribute("cduName", request.getParameter("cduMail"));
                                             session.setAttribute("cduUserId", mysqlResult.getString("mu_id"));      // Add product to order-list durumunda kullanılmaktadır
+                                            session.setAttribute("cduType", mysqlResult.getString("mu_type"));
                                             response.addCookie(new Cookie("cduToken", token));
                                             res = Result.SUCCESS.setContent(session.getAttribute("cduToken"));
+                                            
+                                            String redirectURL="";
+                                            if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
+                                                redirectURL = Guppy.page_userMain;
+                                            }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
+                                                redirectURL = Guppy.page_marketMain;
+                                            }                                                                                        
+                                            response.sendRedirect(redirectURL);  
+                                            
                                         }else{
                                             res = Result.FAILURE_AUTH_MULTIPLE;
-                                        }
-                                        
+                                        }                                        
                                         
                                     }else{
 

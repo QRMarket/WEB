@@ -106,7 +106,7 @@ public class OrderServlet extends HttpServlet {
 
                             String cdpUID = request.getParameter("cdpUID");
                             String cdpAmount = request.getParameter("cdpAmount");
-                            if(!Checker.anyParameterNull(cdpUID,cdpAmount)){                                
+                            if(!Checker.anyNull(cdpUID,cdpAmount)){                                
                                 /**
                                  * IF session exist "cduPlist" value
                                  *      -1.1-get "cduPList" arraylist

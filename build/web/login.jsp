@@ -28,22 +28,22 @@
                     });
             });
             
-            $(document).on("click" , "#login" , function(){                  
-                $.post('Auth', { 
-                    "authDo":"carpeLogin",
-                    "cduMail":$('#userMail').val(),
-                    "cduPass":$('#userPass').val()}, function(data) {             
-
-                    var jsonObj = jQuery.parseJSON( data );  
-                    console.log(jsonObj);
-                    if(jsonObj['resultCode']==='GUPPY.001'){                           
-                        $('#productServletTest').css('display','visible');
-                        window.location.href = "testPanel.jsp";
-                    }else{
-                        $('#loginInfo').html("Username or Password Wrong!!!");                        
-                    }
-                });                
-            });
+//            $(document).on("click" , "#login" , function(){                  
+//                $.post('Auth', { 
+//                    "authDo":"carpeLogin",
+//                    "cduMail":$('#userMail').val(),
+//                    "cduPass":$('#userPass').val()}, function(data) {             
+//
+//                    var jsonObj = jQuery.parseJSON( data );  
+//                    console.log(jsonObj);
+//                    if(jsonObj['resultCode']==='GUPPY.001'){                           
+//                        $('#productServletTest').css('display','visible');
+//                        window.location.href = "testPanel.jsp";
+//                    }else{
+//                        $('#loginInfo').html("Username or Password Wrong!!!");                        
+//                    }
+//                });                
+//            });
         </script>
 
     </head>
@@ -58,7 +58,7 @@
             <!--END SLIDE-IN ICONS-->
 
             <!--LOGIN FORM-->
-            <div class="login-form" >
+            <form action="Auth?authDo=carpeLogin" method="POST" class="login-form" >
 
                 <!--HEADER-->
                 <div class="header">
@@ -70,8 +70,8 @@
 
                 <!--CONTENT-->
                 <div class="content">
-                    <input id="userMail" name="username" type="text" class="input username" value="Username" onfocus="this.value = ''" />
-                    <input id="userPass" name="password" type="password" class="input password" value="Password" onfocus="this.value = ''" />
+                    <input id="userMail" name="cduMail" type="text" class="input username" value="Username" onfocus="this.value = ''" />
+                    <input id="userPass" name="cduPass" type="password" class="input password" value="Password" onfocus="this.value = ''" />
                 </div>
                 <!--END CONTENT-->
 
@@ -82,7 +82,7 @@
                 </div>
                 <!--END FOOTER-->
 
-            </div>
+            </form>
             <!--END LOGIN FORM-->
 
         </div>
