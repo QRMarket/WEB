@@ -10,8 +10,7 @@ package com.generic.util;
  * @author Kemal Sami KARACA
  */
 public class Guppy {
-    
-    
+        
     public static String page_login         = "login.jsp";
     public static String page_userMain      = "testPanel.jsp";
     public static String page_marketMain    = "marketPanel.jsp";

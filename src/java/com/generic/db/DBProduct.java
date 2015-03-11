@@ -15,8 +15,7 @@ import java.util.ArrayList;
  *
  * @author Kemal Sami KARACA
  */
-public class DBProduct {
-    
+public class DBProduct {       
     
     /**
      *       
@@ -33,18 +32,35 @@ public class DBProduct {
                 // PREPARE QUERY                
                 query = String.format(  "SELECT * FROM cpRelation " +                                        
                                         "INNER JOIN products ON cpRelation.p_id=products.pid " + 
-                                        "AND cprID='%s'" , pUID);                                
+                                        "AND cprID='%s'" , pUID);
                 
                 ResultSet mysqlResult = mysql.getResultSet(query);
                 
                 String pId,pName,ppType;
+                String p_id;
                 double pQuantity,pPrice;
-                if(mysqlResult.first()){                    
+                if(mysqlResult.first()){
+                        p_id = mysqlResult.getString("p_id");
                         pId = mysqlResult.getString("cprID");
                         pName = mysqlResult.getString("productName");
-                        ppType = mysqlResult.getString("productPriceType");                                              
-                        pPrice = mysqlResult.getDouble("p_price");                                     
-                        product = new MarketProduct(pId, pName, ppType, pPrice);                                        
+                        ppType = mysqlResult.getString("productPriceType");
+                        pPrice = mysqlResult.getDouble("p_price");
+                        product = new MarketProduct(pId, pName, ppType, pPrice);
+                        
+                        
+                        // After get production then we will take product images                          
+                        query = String.format(  "SELECT imageID FROM piRelation " + 
+                                                "WHERE productID='%s'" , p_id);
+                                                
+                        mysqlResult = mysql.getResultSet(query);
+                        if(mysqlResult.first()){       
+                            
+                            do{                                
+                                product.getImages().add(mysqlResult.getString("imageID"));
+                            }while(mysqlResult.next());
+                            
+                        }
+                    
                     return Result.SUCCESS.setContent(product);
                 
                 }else{

@@ -28,27 +28,13 @@
                     });
             });
             
-//            $(document).on("click" , "#login" , function(){                  
-//                $.post('Auth', { 
-//                    "authDo":"carpeLogin",
-//                    "cduMail":$('#userMail').val(),
-//                    "cduPass":$('#userPass').val()}, function(data) {             
-//
-//                    var jsonObj = jQuery.parseJSON( data );  
-//                    console.log(jsonObj);
-//                    if(jsonObj['resultCode']==='GUPPY.001'){                           
-//                        $('#productServletTest').css('display','visible');
-//                        window.location.href = "testPanel.jsp";
-//                    }else{
-//                        $('#loginInfo').html("Username or Password Wrong!!!");                        
-//                    }
-//                });                
-//            });
         </script>
 
     </head>
     <body>
 
+        
+        
         <!--WRAPPER-->
         <div id="wrapper">
 

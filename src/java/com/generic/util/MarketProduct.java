@@ -5,6 +5,8 @@
  */
 package com.generic.util;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Kemal Sami KARACA
@@ -16,10 +18,12 @@ public class MarketProduct {
     private String priceType;
     private double price; 
     private double amount;
+    private ArrayList<String> images;
     
     public MarketProduct(String productID , double amount){
         this.productID = productID;
         this.amount = amount;
+        this.images = new ArrayList();
     }
     
     public MarketProduct(String productID , String productName, String productionType , double price){
@@ -27,6 +31,7 @@ public class MarketProduct {
         this.productName = productName;
         this.priceType = productionType;
         this.price = price;        
+        this.images = new ArrayList();
     }
     
     public MarketProduct(String productID , String productName, String productionType , double price , double amount){
@@ -35,6 +40,7 @@ public class MarketProduct {
         this.priceType = productionType;
         this.price = price;
         this.amount = amount;
+        this.images = new ArrayList();
     }            
 
     /**
@@ -105,6 +111,20 @@ public class MarketProduct {
      */
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    /**
+     * @return the images
+     */
+    public ArrayList<String> getImages() {
+        return images;
+    }
+
+    /**
+     * @param images the images to set
+     */
+    public void setImages(ArrayList<String> images) {
+        this.images = images;
     }
     
 }

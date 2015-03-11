@@ -17,7 +17,8 @@ public class ResourceProperty{
     
     
     private String propertyName;                // kullanılacak propery dosyasının ismi
-    private static ResourceBundle rsBundle;     
+    private static ResourceBundle rsBundle;          
+    
     
     // **********************
     // CONSTRUCTOR

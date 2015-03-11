@@ -5,6 +5,7 @@
  */
 package com.generic.servlet;
 
+import com.generic.db.DBProduct;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Kemal Sami KARACA
  * @version 1.001 
+ * 
  *      This servlet will be used to manage production data
  */
 @WebServlet(name = "ProductServlet", urlPatterns = {"/ProductServlet"})
@@ -82,7 +84,7 @@ public class ProductServlet extends HttpServlet {
         while(enume.hasMoreElements()){
             String key = enume.nextElement();
             System.out.println("Incoming parameter --> " + key + " :: " + request.getParameter(key));
-        }
+        }        
         
         try {
             
@@ -98,34 +100,37 @@ public class ProductServlet extends HttpServlet {
 
                             if(request.getParameter("cdpUID")!=null){
 
-                                    System.out.println("--> /ProductServlet?cdpsDo=getProduct&cdpUID="+request.getParameter("cdpUID")); 
-                                    String query  = String.format( resource.getPropertyValue("selectProductByUID") , request.getParameter("cdpUID"));
-                                    System.out.println("--> " + query);
-
-                                    /**
-                                     * If resultSet is empty -> there is not any product with that id
-                                     * else if resultSet size is equals 1 -> product exist 
-                                     * else resultSet size > 1 -> multiple row returned
-                                     */
-                                    ResultSet mysqlResult = mysql.getResultSet(query);
-                                    if(mysql.resultSetIsEmpty()){       
-
-                                        res = Result.FAILURE_AUTH_WRONG;
-                                        
-                                    }else if(mysql.getResultSetSize()==1){                                                  
-                                        
-                                        if(mysqlResult.first()){
-                                            
-                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("cprID"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
-                                        
-                                        }else{
-                                            
-                                        }                                                                                
-                                        
-                                    }else{
-
-                                        res = Result.FAILURE_AUTH_MULTIPLE;
-                                    }                                    
+//                                    System.out.println("--> /ProductServlet?cdpsDo=getProduct&cdpUID="+request.getParameter("cdpUID")); 
+//                                    String query  = String.format( resource.getPropertyValue("selectProductByUID") , request.getParameter("cdpUID"));
+//                                    System.out.println("--> " + query);
+//
+//                                    /**
+//                                     * If resultSet is empty -> there is not any product with that id
+//                                     * else if resultSet size is equals 1 -> product exist 
+//                                     * else resultSet size > 1 -> multiple row returned
+//                                     */
+//                                    ResultSet mysqlResult = mysql.getResultSet(query);
+//                                                                                                            
+//                                    if(mysql.resultSetIsEmpty()){       
+//
+//                                        res = Result.FAILURE_AUTH_WRONG;
+//                                        
+//                                    }else if(mysql.getResultSetSize()==1){                                                  
+//                                        
+//                                        if(mysqlResult.first()){
+//                                            
+//                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("cprID"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
+//                                        
+//                                        }else{
+//                                            
+//                                        }                                                                                
+//                                        
+//                                    }else{
+//
+//                                        res = Result.FAILURE_AUTH_MULTIPLE;
+//                                    }         
+                                    
+                                    res = DBProduct.getProductInfo(request.getParameter("cdpUID"));
 
                             }else{
                                     res = Result.FAILURE_PARAM_MISMATCH;
@@ -139,6 +144,8 @@ public class ProductServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "addProduct":
+                        System.out.println("DENEME DENEME");
+                        res = Result.SUCCESS;
                         break;
                         
                         
@@ -165,8 +172,6 @@ public class ProductServlet extends HttpServlet {
                 res = Result.FAILURE_PARAM_MISMATCH;
             }
          
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
         }finally{                        
                                                 
             mysql.closeAllConnection();

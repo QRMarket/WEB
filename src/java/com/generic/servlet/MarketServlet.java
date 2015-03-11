@@ -6,11 +6,20 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.db.DBOrder;
+import com.generic.db.DBProduct;
+import com.generic.db.MysqlDBOperations;
+import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.MarketProduct;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,6 +31,10 @@ import javax.servlet.http.HttpSession;
 /**
  *
  * @author Kemal Sami KARACA
+ * @since 10.03.2015
+ * @version 1.01
+ * 
+ * @last 10.03.2015
  */
 @WebServlet(name = "MarketServlet", urlPatterns = {"/MarketServlet"})
 public class MarketServlet extends HttpServlet {
@@ -39,35 +52,136 @@ public class MarketServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");        
         PrintWriter out = response.getWriter();
-        
+                
+        /**
+         * cdmsDO   :: addMarket
+         *              --> cdmID         
+         *          :: getMarket
+         *              --> cdmID
+         *          :: deleteMarket
+         *              --> cdmID
+         *
+         * 
+         * !! SHORTCUTs !!
+         * carpe diem market            --> cdm
+         * carpe diem market servlet    --> cdms        
+         *
+         */
         HttpSession session = request.getSession(false);
-        Gson gson = new Gson();        
+        Gson gson = new Gson();
+        MysqlDBOperations mysql = new MysqlDBOperations();
+        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
+        Result res = Result.FAILURE_PROCESS;
+        Map resultMap = new HashMap();
         
-        try{
-           
-            if(Checker.isAuth(request)){
-                session.setAttribute("MarketServlet", "edit by MarketServlet");
-                System.out.println("Session exist");
-            }else{                
-                session = request.getSession(true);
-                session.setAttribute("cduToken", UUID.randomUUID().toString());
-                System.out.println("Session does not exist");
-            }
+        
+        
+        //verbose(request);
+        
+        
+        
+        //**********************************************************************
+        //**********************************************************************
+        //**                 STRIKE UP SERVLET OPERATION
+        //**********************************************************************
+        //**********************************************************************
+        try {
             
-            if(false){                            
-                Enumeration<String> headerKeys = request.getHeaderNames();
-                while(headerKeys.hasMoreElements()){
-                    String keys = headerKeys.nextElement();
-                    System.out.println("\nkey:" + keys + " \nvalue:"+request.getHeader(keys)+ "\n--" );
-                }                
-            }
             
+                        
+            if(request.getParameter("cdmsDO")!=null){                 
+                switch(request.getParameter("cdmsDO")){ 
+                    
+                //**************************************************************
+                //**************************************************************
+                //**                    ADD TO MARKET CASE
+                //**************************************************************
+                //**************************************************************
+                    case "addMarket": 
+                        
+                            resultMap.put("ss1", "ccc");
+                            resultMap.put("ss2", "ddd");
+                            res = Result.SUCCESS.setContent(resultMap);
+
+                        break;
+                        
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                GET MARKET CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getMarket":                                                        
+                                                        
+                                                                                   
+                            
+                        break;
+                        
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                REMOVE MARKET CASE
+                //**************************************************************
+                //**************************************************************
+                    case "deleteMarket":
+                                                                            
+                            
+                            
+                        break;
+                        
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    DEFAULT CASE
+                //**************************************************************
+                //**************************************************************
+                    default:
+                        res = Result.FAILURE_PARAM_WRONG;
+                        break;
+                }
+
+            }else{
+                res = Result.FAILURE_PARAM_MISMATCH;
+            }
+         
         }finally{                        
                         
-            out.write(gson.toJson(Result.SUCCESS.setContent(session)));
+            mysql.closeAllConnection();
+            out.write(gson.toJson(res));
             out.close();
+            
+        }
+        
+    }
+    
+    
+    /**
+     * 
+     * @param request 
+     */
+    public void verbose(HttpServletRequest request){
+        Enumeration<String> enume = request.getParameterNames();
+        while(enume.hasMoreElements()){
+            String key = enume.nextElement();
+            System.out.println("Incoming parameter  --> " + key + " :: " + request.getParameter(key));
+        }
+            System.out.println("URL                 --> " + request.getScheme() + "://" + 
+                                                            request.getServerName() +":"+
+                                                            request.getServerPort() +
+                                                            request.getRequestURI() + 
+                                                            (request.getQueryString()==null?"":"?" + request.getQueryString()) );
+            
+        Enumeration<String> enumeHeader = request.getHeaderNames();
+        while(enumeHeader.hasMoreElements()){
+            String headerKey = enumeHeader.nextElement();            
+            System.out.println( "HEADER -- " + headerKey + " :: " + request.getHeader(headerKey));
         }
     }
+    
+    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

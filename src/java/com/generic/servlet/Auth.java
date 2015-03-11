@@ -10,6 +10,7 @@ import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.Guppy;
+import com.generic.util.MarketUser;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -83,11 +84,19 @@ public class Auth extends HttpServlet {
          * 
          *  
          */
+/*
         Enumeration<String> enume = request.getParameterNames();
         while(enume.hasMoreElements()){
             System.out.println("Incoming parameters :: " + enume.nextElement());
         }
-                
+        
+        Enumeration<String> enumeHeader = request.getHeaderNames();
+        while(enumeHeader.hasMoreElements()){
+            String headerKey = enumeHeader.nextElement();            
+            System.out.println( headerKey + " :: " + request.getHeader(headerKey));
+        }
+*/        
+        
         try{                                    
             
             if(request.getParameter("authDo")!=null){                 
@@ -125,15 +134,31 @@ public class Auth extends HttpServlet {
                                             session.setAttribute("cduUserId", mysqlResult.getString("mu_id"));      // Add product to order-list durumunda kullanılmaktadır
                                             session.setAttribute("cduType", mysqlResult.getString("mu_type"));
                                             response.addCookie(new Cookie("cduToken", token));
-                                            res = Result.SUCCESS.setContent(session.getAttribute("cduToken"));
                                             
-                                            String redirectURL="";
-                                            if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
-                                                redirectURL = Guppy.page_userMain;
-                                            }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
-                                                redirectURL = Guppy.page_marketMain;
-                                            }                                                                                        
-                                            response.sendRedirect(redirectURL);  
+                                            MarketUser loginUser = new MarketUser();
+                                            loginUser.setUserMail(request.getParameter("cduMail"));
+                                            loginUser.setUserName(mysqlResult.getString("mu_name"));
+                                            loginUser.setUserToken(token);
+                                            loginUser.setUserSession(session.getId());
+                                            res = Result.SUCCESS.setContent(loginUser);
+                                            
+                                            // For PC OPERATION
+                                            if(request.getHeader("User-Agent").indexOf("Mobile") == -1 && false) {
+                                                
+                                                String redirectURL="";
+                                                if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
+                                                    redirectURL = Guppy.page_userMain;
+                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
+                                                    redirectURL = Guppy.page_marketMain;
+                                                }                                                                                        
+                                                response.sendRedirect(redirectURL);  
+                                               
+                                            // Web Application
+                                            } else {
+                                              
+                                            }
+                                            
+                                            
                                             
                                         }else{
                                             res = Result.FAILURE_AUTH_MULTIPLE;

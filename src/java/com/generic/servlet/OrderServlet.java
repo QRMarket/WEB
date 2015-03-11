@@ -66,7 +66,7 @@ public class OrderServlet extends HttpServlet {
         Gson gson = new Gson();
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Result res = Result.SUCCESS_EMPTY;
+        Result res = Result.FAILURE_PROCESS;
         
         
         /**
@@ -87,6 +87,12 @@ public class OrderServlet extends HttpServlet {
         while(enume.hasMoreElements()){
             String key = enume.nextElement();
             System.out.println("Incoming parameter --> " + key + " :: " + request.getParameter(key));
+        }
+        
+        Enumeration<String> enumeHeader = request.getHeaderNames();
+        while(enumeHeader.hasMoreElements()){
+            String headerKey = enumeHeader.nextElement();            
+            System.out.println( headerKey + " :: " + request.getHeader(headerKey));
         }
         
         
@@ -127,7 +133,7 @@ public class OrderServlet extends HttpServlet {
                                             session.setAttribute("cduPList", pList); 
                                             
                                             // set result
-                                            res = Result.SUCCESS;
+                                            res = Result.SUCCESS.setContent(y);
                                         }
                                         
                                     }catch(ClassCastException e){
@@ -146,7 +152,7 @@ public class OrderServlet extends HttpServlet {
                                         session.setAttribute("cduPList", pList);
                                         
                                         // set result
-                                        res = Result.SUCCESS;
+                                        res = Result.SUCCESS.setContent(y);
                                     }                                    
                                 }
                                 

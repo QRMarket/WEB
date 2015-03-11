@@ -26,6 +26,10 @@
     
     
     <servlet>
+        <servlet-name>AddressServlet</servlet-name>
+        <servlet-class>com.generic.servlet.AddressServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MarketServlet</servlet-name>
         <servlet-class>com.generic.servlet.MarketServlet</servlet-class>
     </servlet>

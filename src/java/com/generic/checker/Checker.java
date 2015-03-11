@@ -5,6 +5,7 @@
  */
 package com.generic.checker;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -29,12 +30,22 @@ public class Checker {
     public static boolean isAuth(HttpServletRequest request){
         
         HttpSession session = request.getSession(false);
-        String token = request.getParameter("cdu-token");
-        if(session!=null){            
-            if(session.getAttribute("cduToken")!=null && token!=null){
-                return ((String)session.getAttribute("cduToken")).equalsIgnoreCase(token);
-            }                       
-        }        
+        Cookie[] cookies = request.getCookies();
+        
+        if(cookies != null){
+                    
+            Cookie cduCookie=null;
+            String cduToken = (String) session.getAttribute("cduToken");            
+
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equalsIgnoreCase("cduToken")){
+                    cduCookie = cookie;
+                }
+            }                                            
+
+            return !Checker.anyNull(cduCookie,cduToken) ? cduCookie.getValue().equalsIgnoreCase(cduToken):false;            
+        }
+        
         return false;        
     }
     

@@ -105,7 +105,7 @@ public class AuthFilter implements Filter {
      * @exception ServletException if a servlet error occurs
      * 
      * This filter is used for authentication therefore it will be checked every page
-     *      -1- 
+     *      -1- If request source is mobile then 
      * 
      */
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -116,7 +116,7 @@ public class AuthFilter implements Filter {
         
             HttpServletRequest req  = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
-            HttpSession session     = req.getSession(false);
+            HttpSession session     = req.getSession(false);                                                
             
             String uri = req.getRequestURI();  
             Cookie[] cookies = req.getCookies();
