@@ -90,6 +90,13 @@ public class ProductAddServlet extends HttpServlet {
         Result res = Result.FAILURE_PROCESS; 
         
         
+        System.out.println(request.getContentType());
+        out.write(gson.toJson(Result.FAILURE_DB));
+        out.close();            
+    
+    if(1==0){
+        
+    
         try{            
             DiskFileItemFactory factory = new DiskFileItemFactory();
             factory.setSizeThreshold(maxMemSize);
@@ -159,6 +166,8 @@ public class ProductAddServlet extends HttpServlet {
             out.write(gson.toJson(res));
             out.close();            
         }
+        
+    }
     }
     
     
