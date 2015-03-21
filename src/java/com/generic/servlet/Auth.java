@@ -5,8 +5,10 @@
  */
 package com.generic.servlet;
 
+
 import com.generic.checker.Checker;
 import com.generic.db.MysqlDBOperations;
+import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.Guppy;
@@ -32,6 +34,10 @@ import javax.servlet.http.HttpSession;
 /**
  *
  * @author Kemal Sami KARACA
+ * @since 02.2015
+ * @version 1.01
+ * 
+ * @last 12.03.2015
  */
 @WebServlet(name = "Auth", urlPatterns = {"/Auth"})
 public class Auth extends HttpServlet {
@@ -84,18 +90,10 @@ public class Auth extends HttpServlet {
          * 
          *  
          */
-/*
-        Enumeration<String> enume = request.getParameterNames();
-        while(enume.hasMoreElements()){
-            System.out.println("Incoming parameters :: " + enume.nextElement());
-        }
         
-        Enumeration<String> enumeHeader = request.getHeaderNames();
-        while(enumeHeader.hasMoreElements()){
-            String headerKey = enumeHeader.nextElement();            
-            System.out.println( headerKey + " :: " + request.getHeader(headerKey));
-        }
-*/        
+        //LoggerGuppy.verboseURL(request);
+        //LoggerGuppy.verboseHeader(request);
+        
         
         try{                                    
             
@@ -142,18 +140,24 @@ public class Auth extends HttpServlet {
                                             loginUser.setUserSession(session.getId());
                                             res = Result.SUCCESS.setContent(loginUser);
                                             
-                                            // For PC OPERATION
-                                            if(request.getHeader("User-Agent").indexOf("Mobile") == -1 && false) {
+                                            // Web Application
+                                            if(Checker.isUserAgentMobileApp(request)){                                                
+                                            
+                                            // For BROWSER OPERATION
+                                            }else if(Checker.isUserAgentBrowser(request)) {
                                                 
                                                 String redirectURL="";
                                                 if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
                                                     redirectURL = Guppy.page_userMain;
                                                 }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
                                                     redirectURL = Guppy.page_marketMain;
-                                                }                                                                                        
+                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("ADMIN")){
+                                                    redirectURL = Guppy.page_adminPanel;
+                                                }
+                                                
                                                 response.sendRedirect(redirectURL);  
                                                
-                                            // Web Application
+                                            // UNKNOWN
                                             } else {
                                               
                                             }

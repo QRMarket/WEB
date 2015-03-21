@@ -27,6 +27,10 @@ import javax.servlet.http.HttpSession;
 /**
  *
  * @author Kemal Sami KARACA
+ * @since 02.2015
+ * @version 1.01
+ * 
+ * @last 12.03.2015
  */
 
 @WebServlet(name = "OrderServlet", urlPatterns = {"/OrderServlet"})

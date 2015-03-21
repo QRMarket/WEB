@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
  */
 
 //@WebFilter(filterName = "AuthFilter", urlPatterns = {"/marketPanel.jsp"})
-public class AuthFilter_Market implements Filter {
+public class AuthFilter_Permission implements Filter {
     
     private static final boolean debug = true;
 
@@ -38,7 +38,7 @@ public class AuthFilter_Market implements Filter {
     // configured. 
     private FilterConfig filterConfig = null;
     
-    public AuthFilter_Market() {
+    public AuthFilter_Permission() {
     }    
     
     // <editor-fold defaultstate="collapsed" desc="doBeforeProcessing && doAfterProcessing methods.">
@@ -109,42 +109,20 @@ public class AuthFilter_Market implements Filter {
      */
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
-            throws IOException, ServletException {
-        
-            System.out.println("AuthFilter_Market CALLED");
+            throws IOException, ServletException {                    
         
             HttpServletRequest req  = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
             HttpSession session     = req.getSession(false);                                
-                                      
-            Cookie[] cookies = req.getCookies();
-            boolean isAuth = false;                                                                         
+                                
             
-            if(session!=null){
-                if(cookies != null){
-                    
-                    Cookie cduCookie=null;
-                    String cduToken = (String) session.getAttribute("cduToken");
-                    String userType = (String) session.getAttribute("cduType");
-                                        
-                    for(Cookie cookie : cookies){
-                        if(cookie.getName().equalsIgnoreCase("cduToken")){
-                            cduCookie = cookie;
-                        }
-                    }                                
-
-                    if(cduCookie!=null && cduToken!=null ){
-                        boolean checkUserType = userType.equalsIgnoreCase("DEALER") || userType.equalsIgnoreCase("MARKETADMIN");
-                        isAuth = cduCookie.getValue().equalsIgnoreCase(cduToken) && checkUserType;
-                    }              
-                }
-
-                if(!isAuth){                       
-                    res.sendRedirect(Guppy.page_userMain);
-                }
-                
+            System.out.println("AuthFilter_Market CALLED");
+            
+            // THIS FILTER REQUIRE TO BE AUTHENTICATE THEREFORE IF NOT RETURN 
+            if(Checker.isAuth(req, session)){
+                                                
             }
-            
+                            
             chain.doFilter(request, response); 
     }
 

@@ -9,7 +9,12 @@ import java.util.UUID;
 import javax.servlet.http.HttpSession;
 
 /**
+ *
  * @author Kemal Sami KARACA
+ * @since 02.2015
+ * @version 1.01
+ * 
+ * @last 11.03.2015
  */
 public class DBOrder {
     
@@ -19,7 +24,7 @@ public class DBOrder {
      * @return 
      */
     public static String orderIDGenerator(){
-        return "order_"+UUID.randomUUID().toString();
+        return "order-"+UUID.randomUUID().toString();
     }
     
     /**

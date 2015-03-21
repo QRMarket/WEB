@@ -112,21 +112,51 @@
                             }                        
                         }
                     });
-        
-        
-        
-                    $.post('MarketServlet', {                         
+                                                               
+            }); 
+            
+            
+            
+            //**************************************************************
+            //**************************************************************
+            //**                PREPARE GET MARKET PANEL
+            //**************************************************************
+            //**************************************************************
+            $(document).on('click', '#cp_MARKET_GET_LIST' , function(event){
+                                        
+                    // GET CITIES FROM ADDRESS SERVLET
+                    $.post('MarketServlet', {
+                        "cdmsDO":"getMarketList"}, function(data) {
+                        
+                        var jsonObj = jQuery.parseJSON( data );                          
+                        if(jsonObj['resultCode']==='GUPPY.001'){    
+                            for(m=0; m<jsonObj['content'].length; m++){
+                                $("#marketList").append('<option value="'+jsonObj['content'][m]+'">'+jsonObj['content'][m]+'</option>"');
+                            }                        
+                        }
+                    });                                                                                                       
+            }); 
+            
+            
+            //**************************************************************
+            //**************************************************************
+            //**                ACTION AREA
+            //**************************************************************
+            //**************************************************************
+            
+            $(document).on('click', '#action_market_add' , function(event){
+                
+                $.post('MarketServlet', {                         
                         "cdmsDO":"addMarket"}, function(data) {
                         
                         var jsonObj = jQuery.parseJSON( data );  
                         console.log(jsonObj);
                         if(jsonObj['resultCode']==='GUPPY.001'){                                                             
-                            
-                            
+                            alert("Market add called");
+                        
                         }
-                    });                    
-            });            
-            
+                    }); 
+            });
                                                 
         </script>
         
@@ -198,8 +228,13 @@
                     </div>
                 </div>
                 
+                <button id="action_market_add" type="button" class="btn btn-primary">ADD</button>
+                
             </div>
                                     
+            
+            
+            
             
             <!--
             ********************************************************************
@@ -209,8 +244,98 @@
             ********************************************************************
             -->
             <div id="cp_MARKET_GET_LIST_ROW" class="row" style="display: none;">
-                Market get list
+                
+                
+                <div class="panel panel-default panel-primary">
+                    <div class="panel-heading">
+                        Market List
+                    </div>
+                    
+                    <div class="panel-body">                        
+                        
+                        <label for="marketList">Select Locality</label>
+                        <select id="marketList" class="form-control"></select>
+                        
+                    </div>
+                    
+                    <div class="panel-footer">
+                        <button id="marketGet" type="button" class="btn btn-primary">GET MARKET</button>  
+                    </div>
+                </div>
+                
+                
+                <div class="panel panel-default panel-success">
+                    <div class="panel-heading panel-title">
+                        Market INFO PANEL
+                    </div>
+                    
+                    <div class="panel-body">                        
+                        
+                        
+                        
+                        <label for="marketList">Address List</label>                        
+                        <table class="table table-condensed">
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                        </table>                        
+                        
+                        <br>
+                        <label for="marketList">Worker List</label>
+                        <table class="table table-condensed">
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                        </table>
+                        
+                        <br>
+                        <label for="marketList">Order List</label>
+                        <table class="table table-condensed">
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                        </table>
+                        
+                    </div>
+                    
+                    <div class="panel-footer">
+                        <label for="marketList">Select Locality</label>
+                        
+                    </div>
+                </div>
+                
             </div>
+            
+            
+            
+            
             
             <!--
             ********************************************************************
@@ -223,9 +348,6 @@
                 Market EDIT
             </div>
                         
-            
-            
-                                    
             
         </div>
         

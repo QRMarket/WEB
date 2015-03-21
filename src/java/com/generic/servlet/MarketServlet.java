@@ -6,12 +6,16 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.db.DBMarket;
 import com.generic.db.DBOrder;
 import com.generic.db.DBProduct;
+import com.generic.db.DBUser;
 import com.generic.db.MysqlDBOperations;
+import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,7 +38,7 @@ import javax.servlet.http.HttpSession;
  * @since 10.03.2015
  * @version 1.01
  * 
- * @last 10.03.2015
+ * @last 11.03.2015
  */
 @WebServlet(name = "MarketServlet", urlPatterns = {"/MarketServlet"})
 public class MarketServlet extends HttpServlet {
@@ -55,15 +59,19 @@ public class MarketServlet extends HttpServlet {
                 
         /**
          * cdmsDO   :: addMarket
-         *              --> cdmID         
+         *              --> cdmaCity
+         *              --> cdmaBorough
+         *              --> cdmaLocality
+         *              --> cdmCompany
          *          :: getMarket
-         *              --> cdmID
+         *              --> cdmID (OPTIONAL)
          *          :: deleteMarket
          *              --> cdmID
          *
          * 
          * !! SHORTCUTs !!
          * carpe diem market            --> cdm
+         * carpe diem market address    --> cdma
          * carpe diem market servlet    --> cdms        
          *
          */
@@ -99,9 +107,17 @@ public class MarketServlet extends HttpServlet {
                 //**************************************************************
                     case "addMarket": 
                         
-                            resultMap.put("ss1", "ccc");
-                            resultMap.put("ss2", "ddd");
-                            res = Result.SUCCESS.setContent(resultMap);
+                            if( !Checker.anyNull(request.getParameter("cdmaCity"),request.getParameter("cdmaBorough"),request.getParameter("cdmaLocality"),request.getParameter("cdmCompany")) ){                               
+                                
+                                // create dist-id
+                                // get address id
+                                
+                                
+                                res = Result.SUCCESS;
+                            }else{
+                                res = Result.FAILURE_PARAM_MISMATCH;
+                            }
+                            
 
                         break;
                         
@@ -112,13 +128,82 @@ public class MarketServlet extends HttpServlet {
                 //**                GET MARKET CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getMarket":                                                        
+                    case "getMarketList":                                                        
                                                         
-                                                                                   
+                            
+                            // GET SPECIFIC MARKET
+                            if(!Checker.anyNull(request.getParameter("cdmID"))){
+                                
+                                Map params = new HashMap();
+                                params.put("", request.getParameter("cdmID"));
+                                
+                            // GET ALL MARKETs
+                            }else{
+                                
+                                res = DBMarket.selectDistict(ResourceMysql.TABLE_DISTRIBUTER, "distID");
+                                
+                            }
+                                                                                    
                             
                         break;
                         
                         
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                GET MARKET-ADRESS CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getMarketAddressList":                                                        
+                                                        
+                            
+                            // GET SPECIFIC MARKET
+                            if(!Checker.anyNull(request.getParameter("cdmID"))){
+                                
+                                Map params = new HashMap();
+                                params.put("", request.getParameter("cdmID"));
+                                
+                            // GET ALL MARKETs
+                            }else{
+                                
+                                res = Result.FAILURE_PARAM_MISMATCH;
+                                
+                            }
+                                                                                    
+                            
+                        break;
+                        
+                
+                //**************************************************************
+                //**************************************************************
+                //**                GET MARKET-ORDER CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getMarketOrderList":                                                        
+                                                                                
+                            Result tempRes = DBUser.getUserCompany((String) session.getAttribute("cduUserId"));                               
+                            if(tempRes.checkResult(Result.SUCCESS)){
+                                // Get user company and distributer id
+                                Map userMap = (Map) tempRes.getContent();
+                                String compName = (String) ((ArrayList)userMap.get("userCompany")).get(0);
+                                String distName = (String) ((ArrayList)userMap.get("userDistributer")).get(0);                                      
+
+                                tempRes = DBMarket.getAddresses(distName);
+                                if(tempRes.checkResult(Result.SUCCESS)){
+                                    Map m = (Map) tempRes.getContent();
+                                    res = DBMarket.getOrders(compName, (List<String>) m.get("distAddressList"));
+                                }
+                            }else{
+                                res = Result.FAILURE_PROCESS;
+                            }
+                                                                                    
+                            
+                        break;
+                        
+                        
+                            
+                                                
                         
                 //**************************************************************
                 //**************************************************************

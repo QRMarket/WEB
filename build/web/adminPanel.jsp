@@ -251,7 +251,7 @@
 */
             $(document).on('click', '#marketOperation' , function(){       
                 $('.containerMain:visible').fadeOut("fast" , function(){                    
-                    $('#containerMarket').fadeIn("fast");                    
+                    $('#containerMarket').fadeIn("fast");                       
                 });                
             });               
         </script>
@@ -259,13 +259,17 @@
         
         <!--RESIZE OPERATIONS-->
         <script language="javascript" type="text/javascript">
+            
             function resizeIframe(obj) {
-              obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+                obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
             }
             
-            $(document).mousemove(function(){
-               resizeIframe($('#marketFrame').get(0));
+            $(document).mousemove(function(event){                
+                resizeIframe($('#marketFrame').get(0));
+                resizeIframe($('#productFrame').get(0));
             });
+            
+            
         </script>
         
     </head>
@@ -311,7 +315,7 @@
 ********************************************************************************
 -->
 
-        <div id="containerMarket" class="container containerMain" style="display: none;"  >
+        <div id="containerMarket" class="container containerMain" style="display: none"  >
             <iframe id="marketFrame" src="marketOperator.jsp" frameBorder=0  height="100%" width="100%" ></iframe>
         </div>
         
@@ -324,52 +328,7 @@
 ********************************************************************************
 -->
         <div id="containerProduct" class="container containerMain" style="display: none;">                      
-            
-            <div id="cp_Operations" class="row" >
-                <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <div class="btn-group" role="group">
-                        <button id="cp_PRODUCTION_ADD" type="button" class="btn btn-default">Production Add</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button id="cp_PRODUCTION_GET_LIST" type="button" class="btn btn-default">Get Production List</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button id="cp_PRODUCTION_EDIT" type="button" class="btn btn-default">Edit Production</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button id="cp_PRODUCTION_DELETE" type="button" class="btn btn-default">Delete Production</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="cp_PRODUCTION_ADD_ROW" class="row" style="display: none;" >
-                <form action="/QR_Market_Web/ProductServlet?cdpsDo=addProduct" method="POST">                    
-                    <div class="form-group">
-                        <label for="cp_add_productName">Product Name </label>
-                        <input id="cp_add_productName" type="text" class="form-control" placeholder="Enter Product Name">
-                    </div>
-                    <div class="form-group">
-                        <label for="cp_add_productBarcode">Product Barcode</label>
-                        <input id="cp_add_productBarcode" type="text" class="form-control"  placeholder="Barcode">
-                    </div>
-                    <div class="form-group">
-                        <label for="exampleInputFile">File input</label>
-                        <input type="file" id="exampleInputFile">
-                        <p class="help-block">Add image/s for product</p>
-                    </div>                    
-                    <button id="cp_add_submit" type="submit" class="btn btn-default">Submit</button>
-              </form>
-            </div>
-            <div id="cp_PRODUCTION_GET_LIST_ROW" class="row" style="display: none;">
-                production get list
-            </div>
-            <div id="cp_PRODUCTION_EDIT_ROW" class="row" style="display: none;">
-                production EDIT
-            </div>
-            <div id="cp_PRODUCTION_DELETE_ROW" class="row" style="display: none;">
-                production delete
-            </div>
-            
+            <iframe id="productFrame" src="productOperator.jsp" frameBorder=0  height="100%" width="100%" ></iframe>                         
         </div>
         
         

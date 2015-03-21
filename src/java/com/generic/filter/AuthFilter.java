@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -26,7 +29,13 @@ import javax.servlet.http.HttpSession;
 /**
  *
  * @author Kemal Sami KARACA
+ * @since 02.2015
+ * @version 1.01
+ * 
+ * @last 12.03.2015
  */
+
+
 //@WebFilter(filterName = "AuthFilter", urlPatterns = {"/*"})
 public class AuthFilter implements Filter {
     
@@ -103,58 +112,79 @@ public class AuthFilter implements Filter {
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet error occurs
-     * 
-     * This filter is used for authentication therefore it will be checked every page
-     *      -1- If request source is mobile then 
+     *     
      * 
      */
     public void doFilter(ServletRequest request, ServletResponse response,
                     FilterChain chain)
                     throws IOException, ServletException {
         
-            System.out.println("AuthFilter CALLED");            
-        
             HttpServletRequest req  = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
-            HttpSession session     = req.getSession(false);                                                
+            HttpSession session     = req.getSession(false); 
             
-            String uri = req.getRequestURI();  
-            Cookie[] cookies = req.getCookies();
-            boolean isAuth = false;                                     
+            // CHECK USER AUTHANTICATION
+            boolean isAuth          = Checker.isAuth(req, session);
+            String uri              = req.getRequestURI();
+            String agentType        = null;
+                                               
+            // Check Url finish with proper file extensions
+            String urlPatterns = "(jsp|html|php)$";                        
+            Pattern pattern = Pattern.compile(urlPatterns);
+            Matcher matcher = pattern.matcher(uri);            
             
-            if(session!=null && (uri.endsWith("jsp") || uri.endsWith("html") || uri.endsWith("/QR_Market_Web/"))){
-                if(cookies != null){
+            
+            if(Checker.isUserAgentBrowser(req)){                                      
                     
-                    Cookie cduCookie=null;
-                    String cduToken = (String) session.getAttribute("cduToken");
-                    
-                    for(Cookie cookie : cookies){
-                        if(cookie.getName().equalsIgnoreCase("cduToken")){
-                            cduCookie = cookie;
-                        }
-                    }                                
+                    if(matcher.find()){
+                                                  
+                            System.out.println("BROWSER \t<--> AuthFilter"); 
+                            // If user auth OK 
+                            if(isAuth){
+                                // If user wants to go login.jsp then redirect him to testPanel
+                                // Otherwise go to next filter
+                                if(uri.endsWith(Guppy.page_login)){                        
+                                    res.sendRedirect(Guppy.page_userMain);
+                                }else{                        
+                                    chain.doFilter(request, response);
+                                }                    
 
-                    if(!Checker.anyNull(cduCookie,cduToken)){
-                        if(cduCookie.getValue().equalsIgnoreCase(cduToken)){                        
-                            isAuth = true;
-                        }
-                    }                       
-                }
+                            // If user auth FAIL
+                            }else{                                        
 
-                if(!isAuth && !uri.endsWith("login.jsp")){                       
-                    res.sendRedirect(Guppy.page_login);
-                }else if(isAuth){
-                                        
-                    if( uri.endsWith("login.jsp") || uri.endsWith("/QR_Market_Web/") ){
-                        res.sendRedirect(Guppy.page_userMain);
+                                // AND if requested page other than login page, request redirected to login page
+                                if(!uri.endsWith(Guppy.page_login)){                        
+                                    res.sendRedirect(Guppy.page_login);
+                                }else{
+                                    chain.doFilter(request, response);
+                                }                    
+                            }
+                            
+                            
+                    }else{
+                        
+                            //System.out.println("BROWSER \t<--> AuthFilter \t<--> " + req.getRequestURI());    
+                            chain.doFilter(request, response);
+                        
                     }
-                }                
                 
+            }else if(Checker.isUserAgentMobileApp(req)){
+                                
+                    System.out.println("MOBILE \t\t<--> AuthFilter");
+                    // If user auth OK 
+                    if(isAuth){     
+                        
+                    // If user auth FAIL   
+                    }else{}                    
+                    chain.doFilter(request, response);                                
+                    
+            }else{
+                
+                    System.out.println("UNKNOWN AGENT CASE");                                        
+                    chain.doFilter(request, response);
             }
-            
-            chain.doFilter(request, response);
-        
     }
+    
 
     // <editor-fold defaultstate="collapsed" desc="other filter methods.">
     
