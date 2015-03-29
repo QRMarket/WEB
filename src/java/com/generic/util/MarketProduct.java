@@ -10,15 +10,30 @@ import java.util.ArrayList;
 /**
  *
  * @author Kemal Sami KARACA
+ * @since 03.2015
+ * @version 1.01
+ * 
+ * @last 24.03.2015
  */
 public class MarketProduct {
     
     private String productID;
     private String productName;
+    private String productCode;
+    private String productDesc;
+    private String branchName;
     private String priceType;
     private double price; 
     private double amount;
-    private ArrayList<String> images;
+    private ArrayList<MarketProductImage> productImages;
+    
+    /**
+     * @deprecated 
+     */
+    private ArrayList<String> images;   
+    
+    
+    public MarketProduct(){}
     
     public MarketProduct(String productID , double amount){
         this.productID = productID;
@@ -125,6 +140,62 @@ public class MarketProduct {
      */
     public void setImages(ArrayList<String> images) {
         this.images = images;
+    }
+
+    /**
+     * @return the branchName
+     */
+    public String getBranchName() {
+        return branchName;
+    }
+
+    /**
+     * @param branchName the branchName to set
+     */
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    /**
+     * @return the productCode
+     */
+    public String getProductCode() {
+        return productCode;
+    }
+
+    /**
+     * @param productCode the productCode to set
+     */
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    /**
+     * @return the productDesc
+     */
+    public String getProductDesc() {
+        return productDesc;
+    }
+
+    /**
+     * @param productDesc the productDesc to set
+     */
+    public void setProductDesc(String productDesc) {
+        this.productDesc = productDesc;
+    }
+
+    /**
+     * @return the productImages
+     */
+    public ArrayList<MarketProductImage> getProductImages() {        
+        return productImages==null ? productImages=new ArrayList() : productImages;
+    }
+
+    /**
+     * @param productImages the productImages to set
+     */
+    public void setProductImages(ArrayList<MarketProductImage> productImages) {
+        this.productImages = productImages;
     }
     
 }

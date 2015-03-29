@@ -5,12 +5,14 @@
  */
 package com.generic.servlet;
 
-import com.generic.db.MysqlDBOperations;
+import com.generic.db.DBProduct;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +31,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
+import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -82,25 +86,18 @@ public class ProductAddServlet extends HttpServlet {
          *
          */
         HttpSession session = request.getSession(false);
-        Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-                
+        Gson gson = new Gson();        
+        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");        
         Map parameters = new HashMap();
         Result res = Result.FAILURE_PROCESS; 
-        
-        
-        System.out.println(request.getContentType());
-        out.write(gson.toJson(Result.FAILURE_DB));
-        out.close();            
-    
-    if(1==0){
-        
+                             
     
         try{            
             DiskFileItemFactory factory = new DiskFileItemFactory();
+            // Sets the size threshold beyond which files are written directly to disk
             factory.setSizeThreshold(maxMemSize);
-            factory.setRepository(new File("/Users/kemal/NetBeansProjects/QR_Market_Web/web/images"));
+            // Sets the directory used to temporarily store files that are larger than the configured size threshold
+            factory.setRepository(new File("/tmp/QR_Market_Web/images"));
             
             ServletFileUpload upload = new ServletFileUpload(factory);
             upload.setSizeMax( maxFileSize );            
@@ -109,29 +106,8 @@ public class ProductAddServlet extends HttpServlet {
             Iterator i = fileItems.iterator();           
             while ( i.hasNext () ){
                 FileItem fileItem = (FileItem)i.next(); 
-                if ( !fileItem.isFormField () ){
-                    
-                    
-                        String filePath = "/Users/kemal/NetBeansProjects/QR_Market_Web/web/images/";                        
-                        // Get the uploaded file parameters
-                        String fieldName    = fileItem.getFieldName();
-                        String fileName     = fileItem.getName();
-                        String contentType  = fileItem.getContentType();
-                        boolean isInMemory  = fileItem.isInMemory();
-                        long sizeInBytes    = fileItem.getSize();
-                        // Write the file
-                        if( fileName.lastIndexOf("\\") >= 0 ){
-                           file = new File( filePath + 
-                           fileName.substring( fileName.lastIndexOf("\\"))) ;
-                        }else{
-                           file = new File( filePath + 
-                           fileName.substring(fileName.lastIndexOf("\\")+1)) ;
-                        }
-                        fileItem.write( file ) ; 
-                        
-                                                
-                }else{                    
-                        parameters.put(fileItem.getFieldName(), fileItem.getString());                    
+                if ( fileItem.isFormField () ){
+                    parameters.put(fileItem.getFieldName(), fileItem.getString());    
                 }
                 
             }
@@ -146,11 +122,29 @@ public class ProductAddServlet extends HttpServlet {
                 //**                    GET PRODUCT CASE
                 //**************************************************************
                 //**************************************************************
-                    case "addProduct": 
-            
-                        System.out.println("DENEME");
+                    case "addProduct":                                         
+                            
+                            Iterator iterator = fileItems.iterator();           
+                            while ( iterator.hasNext () ){
+                                FileItem fileItem = (FileItem)iterator.next(); 
+                                if ( !fileItem.isFormField () ){                                    
+                                    
+                                    // FILE TO BASE64
+                                    InputStream inputStream = fileItem.getInputStream();
+                                    byte[] bytes = IOUtils.toByteArray(inputStream);
+                                    String fileBase64 = new BASE64Encoder().encode(bytes); 
+                                    
+                                    res = DBProduct.addProduct(
+                                            (String) parameters.get("cdpName"), 
+                                            (String) parameters.get("cdpBranch"),
+                                            (String) parameters.get("cdpBarcode"),
+                                            (String) parameters.get("cdpDesc"),
+                                            fileItem.getContentType(),
+                                            fileBase64);                                                                        
+                                }
+                            }
                                
-                            break;
+                        break;
                 }
                 
             }
@@ -161,13 +155,11 @@ public class ProductAddServlet extends HttpServlet {
             Logger.getLogger(ProductAddServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(ProductAddServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } finally{                                                                        
-            mysql.closeAllConnection();
+        } finally{
             out.write(gson.toJson(res));
             out.close();            
         }
-        
-    }
+            
     }
     
     

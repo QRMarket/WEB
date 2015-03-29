@@ -7,13 +7,23 @@ package com.generic.test;
 
 import com.generic.db.DBMarket;
 import com.generic.db.DBOrder;
+import com.generic.db.DBProduct;
 import com.generic.db.DBUser;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
+import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -22,26 +32,31 @@ import java.util.Map;
 public class CarpeTester {
     
     public static void main(String[] args){
+                
+        String base64 = fileToBase64("/Users/kemal/Desktop/Richard-Harrow2.jpg");
         
-        Result res = DBOrder.getCartInfo("order_da90c44d-1dbc-47dc-a9f3-eb455b4079fa");
-        System.out.println(res.getResultCode());
-        System.out.println(res.getResultText());
+        //Result res = DBProduct.addProduct(null , base64);        
+        //System.out.println(res.getResultCode());
         
-        ArrayList<MarketProduct> cartList = (ArrayList<MarketProduct>) res.getContent();
-        double total = 0;
-        for(MarketProduct mp : cartList){
-            System.out.println("\n***** ***** *****");
-            System.out.println("Product id      ::" + mp.getProductID());
-            System.out.println("Product name    ::" + mp.getProductName());
-            System.out.println("Product price   ::" + mp.getPrice() + mp.getPriceType());
-            System.out.println("Product amount  ::" + mp.getAmount());
-            System.out.println("Cost            ::" + mp.getAmount()*mp.getPrice());
-            total = total + mp.getAmount()*mp.getPrice();            
+    }
+    
+    public static String fileToBase64(String fileName){
+          
+        String fileBase64 = null;
+        try{
+            File file = new File(fileName);
+            InputStream inputStream = new FileInputStream(file);
+            
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            
+            BASE64Encoder encoder = new BASE64Encoder();
+            fileBase64 = new BASE64Encoder().encode(bytes);                        
+            
+        } catch(FileNotFoundException ex){            
+        } catch (IOException ex) {            
+        } finally{
+            return fileBase64;
         }
-        
-        System.out.println("TOTAL PRICE :: " + total);
-        
-        
-        
+                
     }
 }

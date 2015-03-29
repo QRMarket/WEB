@@ -126,10 +126,10 @@ public class OrderServlet extends HttpServlet {
                                 if(session.getAttribute("cduPList")!=null){                                   
                                     try{
                                         ArrayList<MarketProduct> pList = (ArrayList<MarketProduct>) session.getAttribute("cduPList"); 
-                                        Result product = DBProduct.getProductInfo(cdpUID);
+                                        Result product = DBProduct.getCompanyProductInfo(cdpUID);
                                         if(product.checkResult(Result.SUCCESS)){
                                             // set "MarketProduct"
-                                            MarketProduct y = (MarketProduct) DBProduct.getProductInfo(cdpUID).getContent();
+                                            MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
                                             y.setAmount(Double.parseDouble(cdpAmount));
                                             
                                             // add new "MarketProduct" to session
@@ -145,10 +145,10 @@ public class OrderServlet extends HttpServlet {
                                     }                                    
                                 }else{
                                     ArrayList<MarketProduct> pList = new ArrayList();
-                                    Result product = DBProduct.getProductInfo(cdpUID);
+                                    Result product = DBProduct.getCompanyProductInfo(cdpUID);
                                     if(product.checkResult(Result.SUCCESS)){
                                         // set "MarketProduct"
-                                        MarketProduct y = (MarketProduct) DBProduct.getProductInfo(cdpUID).getContent();
+                                        MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
                                         y.setAmount(Double.parseDouble(cdpAmount));
                                         
                                         // add new "MarketProduct" to session

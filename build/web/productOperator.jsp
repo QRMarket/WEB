@@ -3,9 +3,7 @@
     <head>
         <title>GUPPY Test Panel</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">                   
-        
-        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">                           
         
         <!-- IMPORT Bootstarp LIBRARIES -->        
         <link href="com/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -103,7 +101,8 @@
                     contentType: false,
                     cache: false,
                     processData: false,
-                    success: function () {
+                    success: function (data) {
+                        console.log(data)
                         alert("POST SUCCESS");
                     },
                     error: function () {

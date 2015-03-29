@@ -56,13 +56,7 @@ public class ProductServlet extends HttpServlet {
          * cdpsDo   :: getProduct
          *              :: cdpUID         
          *          :: setProduct
-         *              :: cdpUID
-         *          :: addProduct
-         *              :: cdpName
-         *              :: cdpBranch
-         *              :: cdpBarcode
-         *              :: cdpDesc
-         *              :: cdpImages
+         *              :: cdpUID         
          *          :: removeProduct
          *
          * 
@@ -70,6 +64,7 @@ public class ProductServlet extends HttpServlet {
          * carpe diem product           --> cdp
          * carpe dirm product servlet   --> cdps
          * carpe diem product unique id --> cdpUID
+         * carpe diem product common id --> cdpCID
          *
          */
         HttpSession session = request.getSession(false);
@@ -105,40 +100,14 @@ public class ProductServlet extends HttpServlet {
                     case "getProduct": 
 
                             if(request.getParameter("cdpUID")!=null){
-
-//                                    System.out.println("--> /ProductServlet?cdpsDo=getProduct&cdpUID="+request.getParameter("cdpUID")); 
-//                                    String query  = String.format( resource.getPropertyValue("selectProductByUID") , request.getParameter("cdpUID"));
-//                                    System.out.println("--> " + query);
-//
-//                                    /**
-//                                     * If resultSet is empty -> there is not any product with that id
-//                                     * else if resultSet size is equals 1 -> product exist 
-//                                     * else resultSet size > 1 -> multiple row returned
-//                                     */
-//                                    ResultSet mysqlResult = mysql.getResultSet(query);
-//                                                                                                            
-//                                    if(mysql.resultSetIsEmpty()){       
-//
-//                                        res = Result.FAILURE_AUTH_WRONG;
-//                                        
-//                                    }else if(mysql.getResultSetSize()==1){                                                  
-//                                        
-//                                        if(mysqlResult.first()){
-//                                            
-//                                            res = Result.SUCCESS.setContent(new MarketProduct(mysqlResult.getString("cprID"),mysqlResult.getString("productName"),mysqlResult.getString("productPriceType"),mysqlResult.getDouble("p_price")));
-//                                        
-//                                        }else{
-//                                            
-//                                        }                                                                                
-//                                        
-//                                    }else{
-//
-//                                        res = Result.FAILURE_AUTH_MULTIPLE;
-//                                    }         
                                     
-                                    res = DBProduct.getProductInfo(request.getParameter("cdpUID"));
+                                    res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
 
-                            }else{
+                            } else if(request.getParameter("cdpCID")!=null){
+                                
+                                    res = DBProduct.getProduct(request.getParameter("cdpCID"));
+                                
+                            } else{
                                     res = Result.FAILURE_PARAM_MISMATCH;
                             }
 
