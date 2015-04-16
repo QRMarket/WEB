@@ -13,15 +13,106 @@ import java.util.List;
  * @since 14.03.2015
  * @version 1.01
  * 
- * @last 14.03.2015
+ * @last 13.04.2015
  */
 public class MarketOrder {
-    
-    
+        
+    private String orderID;
     private List<MarketProduct> products;
-    private MarketAddress adress;
+    private String adressID;
+    private String paymentType;
+    private String note;
     private String date;    
-    private String paymentType;    
+    
+    public MarketOrder(){
+        
+    }
+        
+    /**
+     * @return the orderID
+     */
+    public String getOrderID() {
+        return orderID;
+    }
+
+    /**
+     * @param orderID the orderID to set
+     */
+    public void setOrderID(String orderID) {
+        this.orderID = orderID;
+    }
+
+    /**
+     * @return the products
+     */
+    public List<MarketProduct> getProducts() {
+        return products;
+    }
+
+    /**
+     * @param products the products to set
+     */
+    public void setProducts(List<MarketProduct> products) {
+        this.products = products;
+    }
+
+    /**
+     * @return the adressID
+     */
+    public String getAdressID() {
+        return adressID;
+    }
+
+    /**
+     * @param adressID the adressID to set
+     */
+    public void setAdressID(String adressID) {
+        this.adressID = adressID;
+    }
+
+    /**
+     * @return the paymentType
+     */
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    /**
+     * @param paymentType the paymentType to set
+     */
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    /**
+     * @return the note
+     */
+    public String getNote() {
+        return note;
+    }
+
+    /**
+     * @param note the note to set
+     */
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    /**
+     * @return the date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(String date) {
+        this.date = date;
+    }
+    
+    
     
     
 }

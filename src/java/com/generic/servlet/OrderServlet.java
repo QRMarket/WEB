@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -51,18 +54,18 @@ public class OrderServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         /**
-         * cdpsDo   :: getProduct
-         *              :: cdpUID         
-         *          :: setProduct
-         *              :: cdpUID
-         *          :: addProduct
-         *          :: removeProduct
+         * cdpsDo   :: confirmOrderList
+         *              :: aid (address id)
+         *              :: ptype (payment type ['cash','card',...])
+         *              :: date (order date)
+         *              :: note (order note)
          *
          * 
          * !! KISALTMALAR !!
          * carpe diem order             --> cdo
          * carpe diem order servlet     --> cdos
          * carpe diem product unique id --> cdpUID
+         * carpe dime product amount    --> cdpAmount
          * carpe diem user              --> cdu          
          *
          */
@@ -86,87 +89,88 @@ public class OrderServlet extends HttpServlet {
          *  yaratılır Eğer servise belirli bir sepet id'si ile gelmişse bu durumda
          *  ürün ilgili sepete eklenir
          *  
-         */
-        Enumeration<String> enume = request.getParameterNames();
-        while(enume.hasMoreElements()){
-            String key = enume.nextElement();
-            System.out.println("Incoming parameter --> " + key + " :: " + request.getParameter(key));
-        }
-        
-        Enumeration<String> enumeHeader = request.getHeaderNames();
-        while(enumeHeader.hasMoreElements()){
-            String headerKey = enumeHeader.nextElement();            
-            System.out.println( headerKey + " :: " + request.getHeader(headerKey));
-        }
+         */                
         
         
         try {
             
             if(request.getParameter("cdosDo")!=null){                 
-                switch(request.getParameter("cdosDo")){ 
-                    
-                //**************************************************************
-                //**************************************************************
-                //**                    ADD TO ORDERLIST CASE
-                //**************************************************************
-                //**************************************************************
-                    case "addToOrderList": 
+                switch(request.getParameter("cdosDo")){                                     
                         
-                            System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
-
-                            String cdpUID = request.getParameter("cdpUID");
-                            String cdpAmount = request.getParameter("cdpAmount");
-                            if(!Checker.anyNull(cdpUID,cdpAmount)){                                
+                //**************************************************************
+                //**************************************************************
+                //**            SET&ADD PRODUCT TO ORDERLIST
+                //**************************************************************
+                //**************************************************************
+                    case "productUpdate": 
+                        
+                            System.out.println("--> /OrderServlet?cdosDo=productUpdate&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
+                        
+                            if(!Checker.anyNull(request.getParameter("cdpUID"),request.getParameter("cdpAmount"),session)){
+                               
                                 /**
-                                 * IF session exist "cduPlist" value
-                                 *      -1.1-get "cduPList" arraylist
-                                 *      -1.2-get Product info with given cdpUID
-                                 *      -1.2-set 
+                                 *  IF order product map "cduPMap" exist 
+                                 *      -1-get product list "cduPMap"
+                                 *      -2-check product exist in "cduPMap"
+                                 *      -3- IF product exist in map
+                                 *          -3.1- get product from map
+                                 *          -3.2- update product info
+                                 *      -4- IF product NOT in map
+                                 *          -4.1- get product from DB
+                                 *          -4.2- update it & put it map
+                                 * 
+                                 *  IF order product map "cduPMap" NOT exist 
+                                 *      -1-get product from DB
+                                 *      -2-create map "cduPMap"
+                                 *      -3-put product to map
                                  */
-                                if(session.getAttribute("cduPList")!=null){                                   
-                                    try{
-                                        ArrayList<MarketProduct> pList = (ArrayList<MarketProduct>) session.getAttribute("cduPList"); 
-                                        Result product = DBProduct.getCompanyProductInfo(cdpUID);
-                                        if(product.checkResult(Result.SUCCESS)){
-                                            // set "MarketProduct"
-                                            MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
-                                            y.setAmount(Double.parseDouble(cdpAmount));
-                                            
-                                            // add new "MarketProduct" to session
-                                            pList.add(y);
-                                            session.setAttribute("cduPList", pList); 
-                                            
-                                            // set result
-                                            res = Result.SUCCESS.setContent(y);
-                                        }
+                                String cdpUID = request.getParameter("cdpUID");
+                                String cdpAmount = request.getParameter("cdpAmount");
+                                if(session.getAttribute("cduPMap")!=null){
+                                    
+                                    try{                                        
+                                        Map orderProduct = (Map) session.getAttribute("cduPMap");                                        
+                                          
+                                        MarketProduct product = (orderProduct.get(cdpUID)!=null) ? 
+                                                                        (MarketProduct) orderProduct.get(cdpUID) : 
+                                                                        (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
+                                                                                
+                                        if(Double.parseDouble(cdpAmount)>0){
+                                            product.setAmount(Double.parseDouble(cdpAmount));
+                                            orderProduct.put(product.getProductID(), product);
+                                        }else{
+                                            orderProduct.remove(product.getProductID());
+                                        }                                        
+                                        
+                                        res = Result.SUCCESS.setContent(product);
                                         
                                     }catch(ClassCastException e){
-                                        res = Result.FAILURE_PROCESS_CASTING;
-                                    }                                    
+                                        res = Result.FAILURE_PROCESS_CASTING.setContent(e);
+                                    }
+
+                                // product Map not exist case
                                 }else{
-                                    ArrayList<MarketProduct> pList = new ArrayList();
-                                    Result product = DBProduct.getCompanyProductInfo(cdpUID);
-                                    if(product.checkResult(Result.SUCCESS)){
-                                        // set "MarketProduct"
-                                        MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
-                                        y.setAmount(Double.parseDouble(cdpAmount));
-                                        
-                                        // add new "MarketProduct" to session
-                                        pList.add(y);
-                                        session.setAttribute("cduPList", pList);
-                                        
-                                        // set result
-                                        res = Result.SUCCESS.setContent(y);
-                                    }                                    
-                                }
+                                    
+                                    MarketProduct product = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
+                                    product.setAmount(Double.parseDouble(cdpAmount));
+                                    
+                                    Map orderProduct = new HashMap();
+                                    orderProduct.put(product.getProductID(), product);
+                                    
+                                    session.setAttribute("cduPMap", orderProduct);
+                                    
+                                    // set result
+                                    res = Result.SUCCESS.setContent(product);                                    
+                                }                                                                
                                 
                             }else{
-
+                                
                                 res = Result.FAILURE_PARAM_MISMATCH;
-                            }                                                     
-
+                                
+                            }
+                        
                         break;
-                
+                        
                         
                 //**************************************************************
                 //**************************************************************
@@ -175,11 +179,14 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                     case "getCurrentOrderInfo":                                                        
                                                         
-                            if(session.getAttribute("cduPList")!=null){                                                                
-                                try{                                                     
-                                    res = Result.SUCCESS.setContent(session.getAttribute("cduPList"));
+                            if(session.getAttribute("cduPMap")!=null){                                                                
+                                try{  
+                                    
+                                    List<MarketProduct> pList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
+                                    res = Result.SUCCESS.setContent(pList);
+                                                                        
                                 }catch(ClassCastException e){
-                                    res = Result.FAILURE_PROCESS_CASTING;
+                                    res = Result.FAILURE_PROCESS_CASTING.setContent(e);
                                 }                                    
                             }else{
                                 res = Result.SUCCESS_EMPTY;
@@ -222,21 +229,33 @@ public class OrderServlet extends HttpServlet {
                 //**                    GET ORDER-LISTS CASE
                 //**************************************************************
                 //**************************************************************
-                    case "confirmOrderList":                                                        
-                                                                 
-                            if(session.getAttribute("cduPList")!=null){                                                                
-                                try{                                        
-                                    res = DBOrder.confirmCart(session);
-                                    if(res.checkResult(Result.SUCCESS)){
-                                        session.setAttribute("cduPList",null);
-                                    }
-                                }catch(ClassCastException e){
-                                    res = Result.FAILURE_PROCESS_CASTING;
-                                }                                    
-                            }else{
-                                res = Result.SUCCESS_EMPTY;
-                            }                            
+                    case "confirmOrderList":
                         
+                            if( !Checker.anyNull(request.getParameter("aid"),request.getParameter("ptype"),request.getParameter("date"),request.getParameter("note")) ){
+                                
+                                String addressID = request.getParameter("aid");
+                                String paymentType = request.getParameter("ptype");
+                                String orderNote = request.getParameter("note");
+                                
+                                if(session.getAttribute("cduPMap")!=null){                                                                
+                                    try{                                        
+                                        res = DBOrder.confirmOrder(session,addressID,paymentType,orderNote);
+                                        if(res.checkResult(Result.SUCCESS)){
+                                            session.setAttribute("cduPMap",null);
+                                        }
+                                    }catch(ClassCastException e){
+                                        res = Result.FAILURE_PROCESS_CASTING;
+                                    }                                    
+                                }else{
+                                    res = Result.SUCCESS_EMPTY;
+                                }
+                                
+                            }else{
+                                
+                                res = Result.FAILURE_PARAM_MISMATCH;
+                                
+                            }
+                                                
                         break;
                         
                         
@@ -253,6 +272,70 @@ public class OrderServlet extends HttpServlet {
                         
                         break;
                               
+                    
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    ADD TO ORDERLIST CASE
+                //**************************************************************
+                //**************************************************************
+//                    case "addToOrderList": 
+//                        
+//                            System.out.println("--> /OrderServlet?cdosDo=addToOrderList&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
+//
+//                            String cdpUID = request.getParameter("cdpUID");
+//                            String cdpAmount = request.getParameter("cdpAmount");
+//                            if(!Checker.anyNull(cdpUID,cdpAmount)){                                
+//                                /**
+//                                 * IF session exist "cduPlist" value
+//                                 *      -1.1-get "cduPList" arraylist
+//                                 *      -1.2-get Product info with given cdpUID
+//                                 *      -1.2-set 
+//                                 */
+//                                if(session.getAttribute("cduPList")!=null){                                   
+//                                    try{
+//                                        ArrayList<MarketProduct> pList = (ArrayList<MarketProduct>) session.getAttribute("cduPList"); 
+//                                        Result product = DBProduct.getCompanyProductInfo(cdpUID);
+//                                        if(product.checkResult(Result.SUCCESS)){
+//                                            // set "MarketProduct"
+//                                            MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
+//                                            y.setAmount(Double.parseDouble(cdpAmount));
+//                                            
+//                                            // add new "MarketProduct" to session
+//                                            pList.add(y);
+//                                            session.setAttribute("cduPList", pList); 
+//                                            
+//                                            // set result
+//                                            res = Result.SUCCESS.setContent(y);
+//                                        }
+//                                        
+//                                    }catch(ClassCastException e){
+//                                        res = Result.FAILURE_PROCESS_CASTING;
+//                                    }                                    
+//                                }else{
+//                                    ArrayList<MarketProduct> pList = new ArrayList();
+//                                    Result product = DBProduct.getCompanyProductInfo(cdpUID);
+//                                    if(product.checkResult(Result.SUCCESS)){
+//                                        // set "MarketProduct"
+//                                        MarketProduct y = (MarketProduct) DBProduct.getCompanyProductInfo(cdpUID).getContent();
+//                                        y.setAmount(Double.parseDouble(cdpAmount));
+//                                        
+//                                        // add new "MarketProduct" to session
+//                                        pList.add(y);
+//                                        session.setAttribute("cduPList", pList);
+//                                        
+//                                        // set result
+//                                        res = Result.SUCCESS.setContent(y);
+//                                    }                                    
+//                                }
+//                                
+//                            }else{
+//
+//                                res = Result.FAILURE_PARAM_MISMATCH;
+//                            }                                                     
+//
+//                        break;
+                
                         
                 //**************************************************************
                 //**************************************************************

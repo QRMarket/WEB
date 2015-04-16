@@ -5,6 +5,7 @@
  */
 package com.generic.checker;
 
+import com.generic.logger.LoggerGuppy;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
@@ -40,8 +41,9 @@ public class Checker {
      * @param HttpServletRequest request parameter will be used to get session 
      * @return 
      */
-    public static boolean isAuth(HttpServletRequest request , HttpSession session){
-                
+    public static boolean isAuth(HttpServletRequest request , HttpSession session){                
+        //LoggerGuppy.verboseHeader(request);
+        
         Cookie[] cookies = request.getCookies();
         
         if(!Checker.anyNull(session,cookies)){
@@ -101,7 +103,7 @@ public class Checker {
         if(request.getHeader("user-agent")!=null){
             
             try{
-                return Pattern.compile("(.*)(Guppy)(.*)").matcher(request.getHeader("user-agent")).find();
+                return Pattern.compile("(.*)(guppy-mobile)(.*)").matcher(request.getHeader("user-agent")).find();
             } catch(NullPointerException e){
                 return false;
             }            

@@ -6,6 +6,7 @@
 package com.generic.filter;
 
 import com.generic.checker.Checker;
+import com.generic.logger.LoggerGuppy;
 import com.generic.util.Guppy;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -133,6 +134,7 @@ public class AuthFilter implements Filter {
             Pattern pattern = Pattern.compile(urlPatterns);
             Matcher matcher = pattern.matcher(uri);            
             
+            //LoggerGuppy.verboseHeader(req);
             
             if(Checker.isUserAgentBrowser(req)){                                      
                     
@@ -180,7 +182,7 @@ public class AuthFilter implements Filter {
                     
             }else{
                 
-                    System.out.println("UNKNOWN AGENT CASE");                                        
+                    System.out.println("AuthFilter <--> UNKNOWN AGENT CASE");                                        
                     chain.doFilter(request, response);
             }
     }

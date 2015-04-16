@@ -58,17 +58,24 @@ public class DBProduct {
                         pPrice = mysqlResult.getDouble("p_price");
                         product = new MarketProduct(pId, pName, ppType, pPrice);
                         
-                        
+                        // VERSION -1-
                         // After get production then we will take product images                          
-                        query = String.format(  rs.getString("mysql.productImage.select.3") , p_id);
-                                                
-                        mysqlResult = mysql.getResultSet(query);
-                        if(mysqlResult.first()){       
-                            
-                            do{                                
-                                product.getImages().add(mysqlResult.getString("imageID"));
-                            }while(mysqlResult.next());
-                            
+//                        query = String.format(  rs.getString("mysql.productImage.select.3") , p_id);
+//                                                
+//                        mysqlResult = mysql.getResultSet(query);
+//                        if(mysqlResult.first()){       
+//                            
+//                            do{                                
+//                                product.getImages().add(mysqlResult.getString("imageID"));
+//                            }while(mysqlResult.next());
+//                            
+//                        }
+                        
+                        // VERSION -2-
+                        // After get production then we will take product images
+                        Result resImages = DBProductImage.getProductImageList(p_id);
+                        if(resImages.checkResult(Result.SUCCESS)){
+                            product.setProductImages((ArrayList<MarketProductImage>) resImages.getContent());
                         }
                     
                     return Result.SUCCESS.setContent(product);

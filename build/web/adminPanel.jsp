@@ -83,7 +83,7 @@
                 }else{
                     
                     $.post('OrderServlet', { 
-                        "cdosDo":"addToOrderList",
+                        "cdosDo":"productUpdate",
                         "cdpUID":$('#tr_productUID').text(),
                         "cdpAmount":$( "#productAmount option:selected" ).val()}, function(data) {             
 

@@ -7,10 +7,12 @@ package com.generic.servlet;
 
 
 import com.generic.checker.Checker;
+import com.generic.db.DBUser;
 import com.generic.db.MysqlDBOperations;
 import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Address;
 import com.generic.util.Guppy;
 import com.generic.util.MarketUser;
 import com.google.gson.Gson;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.UUID;
@@ -105,12 +108,12 @@ public class Auth extends HttpServlet {
                 //**                    LOGIN CASE
                 //**************************************************************
                 //**************************************************************
-                    case "carpeLogin": 
-                            
+                    case "carpeLogin":                                                     
+                        
                             if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
 
                                     System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
-                                    String query  = String.format( resource.getPropertyValue("selectUserFromEmail") , request.getParameter("cduMail"), request.getParameter("cduPass"));
+                                    String query  = String.format( resource.getPropertyValue("mysql.user.select.3") , request.getParameter("cduMail"), request.getParameter("cduPass"));
 
                                     /**
                                      * If resultSet is empty -> user OR password is wrong
@@ -135,9 +138,17 @@ public class Auth extends HttpServlet {
                                             
                                             MarketUser loginUser = new MarketUser();
                                             loginUser.setUserMail(request.getParameter("cduMail"));
-                                            loginUser.setUserName(mysqlResult.getString("mu_name"));
+                                            loginUser.setUserName(mysqlResult.getString("mu_name"));                                            
                                             loginUser.setUserToken(token);
                                             loginUser.setUserSession(session.getId());
+                                            
+                                            // SET USER ADDRESS
+                                            Result userAddress = DBUser.getUserAddressList((String) session.getAttribute("cduUserId"));
+                                            if(userAddress.checkResult(Result.SUCCESS)){
+                                                loginUser.setUserAddress((ArrayList<Address>) userAddress.getContent());
+                                            }
+                                            
+                                            // RETURN VALUE
                                             res = Result.SUCCESS.setContent(loginUser);
                                             
                                             // Web Application

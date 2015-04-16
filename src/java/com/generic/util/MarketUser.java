@@ -5,6 +5,8 @@
  */
 package com.generic.util;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Kemal Sami KARACA
@@ -17,6 +19,7 @@ public class MarketUser {
     private String userType;
     private String userToken;
     private String userSession;
+    private ArrayList<Address> userAddress;
     
     public MarketUser(){
         
@@ -97,6 +100,20 @@ public class MarketUser {
      */
     public void setUserSession(String userSession) {
         this.userSession = userSession;
+    }
+
+    /**
+     * @return the userAddress
+     */
+    public ArrayList<Address> getUserAddress() {
+        return userAddress;
+    }
+
+    /**
+     * @param userAddress the userAddress to set
+     */
+    public void setUserAddress(ArrayList<Address> userAddress) {
+        this.userAddress = userAddress;
     }
     
 }

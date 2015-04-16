@@ -70,7 +70,7 @@
                 }else{
                     
                     $.post('OrderServlet', { 
-                        "cdosDo":"addToOrderList",
+                        "cdosDo":"productUpdate",
                         "cdpUID":$('#tr_productUID').text(),
                         "cdpAmount":$( "#productAmount option:selected" ).val()}, function(data) {             
 
@@ -90,7 +90,7 @@
             });
             $(document).on("click" , "#addToOrderListAlter" , function(){                                  
                 $.post('OrderServlet', { 
-                    "cdosDo":"addToOrderList",
+                    "cdosDo":"productUpdate",
                     "cdoID":"bb899262-be93-4f48-846e-a665c53de476",
                     "cdpUID":"cpr_002"}, function(data) {             
 
@@ -109,7 +109,7 @@
                                         ORDER OPERATION
              ******************************************************************* 
              *******************************************************************
-             */
+             */                                    
             $(document).on('click', '#getCurrentBasket' , function(){                
                 $.post('OrderServlet', {
                     "cdosDo":"getCurrentOrderInfo" }, function(data) {             
@@ -119,7 +119,8 @@
                     if(jsonObj['resultCode']=='GUPPY.001'){
                         $("#cartProductInfo").children().remove();
                         
-                        $("#confirmCart").show();
+                        $("#confirmCart").show();                                                                        
+                        
                         for(i=0; i<jsonObj['content'].length; i++){                                    
                             row = '<tr>' + '<td class="info">' + jsonObj['content'][i]['productID'] +'</td>';
                             row = row + '<td class="info">' + jsonObj['content'][i]['productName'] +'</td>';
@@ -189,18 +190,22 @@
             
             $(document).on('click', '#confirmCart' , function(){       
                 $.post('OrderServlet', {
-                    "cdosDo":"confirmOrderList"}, function(data) {             
+                    "cdosDo":"confirmOrderList",
+                    "aid":$( "#addressID" ).val(),
+                    "ptype":$( "#ptype" ).val(),
+                    "date":$( "#odate" ).val(),
+                    "note":$( "#onote" ).val() }, function(data) {             
 
                     var jsonObj = jQuery.parseJSON( data );                      
                     console.log(jsonObj);
                     if(jsonObj['resultCode']=='GUPPY.001'){
-                        
+                        alert("order confirm successfully")
                     }                                                                                
                 });
-            });
-            
+            });            
                                                 
-        </script>
+        </script>        
+        
         
     </head>
     <body>
@@ -308,6 +313,18 @@
                     <table class="table table-hover" id="cartProductInfo" style="margin: 5px;">
                         
                     </table> 
+                        <label for="addressID">Adress id</label>
+                        <input type="text" class="form-control" id="addressID" placeholder="c_06_000" value="c_06_000">
+                        
+                        <label for="ptype">Payment type</label>
+                        <input type="text" class="form-control" id="ptype" placeholder="CREDITCARD" value="CREDITCARD">
+                        
+                        <label for="odate">Order Note</label>
+                        <input type="text" class="form-control" id="odate" placeholder="11-12-2015" value="11-12-2015">
+                        
+                        <label for="onote">Order Note</label>
+                        <input type="text" class="form-control" id="onote" placeholder="goy goy" value="goy goy">
+                        
                     <input style="margin: 5px; display: none;" id="confirmCart" class="btn btn-default" type="button" value="Confirm Cart">
                 </div>
                                 

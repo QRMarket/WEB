@@ -5,6 +5,10 @@ import com.generic.util.MarketProduct;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import javax.servlet.http.HttpSession;
 
@@ -31,12 +35,13 @@ public class DBOrder {
      *   
      * @return  
      */
-    public static Result confirmCart(HttpSession session){
+    public static Result confirmOrder(HttpSession session , String addID, String ptype , String note){
             
             MysqlDBOperations mysql = new MysqlDBOperations();
+            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
                         
-            try{                                
-                ArrayList<MarketProduct> proList = (ArrayList<MarketProduct>) session.getAttribute("cduPList");
+            try{                                                
+                Map proMap = (Map) session.getAttribute("cduPMap");                                            
                 String query;
                 
                 // GENERATE ORDER-ID
@@ -45,15 +50,14 @@ public class DBOrder {
                 // GET USER-ID
                 String userID = (String) session.getAttribute("cduUserId");
                 
-                // GET CURRENT ORDERLIST ID FROM DB                 
-                query = String.format(  "INSERT INTO orders " + 
-                                        "(oid, user_id, type, date)" +
-                                        "VALUES ('%s','%s','UNDELIVERED', NOW())" , oid , userID );
+                // GET CURRENT ORDERLIST ID FROM DB                   
+                query = String.format(  rs.getString("mysql.order.update.insert.1") , oid , "UNDELIVERED" , ptype , note , userID , "c_34567" , addID );
                                 
                 int effectedRowNum = mysql.execUpdate(query); 
-                boolean isSuccessInsertion = (proList.size()>0);
-                if(effectedRowNum==1){                    
+                boolean isSuccessInsertion = (proMap.size()>0);
+                if(effectedRowNum==1){                                        
                     
+                    ArrayList<MarketProduct> proList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
                     insertionFail:
                     for(MarketProduct pro:proList){
                         query = String.format(  "INSERT INTO opRelation " + 
@@ -64,7 +68,7 @@ public class DBOrder {
                             break insertionFail;
                         }                                                    
                     }
-                    
+                                                                                   
                     if(isSuccessInsertion){
                         mysql.commitAndCloseConnection();
                         return Result.SUCCESS;
@@ -79,8 +83,8 @@ public class DBOrder {
                     return Result.FAILURE_DB_UPDATE;
                 }                           
                 
-            }catch(ClassCastException e){
-                return Result.FAILURE_PROCESS_CASTING;
+            }catch(ClassCastException e){                
+                return Result.FAILURE_PROCESS_CASTING.setContent(e);
             }finally{
                 mysql.closeAllConnection();
             }                
