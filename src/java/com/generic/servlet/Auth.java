@@ -168,9 +168,9 @@ public class Auth extends HttpServlet {
                                                 
                                                 response.sendRedirect(redirectURL);  
                                                
-                                            // UNKNOWN
+                                            // UNKNOWN User Type
                                             } else {
-                                              
+                                                
                                             }
                                             
                                             

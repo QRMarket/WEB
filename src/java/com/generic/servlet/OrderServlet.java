@@ -104,8 +104,8 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                     case "productUpdate": 
                         
-                            System.out.println("--> /OrderServlet?cdosDo=productUpdate&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));
-                        
+                            System.out.println("--> /OrderServlet?cdosDo=productUpdate&cdpUID="+request.getParameter("cdpUID")+"&cdpAmount="+request.getParameter("cdpAmount"));                                                    
+                            
                             if(!Checker.anyNull(request.getParameter("cdpUID"),request.getParameter("cdpAmount"),session)){
                                
                                 /**
@@ -165,7 +165,7 @@ public class OrderServlet extends HttpServlet {
                                 
                             }else{
                                 
-                                res = Result.FAILURE_PARAM_MISMATCH;
+                                res = Checker.anyNull(session) ? Result.FAILURE_AUTH_SESSION : Result.FAILURE_PARAM_MISMATCH;
                                 
                             }
                         

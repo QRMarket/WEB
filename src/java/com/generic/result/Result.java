@@ -21,6 +21,7 @@ public class Result <T> implements Serializable{
     public static Result SUCCESS_EMPTY;
     public static Result SUCCESS_LOGOUT;                
     public static Result FAILURE_AUTH;
+    public static Result FAILURE_AUTH_SESSION;
     public static Result FAILURE_AUTH_WRONG;
     public static Result FAILURE_AUTH_MULTIPLE;
     public static Result FAILURE_DB;
@@ -129,6 +130,7 @@ public class Result <T> implements Serializable{
         SUCCESS_EMPTY               = new Result("GUPPY.010", rs.getString("result.guppy.010"));
         SUCCESS_LOGOUT              = new Result("GUPPY.090", rs.getString("result.guppy.090"));
         FAILURE_AUTH                = new Result("GUPPY.101", rs.getString("result.guppy.101"));
+        FAILURE_AUTH_SESSION        = new Result("GUPPY.102", rs.getString("result.guppy.102"));
         FAILURE_AUTH_WRONG          = new Result("GUPPY.111", rs.getString("result.guppy.111"));
         FAILURE_AUTH_MULTIPLE       = new Result("GUPPY.121", rs.getString("result.guppy.121"));        
         FAILURE_DB                  = new Result("GUPPY.201", rs.getString("result.guppy.201"));
