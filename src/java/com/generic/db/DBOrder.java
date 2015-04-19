@@ -1,6 +1,7 @@
 package com.generic.db;
 
 import com.generic.result.Result;
+import com.generic.util.MarketOrder;
 import com.generic.util.MarketProduct;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -98,7 +99,13 @@ public class DBOrder {
      */
     public static Result getCartInfo(String cdoID){
             
+            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
             MysqlDBOperations mysql = new MysqlDBOperations();
+            
+            MarketOrder marketOrder = new MarketOrder();            
+            List<MarketProduct> pList = new ArrayList<>();            
+            
+            
             ArrayList<MarketProduct> cartList = new ArrayList();
             String query;
             try{
@@ -110,7 +117,7 @@ public class DBOrder {
                                         "AND oid='%s'" , cdoID);
                 
                 System.out.println(query);
-                ResultSet mysqlResult = mysql.getResultSet(query);                                
+                ResultSet mysqlResult = mysql.getResultSet(query);
                 
                 String pId,pName,ppType;
                 double pQuantity,pPrice;
@@ -121,10 +128,20 @@ public class DBOrder {
                         ppType = mysqlResult.getString("productPriceType");
                         pQuantity = mysqlResult.getDouble("quantity");
                         pPrice = mysqlResult.getDouble("p_price");                        
-                        cartList.add(new MarketProduct(pId, pName, ppType, pPrice, pQuantity));
+                        pList.add(new MarketProduct(pId, pName, ppType, pPrice, pQuantity));
                     }while(mysqlResult.next());
                     
-                    return Result.SUCCESS.setContent(cartList);
+                    marketOrder.setProducts(pList);                    
+                    query = String.format(rs.getString("mysql.order.select.2"), cdoID);
+                    
+                    mysqlResult = mysql.getResultSet(query);
+                    if(mysqlResult.first()){
+                            marketOrder.setPaymentType(mysqlResult.getString("ptype"));
+                            marketOrder.setDate(mysqlResult.getString("date"));
+                            marketOrder.setNote(mysqlResult.getString("note"));                            
+                    }                                                            
+                    
+                    return Result.SUCCESS.setContent(marketOrder);
                 
                 }else{
                     return Result.SUCCESS_EMPTY;

@@ -29,7 +29,7 @@
                         window.location.href = "login.jsp";
                     }
                 });                            
-            });      
+            });                                     
                                                 
         </script>
         
@@ -184,6 +184,7 @@
                         </table>                                                                        
                         
                     </div>
+                    
                 </div>                                
                 
                 

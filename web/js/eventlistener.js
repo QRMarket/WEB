@@ -30,12 +30,21 @@ $(function(){
         $('#containerORDER').fadeIn("fast");
     });
     
-    $(document).on('click' , 'tr' , function(event){
+    $(document).on('click' , '#marketPanel_orderTable > tr' , function(event){
         
-        orderId = $(this).attr('orderID');
-        if(orderId){
-            console.log(orderId);        
-        }
+        orderId = $(this).attr('orderID');                
+                                               
+        $.post('OrderServlet', { 
+            "cdosDo":"getOrderInfo",
+            "cdoID" : orderId }, function(data) {             
+
+            var jsonObj = jQuery.parseJSON( data );  
+            console.log(jsonObj);
+            if(jsonObj['resultCode']==='GUPPY.001'){
+                // Gerekli değişiklikler yapılacak
+            }
+        }); 
+        
         
     });
         
