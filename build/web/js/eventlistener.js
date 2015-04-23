@@ -42,6 +42,7 @@ $(function(){
             console.log(jsonObj);
             if(jsonObj['resultCode']==='GUPPY.001'){
                 // Gerekli değişiklikler yapılacak
+                alert("Deneme");
             }
         }); 
         
