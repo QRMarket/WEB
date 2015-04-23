@@ -17,10 +17,10 @@ import java.util.ArrayList;
  */
 public class MarketProduct {
     
-    private String productID;
+    private String productID;    
     private String productName;
     private String productCode;
-    private String productDesc;
+    private String productDesc;    
     private String branchName;
     private String priceType;
     private double price; 

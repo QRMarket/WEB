@@ -65,6 +65,7 @@ public class ProductServlet extends HttpServlet {
          * carpe dirm product servlet   --> cdps
          * carpe diem product unique id --> cdpUID
          * carpe diem product common id --> cdpCID
+         * carpe diem product market id --> cdpmID
          *
          */
         HttpSession session = request.getSession(false);
@@ -112,6 +113,25 @@ public class ProductServlet extends HttpServlet {
                             }
 
                         break;
+                   
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                GET PRODUCT LIST CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getProductList": 
+
+                            if(request.getParameter("cdpmID")!=null){
+                                    
+                                    res = DBProduct.getProductList(request.getParameter("cdpmID"));
+
+                            } else{
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                            }
+
+                        break;
+                        
                         
                 //**************************************************************
                 //**************************************************************

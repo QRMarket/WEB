@@ -155,6 +155,48 @@ public class DBProduct {
     
     
     /**
+     *       
+     * @param companyId
+     * @return  
+     * @description 
+     *      Product list of given company
+     */
+    public static Result getProductList(String companyId){
+                    
+            MysqlDBOperations mysql = new MysqlDBOperations();
+            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
+            ArrayList<String> productList;
+            String query;
+            
+            try{                               
+                // PREPARE QUERY                
+                query = String.format(  rs.getString("mysql.productCompany.select.2"),companyId);
+                
+                ResultSet mysqlResult = mysql.getResultSet(query);
+                if(mysqlResult.first()){
+                    
+                        productList = new ArrayList();
+                        // GET CITIES FOR DB
+                        do{
+                            productList.add(mysqlResult.getString("cprID"));                        
+                        }while(mysqlResult.next());
+                       
+                    return Result.SUCCESS.setContent(productList);
+                    
+                }else{
+                    return Result.SUCCESS_EMPTY;
+                }  
+                
+            } catch (SQLException ex) {                
+                Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                return Result.FAILURE_DB;
+            } finally{
+                mysql.closeAllConnection();
+            }                          
+    }
+    
+    
+    /**
      *            
      * @return  
      */

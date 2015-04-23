@@ -14,13 +14,16 @@
         <!-- IMPORT JS LIBRARIES -->        
         <script src="com/js/lib/jquery-1.11.0.js"></script> 
         <script src="com/dist/js/bootstrap.min.js"></script>
-                        
+        <script src="js/httprequest.js"></script> 
+        
         <script>
     
             $(document).ready(function(){
                 for(i=0 ; i<$('#productSelected').children().size(); i++){                 
                     $($('#productSelected').children()[i]).html(window.location.origin + $($('#productSelected').children()[i]).html());
                 }
+                
+                getProductList();
             });
     
             $(document).on("click" , "#logout" , function(){
@@ -36,25 +39,10 @@
             
             });
             
-            $(document).on("click" , "#getProductInfo" , function(){                                  
-                $.post( $( "#productSelected option:selected" ).text() ,
-                        {
-                            "cdpsDo":"getProduct"
-                        } , 
-                        function(data) {             
-
-                    var jsonObj = jQuery.parseJSON( data );  
-                    console.log(jsonObj);
-                    if(jsonObj['resultCode']==='GUPPY.001'){            
-                        $('#tr_price').html(jsonObj['content']['price'])
-                        $('#tr_priceType').html(jsonObj['content']['priceType'])
-                        $('#tr_productUID').html(jsonObj['content']['productID'])
-                        $('#tr_productName').html(jsonObj['content']['productName'])
-                        $('#orderServletTest').css('display','visible');
-                        $('#cartNoproduct').css('display','none');
-                        
-                    }
-                });                
+            $(document).on("click" , "#getProductInfo" , function(){                  
+                                
+                getProductInfo($( "#productSelected option:selected" ).val())                
+        
             });
             
             
@@ -283,13 +271,7 @@
                 
                 <div id="ProductList" class="col-md-8">
                     
-                    <select id="productSelected" class="form-control" style="margin: 5px;">
-                        <option value="xxx">/QR_Market_Web/ProductServlet?cdpUID=cpr_001</option>
-                        <option value="xxx">/QR_Market_Web/ProductServlet?cdpUID=cpr_002</option>
-                        <option value="xxx">/QR_Market_Web/ProductServlet?cdpUID=cpr_003</option>
-                        <option value="xxx">/QR_Market_Web/ProductServlet?cdpUID=cpr_004</option>
-                        <option value="xxx">/QR_Market_Web/ProductServlet?cdpUID=cpr_005</option>                
-                    </select>
+                    <select id="productSelected" class="form-control" style="margin: 5px;"></select>
                     <input style="margin: 5px;" id="getProductInfo" class="btn btn-default" type="button" value="Get Production Info">
                     <input style="margin: 5px;" id="addToOrderList" class="btn btn-default" type="button" value="Add Product To Cart">
                     <input style="margin: 5px;" id="showProductInfo" class="btn btn-default" type="button" value="Production Info Page">                     
