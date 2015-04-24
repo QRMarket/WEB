@@ -1,1 +1,11 @@
-example/
+# Ignore netbeans configurations
+nbproject/
+
+# Ignore dist
+dist/
+build/
+
+# Ignore classes
+*.class
+*.DS_Store
+build.xml
