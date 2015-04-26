@@ -130,15 +130,19 @@ public class AuthFilter implements Filter {
             String agentType        = null;
                                                
             // Check Url finish with proper file extensions
-            String urlPatterns = "(jsp|html|php)$";                        
-            Pattern pattern = Pattern.compile(urlPatterns);
-            Matcher matcher = pattern.matcher(uri);            
+            String urlPatterns = "(jsp|html|php)$";
+            Pattern pattern = Pattern.compile(urlPatterns);            
+            Matcher matcher = pattern.matcher(uri); 
+            
+            String urlException = ".*testProduct.*";
+            Pattern excPattern = Pattern.compile(urlException);            
+            Matcher excMatcher = excPattern.matcher(uri);             
             
             //LoggerGuppy.verboseHeader(req);
             
             if(Checker.isUserAgentBrowser(req)){                                      
                     
-                    if(matcher.find()){
+                    if(matcher.find() && !excMatcher.find()){                        
                                                   
                             System.out.println("BROWSER \t<--> AuthFilter"); 
                             // If user auth OK 
