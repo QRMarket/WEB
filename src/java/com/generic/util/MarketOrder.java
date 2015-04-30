@@ -18,11 +18,13 @@ import java.util.List;
 public class MarketOrder {
         
     private String orderID;
-    private List<MarketProduct> products;
+    private List<MarketProduct> products;    
     private String adressID;
     private String paymentType;
     private String note;
     private String date;    
+    private String companyName;
+    private Address address;
     
     public MarketOrder(){
         
@@ -110,6 +112,34 @@ public class MarketOrder {
      */
     public void setDate(String date) {
         this.date = date;
+    }
+
+    /**
+     * @return the companyName
+     */
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    /**
+     * @param companyName the companyName to set
+     */
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    /**
+     * @return the address
+     */
+    public Address getAdress() {
+        return address;
+    }
+
+    /**
+     * @param adress the address to set
+     */
+    public void setAdress(Address adress) {
+        this.address = adress;
     }
     
     

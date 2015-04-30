@@ -1,6 +1,7 @@
 package com.generic.db;
 
 import com.generic.result.Result;
+import com.generic.util.Address;
 import com.generic.util.MarketOrder;
 import com.generic.util.MarketProduct;
 import java.sql.ResultSet;
@@ -188,13 +189,68 @@ public class DBOrder {
                 mysql.closeAllConnection();
             }                        
     }
-    
+        
+    /**
+     * 
+     * @param uid 
+     * @return  
+     */
+    public static Result getUserCartListExt(String uid){
+            
+            MysqlDBOperations mysql = new MysqlDBOperations();           
+            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
+            ArrayList<MarketOrder> cartList = new ArrayList();
+            String query;
+            try{
+                
+                // GET CURRENT ORDERLIST ID FROM DB                
+                query = String.format(  rs.getString("mysql.order.select.3") , uid );
+                ResultSet mysqlResult = mysql.getResultSet(query);                                  
+                
+                if(mysqlResult.first()){
+                    do{
+                        MarketOrder marketOrder = new MarketOrder();
+                        marketOrder.setOrderID(mysqlResult.getString("oid"));
+                        marketOrder.setPaymentType(mysqlResult.getString("ptype"));
+                        marketOrder.setNote(mysqlResult.getString("note"));
+                        marketOrder.setDate(mysqlResult.getString("date"));
+                        marketOrder.setCompanyName(mysqlResult.getString("companyName"));
+                         
+                        // Get address of order
+                        Result address = DBAddress.getAddress(mysqlResult.getString("add_id"));
+                        if(address.checkResult(Result.SUCCESS)){
+                            marketOrder.setAdress((Address)address.getContent());
+                        }                                                                        
+                        
+                        cartList.add(marketOrder);                        
+                    }while(mysqlResult.next());
+                    
+                    return Result.SUCCESS.setContent(cartList);
+                
+                }else{
+                    return Result.SUCCESS_EMPTY;
+                }                                
+                
+            } catch (SQLException ex) {                
+                return Result.FAILURE_DB;
+            }finally{
+                mysql.closeAllConnection();
+            }                        
+    }
     
     
         
     
     
     
+    
+    /**
+     ***********************************************************************************************
+     ***********************************************************************************************
+     *                              DEPRECATED METHODS
+     ***********************************************************************************************
+     ***********************************************************************************************
+     */
     
     /**
      * @deprecated 

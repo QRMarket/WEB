@@ -207,8 +207,26 @@ public class OrderServlet extends HttpServlet {
                             }
                             
                         break;
-                        
                 
+                
+                
+                
+                
+                //**************************************************************
+                //**************************************************************
+                //**                    GET ORDER-LISTS CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getOrderList":                                                        
+                                     
+                            // because of cduUserId taken from session, if it is not exist then result returns FAILURE
+                            res = session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartListExt((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH; 
+                        
+                        break;
+                  
+                        
+                        
+                        
                         
                 //**************************************************************
                 //**************************************************************
