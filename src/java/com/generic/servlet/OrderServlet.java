@@ -219,8 +219,8 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                     case "getOrderList":                                                        
                                      
-                            // because of cduUserId taken from session, if it is not exist then result returns FAILURE
-                            res = session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartListExt((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH; 
+                            // because of cduUserId taken from session, if it is not exist then result returns FAILURE                            
+                            res = session!=null ? session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartListExt((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH : Result.FAILURE_AUTH_SESSION; 
                         
                         break;
                   
@@ -236,7 +236,7 @@ public class OrderServlet extends HttpServlet {
                     case "getOrderLists":                                                        
                                      
                             // because of cduUserId taken from session, if it is not exist then result returns FAILURE
-                            res = session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartList((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH; 
+                            res = session!=null ? session.getAttribute("cduUserId")!=null ? DBOrder.getUserCartList((String) session.getAttribute("cduUserId")) : Result.FAILURE_AUTH : Result.FAILURE_AUTH_SESSION;
                         
                         break;
                         
@@ -253,19 +253,25 @@ public class OrderServlet extends HttpServlet {
                                 
                                 String addressID = request.getParameter("aid");
                                 String paymentType = request.getParameter("ptype");
-                                String orderNote = request.getParameter("note");
+                                String orderNote = request.getParameter("note");    
+                                try{
+                                    long date = Long.parseLong(request.getParameter("date"), 10);
                                 
-                                if(session.getAttribute("cduPMap")!=null){                                                                
-                                    try{                                        
-                                        res = DBOrder.confirmOrder(session,addressID,paymentType,orderNote);
-                                        if(res.checkResult(Result.SUCCESS)){
-                                            session.setAttribute("cduPMap",null);
-                                        }
-                                    }catch(ClassCastException e){
-                                        res = Result.FAILURE_PROCESS_CASTING;
-                                    }                                    
-                                }else{
-                                    res = Result.SUCCESS_EMPTY;
+                                    if(session.getAttribute("cduPMap")!=null){                                                                
+                                        try{                                        
+                                            res = DBOrder.confirmOrder(session,addressID,date,paymentType,orderNote);
+                                            if(res.checkResult(Result.SUCCESS)){
+                                                session.setAttribute("cduPMap",null);
+                                            }
+                                        }catch(ClassCastException e){
+                                            res = Result.FAILURE_PROCESS_CASTING;
+                                        }                                    
+                                    }else{
+                                        res = Result.SUCCESS_EMPTY;
+                                    }
+                                                                        
+                                }catch(NumberFormatException e){
+                                    res = Result.FAILURE_PROCESS_CASTING.setContent(e);
                                 }
                                 
                             }else{

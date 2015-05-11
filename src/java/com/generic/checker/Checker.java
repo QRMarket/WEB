@@ -6,6 +6,7 @@
 package com.generic.checker;
 
 import com.generic.logger.LoggerGuppy;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
@@ -66,6 +67,7 @@ public class Checker {
     
     
     
+    
     //**************************************************************************
     //**************************************************************************
     //**                    CHECK USER-AGENTs
@@ -115,6 +117,7 @@ public class Checker {
     
     
     
+    
     //**************************************************************************
     //**************************************************************************
     //**                    CHECK ANYNULL
@@ -135,6 +138,37 @@ public class Checker {
             notNull = notNull && ( arg!=null );
                 
         return !notNull;
+    }
+    
+    
+    
+    
+    
+    //**************************************************************************
+    //**************************************************************************
+    //**                    CHECK ANYNULL
+    //**************************************************************************
+    //**************************************************************************
+    
+    /**
+     * 
+     * @param args
+     * @return 
+     * 
+     * This function check that given date is proper or not 
+     */
+    public static <T> boolean isValidDate(long date){
+                
+        boolean proper=true;
+        Calendar calendar = Calendar.getInstance();
+        
+        // maxDelay == 1min
+        int maxDelay = 1000*60;               
+        if(Math.abs(calendar.getTimeInMillis() - date) < maxDelay){
+            return proper;
+        }
+                
+        return !proper;
     }
     
     

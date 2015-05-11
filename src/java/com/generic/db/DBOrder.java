@@ -1,5 +1,6 @@
 package com.generic.db;
 
+import com.generic.checker.Checker;
 import com.generic.result.Result;
 import com.generic.util.Address;
 import com.generic.util.MarketOrder;
@@ -37,8 +38,13 @@ public class DBOrder {
      *   
      * @return  
      */
-    public static Result confirmOrder(HttpSession session , String addID, String ptype , String note){
+    public static Result confirmOrder(HttpSession session , String addID, long date, String ptype , String note){
+        
             
+            if(!Checker.isValidDate(date))
+                return Result.FAILURE_CHECKER_DATE;
+            
+        
             MysqlDBOperations mysql = new MysqlDBOperations();
             ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
                         
@@ -53,7 +59,7 @@ public class DBOrder {
                 String userID = (String) session.getAttribute("cduUserId");
                 
                 // GET CURRENT ORDERLIST ID FROM DB                   
-                query = String.format(  rs.getString("mysql.order.update.insert.1") , oid , "UNDELIVERED" , ptype , note , userID , "c_34567" , addID );
+                query = String.format(  rs.getString("mysql.order.update.insert.1") , oid , "UNDELIVERED" , ptype , date , note , userID , "c_34567" , addID );
                                 
                 int effectedRowNum = mysql.execUpdate(query); 
                 boolean isSuccessInsertion = (proMap.size()>0);
@@ -62,9 +68,9 @@ public class DBOrder {
                     ArrayList<MarketProduct> proList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
                     insertionFail:
                     for(MarketProduct pro:proList){
-                        query = String.format(  "INSERT INTO opRelation " + 
-                                        "(oid, pid, quantity)" +
-                                        "VALUES ('%s','%s',%f)" , oid , pro.getProductID() , pro.getAmount() );
+                                                
+                        query = String.format( rs.getString("mysql.orderProduct.update.insert.1") , oid , pro.getProductID() , pro.getAmount());
+                        
                         if(mysql.execUpdate(query)!=1){
                             isSuccessInsertion = false;
                             break insertionFail;
@@ -196,13 +202,13 @@ public class DBOrder {
      * @return  
      */
     public static Result getUserCartListExt(String uid){
-            
+                    
             MysqlDBOperations mysql = new MysqlDBOperations();           
             ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
             ArrayList<MarketOrder> cartList = new ArrayList();
             String query;
             try{
-                
+                                
                 // GET CURRENT ORDERLIST ID FROM DB                
                 query = String.format(  rs.getString("mysql.order.select.3") , uid );
                 ResultSet mysqlResult = mysql.getResultSet(query);                                  
@@ -223,7 +229,7 @@ public class DBOrder {
                         }                                                                        
                         
                         cartList.add(marketOrder);                        
-                    }while(mysqlResult.next());
+                    }while(mysqlResult.next());                                        
                     
                     return Result.SUCCESS.setContent(cartList);
                 
