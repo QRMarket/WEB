@@ -93,7 +93,8 @@
                         "cdasDO":"getCityList"}, function(data) {
 
                         var jsonObj = jQuery.parseJSON( data );                          
-                        if(jsonObj['resultCode']==='GUPPY.001'){    
+                        if(jsonObj['resultCode']==='GUPPY.001'){  
+                            $("#address_city").children().remove();
                             for(m=0; m<jsonObj['content'].length; m++){
                                 $("#address_city").append('<option value="'+jsonObj['content'][m]+'">'+jsonObj['content'][m]+'</option>"');
                             }                        
@@ -130,6 +131,7 @@
                         
                         var jsonObj = jQuery.parseJSON( data );                          
                         if(jsonObj['resultCode']==='GUPPY.001'){    
+                            $("#marketList").children().remove();
                             for(m=0; m<jsonObj['content'].length; m++){
                                 $("#marketList").append('<option value="'+jsonObj['content'][m]+'">'+jsonObj['content'][m]+'</option>"');
                             }                        

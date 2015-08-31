@@ -97,7 +97,7 @@ public class MysqlDBOperations {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             if (conn == null || conn.isClosed()) {
-                conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/QR_Market_DB", "root", "kemal");                
+                conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/QR_Market_DB", "root", "");                
                 conn.setAutoCommit(false);                
             }
         } catch (Exception e) {
@@ -232,6 +232,10 @@ public class MysqlDBOperations {
      *          prepareStatement(query , par1 , par2)  
      */
     public PreparedStatement getPreparedStatement(String query) {
+        
+        if(this.preStat != null)
+            return this.preStat;
+        
         try {
             if (conn != null && !conn.isClosed()) {                
                 this.preStat = conn.prepareStatement(query);
@@ -243,6 +247,39 @@ public class MysqlDBOperations {
             e.printStackTrace();
         }
         return preStat;
+    }    
+    
+    /**
+     * 
+     */
+    public PreparedStatement getPreparedStatement(){
+        return this.preStat;
+    }
+    
+    /**
+     * 
+     * @param preStat 
+     */
+    public void setPreparedStatement(PreparedStatement preStat){
+        this.preStat = preStat;
+    }
+    
+    /**
+     * 
+     * @param   query
+     * @desc    This function set prepared statement with a given query
+     */
+    public void setPreparedStatement(String query){
+        try {
+            if (conn != null && !conn.isClosed()) {                
+                this.preStat = conn.prepareStatement(query);
+                
+            }else{
+                this.preStat = getConnection().prepareStatement(query);
+            }           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
     }
     
     
@@ -276,7 +313,14 @@ public class MysqlDBOperations {
     /**
      * @return 
      */
-    public ResultSet getResultSet(){        
+    public ResultSet getResultSet(){ 
+        
+        try {            
+            this.resultSet = getPreparedStatement().executeQuery();
+            this.resultSet.beforeFirst();
+        } catch (Exception e) {            
+            e.printStackTrace();            
+        }
         return this.resultSet;
     }
     
@@ -293,7 +337,7 @@ public class MysqlDBOperations {
             e.printStackTrace();            
         }
         return this.resultSet;
-    }         
+    }  
     
     /**
      * 
@@ -325,7 +369,9 @@ public class MysqlDBOperations {
         return empty;
     }
     
-    
+    public void setResultSet(ResultSet resultSet){
+        this.resultSet = resultSet;
+    }
     
         
     //************************************************************************//

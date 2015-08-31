@@ -30,6 +30,7 @@ public class Result <T> implements Serializable{
     public static Result FAILURE_DB_PRIMARY_KEY;
     public static Result FAILURE_PARAM_WRONG;
     public static Result FAILURE_PARAM_MISMATCH; 
+    public static Result FAILURE_PARAM_INVALID; 
     public static Result FAILURE_PROCESS; 
     public static Result FAILURE_PROCESS_CASTING; 
     public static Result FAILURE_CHECKER_DATE; 
@@ -140,6 +141,7 @@ public class Result <T> implements Serializable{
         FAILURE_DB_PRIMARY_KEY      = new Result("GUPPY.251", rs.getString("result.guppy.251"));
         FAILURE_PARAM_WRONG         = new Result("GUPPY.501", rs.getString("result.guppy.501"));
         FAILURE_PARAM_MISMATCH      = new Result("GUPPY.511", rs.getString("result.guppy.511"));
+        FAILURE_PARAM_INVALID       = new Result("GUPPY.512", rs.getString("result.guppy.512"));
         FAILURE_PROCESS             = new Result("GUPPY.600", rs.getString("result.guppy.600"));
         FAILURE_PROCESS_CASTING     = new Result("GUPPY.610", rs.getString("result.guppy.610"));
         FAILURE_CHECKER_DATE        = new Result("GUPPY.740", rs.getString("result.guppy.740"));

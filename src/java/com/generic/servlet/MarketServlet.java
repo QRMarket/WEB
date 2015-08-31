@@ -15,7 +15,6 @@ import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
-import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;

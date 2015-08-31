@@ -6,17 +6,22 @@
 package com.generic.db;
 
 import com.generic.resources.ResourceMysql;
+import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.Address;
 import com.generic.util.MarketProduct;
 import com.generic.util.MarketProductImage;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,6 +85,9 @@ public class DBUser extends DBGeneric{
     }
     
     
+    
+    
+    
     //**************************************************************************
     //**************************************************************************
     //**                    GET USER ADDRESS
@@ -135,6 +143,81 @@ public class DBUser extends DBGeneric{
             } 
             
             //return Result.FAILURE_PROCESS;
+    }
+    
+    
+    
+    
+    
+    //**************************************************************************
+    //**************************************************************************
+    //**                    INSERT USER 
+    //**************************************************************************
+    //**************************************************************************
+    /**
+     * 
+     * @param userEmail
+     * @param password
+     * @param username
+     * @param usersurname
+     * @param usertype
+     * @return 
+     */
+    public static Result insertUser(String userEmail, String password, String username, String usersurname, String userphone){
+                    
+            ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
+            MysqlDBOperations mysql = new MysqlDBOperations();
+            Connection conn = mysql.getConnection();
+                        
+            try {
+                
+                // -1- Check user mail exist
+                PreparedStatement preStat = conn.prepareStatement(resource.getPropertyValue("mysql.user.select.2.1"));
+                preStat.setString(1, userEmail);
+                ResultSet resultSet = preStat.executeQuery();
+                
+                // -1.1- check result set is empty
+                boolean empty = true;
+                try {
+                    empty = !(resultSet.first());
+                    resultSet.beforeFirst();
+                } catch (SQLException ex) {            
+                    Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                if(!empty){                    
+                    return Result.FAILURE_AUTH_MULTIPLE.setContent("User already exist");
+                }
+                
+                // -2- If not exist then continue
+                preStat = conn.prepareStatement(resource.getPropertyValue("mysql.user.update.insert.1"));                
+                preStat.setString(1, "mu-"+UUID.randomUUID().toString());
+                preStat.setString(2, userEmail);
+                preStat.setString(3, password);
+                preStat.setString(4, username);
+                preStat.setString(5, usersurname);
+                preStat.setString(6, userphone);
+                preStat.setString(7, "PRECIOUS");
+                preStat.setString(8, "REGISTER");
+                preStat.setLong(9, System.currentTimeMillis());
+                int executeResult = preStat.executeUpdate();
+                if( executeResult==1 ){
+                    mysql.commitAndCloseConnection();
+                    return Result.SUCCESS;
+                }else if (executeResult==0){
+                    return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count 0");
+                }else{
+                    mysql.rollback();
+                    return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count more than 1");
+                }
+                                
+            } catch (SQLException ex) {
+                Logger.getLogger(DBUser.class.getName()).log(Level.SEVERE, null, ex);
+                return Result.FAILURE_DB.setContent("SQL Exception");
+            } finally{
+                mysql.closeAllConnection();
+            }        
+                                   
     }
     
     

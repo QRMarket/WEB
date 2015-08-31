@@ -18,14 +18,18 @@ import com.generic.util.MarketUser;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -113,14 +117,17 @@ public class Auth extends HttpServlet {
                             if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
 
                                     System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
-                                    String query  = String.format( resource.getPropertyValue("mysql.user.select.3") , request.getParameter("cduMail"), request.getParameter("cduPass"));
-
+                                                                        
                                     /**
                                      * If resultSet is empty -> user OR password is wrong
                                      * else if resultSet size is equals 1 -> user match 
                                      * else resultSet size > 1 -> multiple row returned
                                      */
-                                    ResultSet mysqlResult = mysql.getResultSet(query);
+                                    mysql.setPreparedStatement(resource.getPropertyValue("mysql.user.select.3"));
+                                    mysql.getPreparedStatement().setString(1, request.getParameter("cduMail"));
+                                    mysql.getPreparedStatement().setString(2, request.getParameter("cduPass"));                                    
+                                    ResultSet mysqlResult = mysql.getResultSet();
+                                    
                                     if(mysql.resultSetIsEmpty()){       
 
                                         res = Result.FAILURE_AUTH_WRONG;
@@ -209,6 +216,42 @@ public class Auth extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "carpeRegister":
+                        
+                            LoggerGuppy.verboseHeader(request);
+                       
+                            
+                            // Check parameter exist
+                            if(!Checker.anyNull(request.getParameter("cduMail"), request.getParameter("cduPass"), request.getParameter("cduPassConfirm") )){
+                                
+                                    try {
+                                        
+                                        String email = request.getParameter("cduMail");
+                                        String pass = request.getParameter("cduPass");
+                                        String passConf = request.getParameter("cduPassConfirm");
+                                    
+                                        // -1- Check mail address vaild or not 
+                                        InternetAddress emailAddr = new InternetAddress(email);                                        
+                                        emailAddr.validate();
+                                        
+                                        // -2- Check password is valid
+                                        if(!(pass.equalsIgnoreCase(passConf))){
+                                            res = Result.FAILURE_PARAM_INVALID.setContent("Mismatch password failure"); 
+                                            break;
+                                        }
+                                        
+                                        // -3- Insert user to DB
+                                        res = DBUser.insertUser(email, pass, request.getParameter("cduname"), request.getParameter("cdusurname"), request.getParameter("cduphone"));
+                                                                                        
+                                    } catch (AddressException ex) {
+                                        res = Result.FAILURE_PARAM_INVALID.setContent("Invalid mail");
+                                        Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                                                        
+                                
+                            }else{
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                            }
+                        
                         break;
                               
                         
