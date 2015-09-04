@@ -10,14 +10,11 @@ import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.servlet.Auth;
 import com.generic.util.Address;
-import com.generic.util.MarketProduct;
-import com.generic.util.MarketProductImage;
 import com.generic.util.MarketUser;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +210,7 @@ public class DBUser extends DBGeneric{
                     } 
                     
                 
-            } catch (SQLException ex) {                
+            } catch (Exception ex) {                
                     Logger.getLogger(DBUser.class.getName()).log(Level.SEVERE, null, ex);
                     return Result.FAILURE_DB.setContent("DBUser - SQLException");                
             } finally{                                                                        
