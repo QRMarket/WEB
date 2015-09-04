@@ -39,6 +39,8 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-lg-12">
+                                    
+                                    
                                     <form id="login-form" action="Auth?authDo=carpeLogin" method="post" role="form" style="display: block;">
                                         <div class="form-group">
                                             <input id="userMail" name="cduMail" type="text" tabindex="1" class="form-control" value="Username" onfocus="this.value = ''" />
@@ -68,18 +70,26 @@
                                             </div>
                                         </div>
                                     </form>
-                                    <form id="register-form" action="http://phpoll.com/register/process" method="post" role="form" style="display: none;">
+                                    
+                                    
+                                    <form id="register-form" action="Auth?authDo=carpeRegister" method="post" role="form" style="display: none;">                                        
                                         <div class="form-group">
-                                            <input type="text" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+                                            <input type="email" name="cduMail" id="email" tabindex="1" class="form-control" placeholder="Email Address" value="">
                                         </div>
                                         <div class="form-group">
-                                            <input type="email" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Address" value="">
+                                            <input type="password" name="cduPass" id="password" tabindex="2" class="form-control" placeholder="Password">
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+                                            <input type="password" name="cduPassConfirm" id="confirm-password" tabindex="3" class="form-control" placeholder="Confirm Password">
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" name="confirm-password" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password">
+                                            <input type="text" name="cduname" id="username" tabindex="4" class="form-control" placeholder="Username" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" name="cdusurname" id="username" tabindex="5" class="form-control" placeholder="Surname" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" name="cduphone" id="username" tabindex="6" class="form-control" placeholder="Phone" value="">
                                         </div>
                                         <div class="form-group">
                                             <div class="row">
@@ -89,6 +99,8 @@
                                             </div>
                                         </div>
                                     </form>
+                                    
+                                    
                                 </div>
                             </div>
                         </div>

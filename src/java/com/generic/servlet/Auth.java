@@ -77,8 +77,7 @@ public class Auth extends HttpServlet {
          *
          */
         HttpSession session = request.getSession(false);
-        Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
+        Gson gson = new Gson();        
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.SUCCESS_EMPTY;               
                  
@@ -115,91 +114,8 @@ public class Auth extends HttpServlet {
                 //**************************************************************
                     case "carpeLogin":                                                     
                         
-                            if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
-                                                                        
-                                    /**
-                                     * If resultSet is empty -> user OR password is wrong
-                                     * else if resultSet size is equals 1 -> user match 
-                                     * else resultSet size > 1 -> multiple row returned
-                                     */
-                                    Connection conn = mysql.getConnection();
-                                    PreparedStatement preStat = conn.prepareStatement(resource.getPropertyValue("mysql.user.select.3"));
-                                    preStat.setString(1, request.getParameter("cduMail"));
-                                    preStat.setString(2, request.getParameter("cduPass"));
-                                    
-                                    ResultSet mysqlResult = preStat.executeQuery();
-                                    if(!mysql.isResultSetEmpty(mysqlResult)){
-
-                                        res = Result.FAILURE_AUTH_WRONG;
-                                        
-                                    }else if(mysql.getResultSetSize(mysqlResult)==1){                                                  
-                                        
-                                        if(mysqlResult.first()){                                                                                        
-                                            session = request.getSession(true);
-                                            String token = UUID.randomUUID().toString();
-                                            session.setAttribute("cduToken", token);
-                                            session.setAttribute("cduName", request.getParameter("cduMail"));
-                                            session.setAttribute("cduUserId", mysqlResult.getString("mu_id"));      // Add product to order-list durumunda kullanılmaktadır
-                                            session.setAttribute("cduType", mysqlResult.getString("mu_type"));
-                                            response.addCookie(new Cookie("cduToken", token));
-                                            
-                                            MarketUser loginUser = new MarketUser();
-                                            loginUser.setUserMail(request.getParameter("cduMail"));
-                                            loginUser.setUserName(mysqlResult.getString("mu_name"));                                            
-                                            loginUser.setUserToken(token);
-                                            loginUser.setUserSession(session.getId());
-                                            
-                                            // SET USER ADDRESS
-                                            Result userAddress = DBUser.getUserAddressList((String) session.getAttribute("cduUserId"));
-                                            if(userAddress.checkResult(Result.SUCCESS)){
-                                                loginUser.setUserAddress((ArrayList<Address>) userAddress.getContent());
-                                            }
-                                            
-                                            // RETURN VALUE
-                                            res = Result.SUCCESS.setContent(loginUser);                                                                                        
-                                            
-                                            
-                                            // ****************************************************
-                                            // ****************************************************
-                                            // Aşağıdaki commit edilmiş alan eskiden login sonrası web sayfasında
-                                            // yönlendirme için kullanılıyordu. Ancak servislerden sadece sonuç 
-                                            // dönmesi istenildiğinden yönlendirme iptal edilmiştir.
-                                            // ****************************************************
-                                            // ****************************************************
-                                            
-//                                            // Web Application
-//                                            if(Checker.isUserAgentMobileApp(request)){                                                
-//                                            
-//                                            // For BROWSER OPERATION
-//                                            }else if(Checker.isUserAgentBrowser(request)) {
-//                                                
-//                                                String redirectURL="";
-//                                                if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
-//                                                    redirectURL = Guppy.page_userMain;
-//                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
-//                                                    redirectURL = Guppy.page_marketMain;
-//                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("ADMIN")){
-//                                                    redirectURL = Guppy.page_adminPanel;
-//                                                }
-//                                                
-//                                                response.sendRedirect(redirectURL);  
-//                                               
-//                                            // UNKNOWN User Type
-//                                            } else {
-//                                                
-//                                            }
-                                            
-                                            
-                                            
-                                        }else{
-                                            res = Result.FAILURE_AUTH_MULTIPLE;
-                                        }                                        
-                                        
-                                    }else{
-
-                                        res = Result.FAILURE_AUTH_MULTIPLE;
-                                    }                                    
-
+                            if( !Checker.anyNull(request.getParameter("cduMail"),request.getParameter("cduPass")) ){                                   
+                                    res = DBUser.opLogin(request, response, session, request.getParameter("cduMail"), request.getParameter("cduPass"));                                
                             }else{
                                     res = Result.FAILURE_PARAM_MISMATCH;
                             }
@@ -225,38 +141,16 @@ public class Auth extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "carpeRegister":
-                        
-                            LoggerGuppy.verboseHeader(request);
-                       
-                            
+                                                   
                             // Check parameter exist
-                            if(!Checker.anyNull(request.getParameter("cduMail"), request.getParameter("cduPass"), request.getParameter("cduPassConfirm") )){
-                                
-                                    try {
-                                        
-                                        String email = request.getParameter("cduMail");
-                                        String pass = request.getParameter("cduPass");
-                                        String passConf = request.getParameter("cduPassConfirm");
-                                    
-                                        // -1- Check mail address vaild or not 
-                                        InternetAddress emailAddr = new InternetAddress(email);                                        
-                                        emailAddr.validate();
-                                        
-                                        // -2- Check password is valid
-                                        if(!(pass.equalsIgnoreCase(passConf))){
-                                            res = Result.FAILURE_PARAM_INVALID.setContent("Mismatch password failure"); 
-                                            break;
-                                        }
-                                        
-                                        // -3- Insert user to DB
-                                        res = DBUser.insertUser(email, pass, request.getParameter("cduname"), request.getParameter("cdusurname"), request.getParameter("cduphone"));
-                                                                                        
-                                    } catch (AddressException ex) {
-                                        res = Result.FAILURE_PARAM_INVALID.setContent("Invalid mail");
-                                        Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                                                        
-                                
+                            if(!Checker.anyNull(request.getParameter("cduMail"), request.getParameter("cduPass"), request.getParameter("cduPassConfirm") )){                                
+                                    res = DBUser.insertUser(
+                                            request.getParameter("cduMail"), 
+                                            request.getParameter("cduPass"), 
+                                            request.getParameter("cduPassConfirm"), 
+                                            request.getParameter("cduname"), 
+                                            request.getParameter("cdusurname"), 
+                                            request.getParameter("cduphone"));
                             }else{
                                     res = Result.FAILURE_PARAM_MISMATCH;
                             }
@@ -279,11 +173,8 @@ public class Auth extends HttpServlet {
             }
             
             
-        } catch (SQLException ex) {
-            Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{                        
-                                                
-            mysql.closeAllConnection();
+        } finally{                        
+
             out.write(gson.toJson(res));
             out.close();
             
