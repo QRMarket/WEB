@@ -18,6 +18,7 @@ import com.generic.util.MarketUser;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,9 +98,9 @@ public class Auth extends HttpServlet {
          * 
          *  
          */
-        
-        //LoggerGuppy.verboseURL(request);
-        //LoggerGuppy.verboseHeader(request);
+                
+        LoggerGuppy.verboseURL(request);
+        LoggerGuppy.verboseHeader(request);
         
         
         try{                                    
@@ -115,24 +116,23 @@ public class Auth extends HttpServlet {
                     case "carpeLogin":                                                     
                         
                             if(request.getParameter("cduMail")!=null && request.getParameter("cduPass")!=null){
-
-                                    System.out.println("--> /Auth?authDo=carpeLogin&cduMail="+request.getParameter("cduMail")+"&cduPass="+request.getParameter("cduPass"));
                                                                         
                                     /**
                                      * If resultSet is empty -> user OR password is wrong
                                      * else if resultSet size is equals 1 -> user match 
                                      * else resultSet size > 1 -> multiple row returned
                                      */
-                                    mysql.setPreparedStatement(resource.getPropertyValue("mysql.user.select.3"));
-                                    mysql.getPreparedStatement().setString(1, request.getParameter("cduMail"));
-                                    mysql.getPreparedStatement().setString(2, request.getParameter("cduPass"));                                    
-                                    ResultSet mysqlResult = mysql.getResultSet();
+                                    Connection conn = mysql.getConnection();
+                                    PreparedStatement preStat = conn.prepareStatement(resource.getPropertyValue("mysql.user.select.3"));
+                                    preStat.setString(1, request.getParameter("cduMail"));
+                                    preStat.setString(2, request.getParameter("cduPass"));
                                     
-                                    if(mysql.resultSetIsEmpty()){       
+                                    ResultSet mysqlResult = preStat.executeQuery();
+                                    if(!mysql.isResultSetEmpty(mysqlResult)){
 
                                         res = Result.FAILURE_AUTH_WRONG;
                                         
-                                    }else if(mysql.getResultSetSize()==1){                                                  
+                                    }else if(mysql.getResultSetSize(mysqlResult)==1){                                                  
                                         
                                         if(mysqlResult.first()){                                                                                        
                                             session = request.getSession(true);
@@ -156,29 +156,38 @@ public class Auth extends HttpServlet {
                                             }
                                             
                                             // RETURN VALUE
-                                            res = Result.SUCCESS.setContent(loginUser);
+                                            res = Result.SUCCESS.setContent(loginUser);                                                                                        
                                             
-                                            // Web Application
-                                            if(Checker.isUserAgentMobileApp(request)){                                                
                                             
-                                            // For BROWSER OPERATION
-                                            }else if(Checker.isUserAgentBrowser(request)) {
-                                                
-                                                String redirectURL="";
-                                                if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
-                                                    redirectURL = Guppy.page_userMain;
-                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
-                                                    redirectURL = Guppy.page_marketMain;
-                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("ADMIN")){
-                                                    redirectURL = Guppy.page_adminPanel;
-                                                }
-                                                
-                                                response.sendRedirect(redirectURL);  
-                                               
-                                            // UNKNOWN User Type
-                                            } else {
-                                                
-                                            }
+                                            // ****************************************************
+                                            // ****************************************************
+                                            // Aşağıdaki commit edilmiş alan eskiden login sonrası web sayfasında
+                                            // yönlendirme için kullanılıyordu. Ancak servislerden sadece sonuç 
+                                            // dönmesi istenildiğinden yönlendirme iptal edilmiştir.
+                                            // ****************************************************
+                                            // ****************************************************
+                                            
+//                                            // Web Application
+//                                            if(Checker.isUserAgentMobileApp(request)){                                                
+//                                            
+//                                            // For BROWSER OPERATION
+//                                            }else if(Checker.isUserAgentBrowser(request)) {
+//                                                
+//                                                String redirectURL="";
+//                                                if(mysqlResult.getString("mu_type").equalsIgnoreCase("PRECIOUS")){
+//                                                    redirectURL = Guppy.page_userMain;
+//                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("DEALER") || mysqlResult.getString("mu_type").equalsIgnoreCase("MARKETADMIN")){
+//                                                    redirectURL = Guppy.page_marketMain;
+//                                                }else if(mysqlResult.getString("mu_type").equalsIgnoreCase("ADMIN")){
+//                                                    redirectURL = Guppy.page_adminPanel;
+//                                                }
+//                                                
+//                                                response.sendRedirect(redirectURL);  
+//                                               
+//                                            // UNKNOWN User Type
+//                                            } else {
+//                                                
+//                                            }
                                             
                                             
                                             

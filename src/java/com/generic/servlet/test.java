@@ -12,8 +12,15 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -42,6 +49,53 @@ public class test extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             
+            
+            // Recipient's email ID needs to be mentioned.
+            String to = "kskaraca@gmail.com";
+
+            // Sender's email ID needs to be mentioned
+            String from = "web@gmail.com";
+
+            // Assuming you are sending email from localhost
+            String host = "localhost";
+
+            // Get system properties
+            Properties properties = System.getProperties();
+
+            // Setup mail server
+            properties.setProperty("mail.smtp.host", host);
+
+            // Get the default Session object.
+            Session session = Session.getDefaultInstance(properties);
+
+            try{
+                // Create a default MimeMessage object.
+                MimeMessage message = new MimeMessage(session);
+
+                try {
+                    // Set From: header field of the header.
+                    message.setFrom(new InternetAddress(from));
+                } catch (MessagingException ex) {
+                    Logger.getLogger(test.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                // Set To: header field of the header.
+                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+
+                // Set Subject: header field
+                message.setSubject("This is the Subject Line!");
+
+                // Now set the actual message
+                message.setText("This is actual message");
+
+                // Send message
+                Transport.send(message);
+                System.out.println("Sent message successfully....");
+            }catch (MessagingException mex) {
+               mex.printStackTrace();
+            }
+            
+/*
             Connection conn=null;
             Statement stmt=null;
             ResultSet rs=null;
@@ -79,7 +133,7 @@ public class test extends HttpServlet {
                 }
                 
             }
-            
+*/            
             
         }
     }

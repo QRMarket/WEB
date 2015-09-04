@@ -5,6 +5,8 @@ import com.generic.result.Result;
 import com.generic.util.Address;
 import com.generic.util.MarketOrder;
 import com.generic.util.MarketProduct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -47,56 +51,89 @@ public class DBOrder {
         
             MysqlDBOperations mysql = new MysqlDBOperations();
             ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
+            Connection conn = mysql.getConnection();
                         
-            try{                                                
-                Map proMap = (Map) session.getAttribute("cduPMap");                                            
+            try{   
+                        
+                // -1- Initialization
+                PreparedStatement preStat = conn.prepareStatement(rs.getString("mysql.order.update.insert.1"));
+                Map proMap = (Map) session.getAttribute("cduPMap");
+                boolean isSuccessInsertion = (proMap.size()>0);
                 String query;
                 
-                // GENERATE ORDER-ID
-                String oid = orderIDGenerator();
+                // -1.1-GENERATE ORDER-ID
+                String oid = orderIDGenerator(); 
                 
-                // GET USER-ID
+                // -1.2-GET USER-ID
                 String userID = (String) session.getAttribute("cduUserId");
                 
-                // GET CURRENT ORDERLIST ID FROM DB                   
-                query = String.format(  rs.getString("mysql.order.update.insert.1") , oid , "UNDELIVERED" , ptype , date , note , userID , "c_34567" , addID );
                                 
-                int effectedRowNum = mysql.execUpdate(query); 
-                boolean isSuccessInsertion = (proMap.size()>0);
-                if(effectedRowNum==1){                                        
-                    
-                    ArrayList<MarketProduct> proList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
-                    insertionFail:
-                    for(MarketProduct pro:proList){
+                // -2- Insert Order to table
+                try {
+                    preStat.setString(1, oid);
+                    preStat.setString(2, "UNDELIVERED");
+                    preStat.setString(3, ptype);
+                    preStat.setLong(4, date);
+                    preStat.setLong(5, 0);
+                    preStat.setString(6, note);
+                    preStat.setDouble(7, 10);
+                    preStat.setString(8, userID);
+                    preStat.setString(9, "c_34567");
+                    preStat.setString(10, addID);
+
+                    if(preStat.executeUpdate()==1){
                                                 
-                        query = String.format( rs.getString("mysql.orderProduct.update.insert.1") , oid , pro.getProductID() , pro.getAmount());
+                        // -3- Insert Products to orderProduct
+                        ArrayList<MarketProduct> proList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
+
+                        // -3.1- If process fail then break operation
+                        insertionFail:
+                            for(MarketProduct pro:proList){
+
+                                try {
+                                    preStat = conn.prepareStatement(rs.getString("mysql.orderProduct.update.insert.1"));
+                                    preStat.setString(1, oid);
+                                    preStat.setString(2, pro.getProductID());
+                                    preStat.setDouble(3, pro.getAmount());
+
+                                    if(preStat.executeUpdate()!=1){
+                                        isSuccessInsertion = false;
+                                        break insertionFail;
+                                    }
+
+                                } catch (SQLException ex) {
+                                    Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);
+                                    isSuccessInsertion = false;
+                                    break insertionFail;
+                                }                                                                            
+                            }
+
+                        // -4- Return success
+                        if(isSuccessInsertion){
+                            mysql.commitAndCloseConnection();
+                            return Result.SUCCESS;
+                        }
                         
-                        if(mysql.execUpdate(query)!=1){
-                            isSuccessInsertion = false;
-                            break insertionFail;
-                        }                                                    
                     }
-                                                                                   
-                    if(isSuccessInsertion){
-                        mysql.commitAndCloseConnection();
-                        return Result.SUCCESS;
-                    }else{
-                        mysql.rollbackAndCloseConnection();
-                        return Result.FAILURE_DB_UPDATE;
-                    }
-                    
-                    
-                }else{
-                    mysql.rollbackAndCloseConnection();
-                    return Result.FAILURE_DB_UPDATE;
-                }                           
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);                        
+                }
+                                
+                   
+                // -5- If operation fail then rollback 
+                mysql.rollbackAndCloseConnection();
+                                               
                 
-            }catch(ClassCastException e){                
-                return Result.FAILURE_PROCESS_CASTING.setContent(e);
+            }catch(ClassCastException e){                                
+                return Result.FAILURE_PROCESS_CASTING.setContent("Class casting error. Check server log");
+            } catch (SQLException ex) {
+                Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);
             }finally{
                 mysql.closeAllConnection();
             }                
         
+        return Result.FAILURE_PROCESS;
+            
     }
     
     /**

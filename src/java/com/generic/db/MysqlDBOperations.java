@@ -369,6 +369,30 @@ public class MysqlDBOperations {
         return empty;
     }
     
+    
+    public int getResultSetSize(ResultSet resultSet){
+        int size=0;                
+        try {
+            if(resultSet!=null){
+                resultSet.last();
+                size = resultSet.getRow();
+                resultSet.beforeFirst();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+        }                            
+        return size;
+    }
+    
+    public boolean isResultSetEmpty(ResultSet resultSet){
+        try {
+            return resultSet.isBeforeFirst();
+        } catch (SQLException ex) {
+            Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
     public void setResultSet(ResultSet resultSet){
         this.resultSet = resultSet;
     }

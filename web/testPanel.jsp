@@ -19,11 +19,13 @@
         <script>
     
             $(document).ready(function(){
+                /*
                 for(i=0 ; i<$('#productSelected').children().size(); i++){                 
                     $($('#productSelected').children()[i]).html(window.location.origin + $($('#productSelected').children()[i]).html());
                 }
                 
                 getProductList();
+                */
             });
     
             $(document).on("click" , "#logout" , function(){
@@ -181,14 +183,14 @@
                     "cdosDo":"confirmOrderList",
                     "aid":$( "#addressID" ).val(),
                     "ptype":$( "#ptype" ).val(),
-                    "date":$( "#odate" ).val(),
+                    "date":new Date().getTime(),
                     "note":$( "#onote" ).val() }, function(data) {             
 
-                    var jsonObj = jQuery.parseJSON( data );                      
-                    console.log(jsonObj);
-                    if(jsonObj['resultCode']=='GUPPY.001'){
-                        alert("order confirm successfully")
-                    }                                                                                
+                        var jsonObj = jQuery.parseJSON( data );                      
+                        console.log(jsonObj);
+                        if(jsonObj['resultCode']=='GUPPY.001'){
+                            alert("order confirm successfully")
+                        }                                                                                
                 });
             });            
                                                 
@@ -213,9 +215,21 @@
                     </ul>
                     
                     <ul class="nav navbar-nav navbar-right">                        
-                        <li class="active">
-                            <button id="logout" type="button" class="btn btn-default navbar-btn ">Logout</button>
+                        <li class="active">                            
+                            
+                            <div class="dropdown" style="margin-top:8px; margin-bottom:8px;">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="profile.jsp">Profile</a></li>
+                                    <li role="presentation" class="divider"></li>                                    
+                                    <li role="presentation"><a id="logout" role="menuitem" tabindex="-1" href="#">Logout</a></li>
+                                </ul>
+                            </div>
                         </li>
+                        
+                        
+                        
                     </ul>  
                      
                 </div>
@@ -275,7 +289,7 @@
                     <input style="margin: 5px;" id="getProductInfo" class="btn btn-default" type="button" value="Get Production Info">
                     <input style="margin: 5px;" id="addToOrderList" class="btn btn-default" type="button" value="Add Product To Cart">
                     <input style="margin: 5px;" id="showProductInfo" class="btn btn-default" type="button" value="Production Info Page">                     
-                </div>                                               
+                </div>                                        
                            
             </div>
 

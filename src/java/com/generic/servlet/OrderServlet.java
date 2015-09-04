@@ -248,7 +248,7 @@ public class OrderServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "confirmOrderList":
-                        
+                                                    
                             if( !Checker.anyNull(request.getParameter("aid"),request.getParameter("ptype"),request.getParameter("date"),request.getParameter("note")) ){
                                 
                                 String addressID = request.getParameter("aid");
@@ -270,8 +270,8 @@ public class OrderServlet extends HttpServlet {
                                         res = Result.SUCCESS_EMPTY;
                                     }
                                                                         
-                                }catch(NumberFormatException e){
-                                    res = Result.FAILURE_PROCESS_CASTING.setContent(e);
+                                }catch(NumberFormatException e){                                    
+                                    res = Result.FAILURE_PROCESS_CASTING.setContent("Number Format Exception @Order Service");
                                 }
                                 
                             }else{

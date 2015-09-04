@@ -2,8 +2,10 @@
 # NOTE :: dist directory also in web/... therefore do not ignore dist/
 # nbproject/
 # dist/
+nbproject/
 nbproject/private/private.xml
 nbproject/private/private.properties
+
 
 # Compiled source #
 ###################
