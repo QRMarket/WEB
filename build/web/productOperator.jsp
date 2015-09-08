@@ -94,7 +94,7 @@
                 url = "http://localhost:8080/Sample_WebApplication_3_Upload/SampleServlet"
  
                 $.ajax({
-                    url: "http://localhost:8080/QR_Market_Web/ProductAddServlet",
+                    url: "http://localhost:8080/QR_Market_Web/ProductServletMultipart",
                     type: "POST",
                     data: jForm,
                     mimeType: "multipart/form-data",

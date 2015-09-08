@@ -33,6 +33,7 @@ public class Result <T> implements Serializable{
     public static Result FAILURE_PARAM_INVALID; 
     public static Result FAILURE_PROCESS; 
     public static Result FAILURE_PROCESS_CASTING; 
+    public static Result FAILURE_PROCESS_CONTENTTYPE; 
     public static Result FAILURE_CHECKER_DATE; 
     
     static{
@@ -120,7 +121,7 @@ public class Result <T> implements Serializable{
      */
     public static void setLanguage(String lang){
         String propFileName = lang==null ? "resources_en" : lang.equals("tr") ? "resources_tr" : "resources_en";
-        initializeStaticObjects(ResourceBundle.getBundle("tr.gov.eba.resources.resources", lang==null ? Locale.ENGLISH : lang.equals("tr") ? new Locale("tr") : Locale.ENGLISH));
+        initializeStaticObjects(ResourceBundle.getBundle("com.generic.resources.resultProp", lang==null ? Locale.ENGLISH : lang.equals("tr") ? new Locale("tr") : Locale.ENGLISH));
     }
     /**
      * This method initializes the static Result object with the given language via Resource Bundle
@@ -144,6 +145,7 @@ public class Result <T> implements Serializable{
         FAILURE_PARAM_INVALID       = new Result("GUPPY.512", rs.getString("result.guppy.512"));
         FAILURE_PROCESS             = new Result("GUPPY.600", rs.getString("result.guppy.600"));
         FAILURE_PROCESS_CASTING     = new Result("GUPPY.610", rs.getString("result.guppy.610"));
+        FAILURE_PROCESS_CONTENTTYPE = new Result("GUPPY.611", rs.getString("result.guppy.611"));
         FAILURE_CHECKER_DATE        = new Result("GUPPY.740", rs.getString("result.guppy.740"));
     }
     

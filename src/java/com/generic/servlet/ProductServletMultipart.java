@@ -6,14 +6,19 @@
 package com.generic.servlet;
 
 import com.generic.db.DBProduct;
+import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -48,9 +54,9 @@ import sun.misc.BASE64Encoder;
  */
 
 @MultipartConfig
-@WebServlet(name = "ProductAddServlet", urlPatterns = {"/ProductAddServlet"})
-public class ProductAddServlet extends HttpServlet {
-
+@WebServlet(name = "ProductServletMultipart", urlPatterns = {"/ProductServletMultipart"})
+public class ProductServletMultipart extends HttpServlet {
+    
     private int maxMemSize =  10 * 1024 * 1024;
     private int maxFileSize = 50 * 1024 * 1024;
     private File file ;
@@ -90,72 +96,92 @@ public class ProductAddServlet extends HttpServlet {
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");        
         Map parameters = new HashMap();
         Result res = Result.FAILURE_PROCESS; 
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
                              
     
-        try{            
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            // Sets the size threshold beyond which files are written directly to disk
-            factory.setSizeThreshold(maxMemSize);
-            // Sets the directory used to temporarily store files that are larger than the configured size threshold
-            factory.setRepository(new File("/tmp/QR_Market_Web/images"));
-            
-            ServletFileUpload upload = new ServletFileUpload(factory);
-            upload.setSizeMax( maxFileSize );            
-            List fileItems =upload.parseRequest(request);                        
-            
-            Iterator i = fileItems.iterator();           
-            while ( i.hasNext () ){
-                FileItem fileItem = (FileItem)i.next(); 
-                if ( fileItem.isFormField () ){
-                    parameters.put(fileItem.getFieldName(), fileItem.getString());    
-                }
-                
-            }
+        try{         
+                        
+            LoggerGuppy.verboseURL(request);
+            LoggerGuppy.verboseHeader(request);
             
             
-            
-            if(parameters.get("cdpsDo")!=null){
-                switch((String)parameters.get("cdpsDo")){ 
-                    
+            if(request.getParameter("cdpsDo")!=null){
+                switch(request.getParameter("cdpsDo")){ 
+
                 //**************************************************************
                 //**************************************************************
                 //**                    GET PRODUCT CASE
                 //**************************************************************
                 //**************************************************************
-                    case "addProduct":                                         
-                            
-                            Iterator iterator = fileItems.iterator();           
-                            while ( iterator.hasNext () ){
-                                FileItem fileItem = (FileItem)iterator.next(); 
-                                if ( !fileItem.isFormField () ){                                    
-                                    
-                                    // FILE TO BASE64
-                                    InputStream inputStream = fileItem.getInputStream();
-                                    byte[] bytes = IOUtils.toByteArray(inputStream);
-                                    String fileBase64 = new BASE64Encoder().encode(bytes); 
-                                    
-                                    res = DBProduct.addProduct(
-                                            (String) parameters.get("cdpName"), 
-                                            (String) parameters.get("cdpBranch"),
-                                            (String) parameters.get("cdpBarcode"),
-                                            (String) parameters.get("cdpDesc"),
-                                            fileItem.getContentType(),
-                                            fileBase64);                                                                        
+                    case "addProduct":     
+                        
+                        
+                            if(request.getHeader("content-type")!=null && (request.getHeader("content-type").indexOf("multipart/form-data") >= 0 )){
+
+                                // -1- Get Parts from request
+                                Collection<Part> parts = request.getParts();
+                                Iterator<Part> iterator = parts.iterator();
+
+                                String cdpName=null;
+                                String cdpBranch=null;
+                                String cdpBarcode=null;
+                                String cdpDesc=null;
+                                String cdpFileContent=null;
+                                String cdpFile=null;
+
+                                while ( iterator.hasNext () ){
+                                    Part p = iterator.next();
+                                    System.out.println("Content-type :: " + p.getContentType());
+                                    System.out.println("Nmae :: " + p.getName());
+                                    System.out.println("Submitted fileName :: " + p.getSubmittedFileName());
+
+                                    // -1.1- Get form field 
+                                    if(p.getContentType()==null){
+                                        System.out.println("Value :: " + IOUtils.toString(p.getInputStream()));
+
+                                    // -1.2- Get file as base64
+                                    }else{
+                                        byte[] byteForString = IOUtils.toByteArray(p.getInputStream());
+                                        cdpFile = new BASE64Encoder().encode(byteForString);
+                                        cdpFileContent = p.getContentType();
+                                        
+                                        
+                                        outputStream = new FileOutputStream(new File("aaa.pdf"));
+                                        inputStream = p.getInputStream();
+
+                                        int read = 0;
+                                        final byte[] bytes = new byte[1024];
+
+                                        while ((read = inputStream.read(bytes)) != -1) {
+                                            outputStream.write(bytes, 0, read);
+                                        }
+                                                                                    
+                                    }
+
                                 }
+                                
+                                //res = DBProduct.addProduct( cdpName, cdpBranch, cdpBarcode, cdpDesc, cdpFileContent, cdpFile);  
+
+
+                            }else {
+                                res = Result.FAILURE_PROCESS_CONTENTTYPE.setContent("ProductServletMultipart - content-type should be multipart/form-data");
                             }
-                               
+                                                                           
+                                
                         break;
                 }
-                
+
             }
                     
                     
             
-        } catch (FileUploadException ex) {
-            Logger.getLogger(ProductAddServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(ProductAddServlet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProductServletMultipart.class.getName()).log(Level.SEVERE, null, ex);
+            res = Result.FAILURE_PROCESS.setContent("ProductServletMultipart - Exception");
         } finally{
+            
+            outputStream.close();
             out.write(gson.toJson(res));
             out.close();            
         }
