@@ -2,7 +2,7 @@
 # NOTE :: dist directory also in web/... therefore do not ignore dist/
 # nbproject/
 # dist/
-#nbproject/private
+nbproject/private
 
 # Compiled source #
 ###################
