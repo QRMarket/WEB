@@ -7,7 +7,6 @@ package com.generic.servlet;
 
 import com.generic.result.Result;
 import com.generic.util.Util;
-import com.generic.util.Util.ContentType;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +16,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -26,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 /**
