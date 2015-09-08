@@ -2,7 +2,7 @@
 # NOTE :: dist directory also in web/... therefore do not ignore dist/
 # nbproject/
 # dist/
-nbproject/private
+nbproject/private/private.xml
 
 # Compiled source #
 ###################
@@ -25,6 +25,7 @@ nbproject/private
 *.tar
 *.zip
 *.xml
+!build.xml
  
 # Logs and databases #
 ######################
@@ -62,4 +63,3 @@ local.properties
 
 # IDE configuration
 *.iml
-/dist/
