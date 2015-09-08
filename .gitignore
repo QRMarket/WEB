@@ -25,7 +25,10 @@ nbproject/private
 *.tar
 *.zip
 *.xml
+!ant-deploy.xml
+!build-impl.xml
 !build.xml
+!project.xml
  
 # Logs and databases #
 ######################
