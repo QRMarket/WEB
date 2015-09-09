@@ -28,8 +28,8 @@ import org.apache.commons.io.IOUtils;
  */
 public class Util {
     
-    
-    
+    public static final String DirectoryImage = "/images";
+        
     
     public static enum ContentType{
         MULTIPART,

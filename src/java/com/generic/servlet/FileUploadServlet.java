@@ -5,7 +5,6 @@
  */
 package com.generic.servlet;
 
-import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -16,9 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -27,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -82,14 +78,6 @@ public class FileUploadServlet extends HttpServlet {
                 
         try{
             
-            LoggerGuppy.verboseURL(request);
-            LoggerGuppy.verboseHeader(request);
-
-            Set<String> pathList = getServletContext().getResourcePaths("/images");
-            for(String s:pathList){
-                System.out.println(s);
-            }
-            
             switch(Util.getContentType(request)){ 
                     
                 //**************************************************************
@@ -109,23 +97,45 @@ public class FileUploadServlet extends HttpServlet {
                             // -3- Get Parameters From parts
                             }else{
                                 
-                                Map params = Util.getParameterFromParts(parts);
-                                
+                                Map params = Util.getParameterFromParts(parts);                                
                                 try{
+                                    
+                                    // -- Get Operation Parameter from Map
                                     String cdfsDo = (String)params.get("cdfsDo");
                                     switch(cdfsDo){ 
+                                                                                
+                                    //**************************************************************
+                                    //**************************************************************
+                                    //**                    UPLOAD FILE CASE
+                                    //**************************************************************
+                                    //**************************************************************
                                         case "addFile":  
                                                                                             
                                                 // -3.1- Get parameter from  part 
-                                                String cdDest = (String) params.get("cdTo");
+                                                String cdTo = (String) params.get("cdfType");
+                                                String fileLocation = null;
                                                 Part part = (Part) params.get("cdFile");
                                                 
-                                                // -3.2- Check directory exist
-                                                if( (cdDest.equalsIgnoreCase("sections")) || (cdDest.equalsIgnoreCase("products")) ){
+                                                // -3.2- Get type of upload file
+                                                switch(cdTo){
+                                                    case "1":
+                                                            fileLocation = "sections";
+                                                        break;
                                                     
-                                                    // -3.2.1- Prepare file
+                                                    case "2":
+                                                            fileLocation = "products";
+                                                        break;
+                                                        
+                                                    default :
+                                                            fileLocation = null;
+                                                        break;
+                                                }
+                                                
+                                                // -3.3- File Operation
+                                                if( fileLocation!=null ){                                                                                                    
+                                                                                                        
                                                     String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                                    outputStream = new FileOutputStream(new File(getServletContext().getRealPath("/images/" + cdDest), fileName) );
+                                                    outputStream = new FileOutputStream(new File(getServletContext().getRealPath( Util.DirectoryImage + "/" + fileLocation), fileName) );
                                                     inputStream = part.getInputStream();
 
                                                     int read = 0;
@@ -135,17 +145,24 @@ public class FileUploadServlet extends HttpServlet {
                                                         outputStream.write(bytes, 0, read);
                                                     }
 
-                                                    res = Result.SUCCESS.setContent( Util.getBaseURL(request) + "/images/" + cdDest + "/" + fileName );
+                                                    res = Result.SUCCESS.setContent( Util.getBaseURL(request) + Util.DirectoryImage + "/" + fileLocation + "/" + fileName );
                                                 
                                                 }else{
                                                     res = Result.FAILURE_PROCESS.setContent( "Upload file type error." );
                                                 }
                                                 
-                                            break;
-
+                                            break;                                           
+                                            
+                                    //**************************************************************
+                                    //**************************************************************
+                                    //**                    DEFAULT CASE
+                                    //**************************************************************
+                                    //**************************************************************
                                         default:
                                                 res = Result.FAILURE_PARAM_MISMATCH;
-                                            break;
+                                                
+                                            break;                                            
+                                            
                                     }
                                     
                                 } catch(NullPointerException e){
