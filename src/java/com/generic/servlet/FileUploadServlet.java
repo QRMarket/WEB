@@ -5,6 +5,7 @@
  */
 package com.generic.servlet;
 
+import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -16,6 +17,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -54,15 +57,18 @@ public class FileUploadServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");                
+        response.setContentType("application/json;charset=UTF-8");
                                 
         /**
          * cdfsDo            
          *          :: addFile
          *              :: cdFile
+         *              :: cdDest
          * 
          * !! KISALTMALAR !!
          * carpe diem file servlet      --> cdfs
+         * carpe diem destination       --> cdDest
+         * carpe dime file              --> cdFile
          * 
          */
         PrintWriter out = response.getWriter();
@@ -73,10 +79,17 @@ public class FileUploadServlet extends HttpServlet {
         Gson gson = new Gson();        
         Result res = Result.FAILURE_PROCESS.setContent("initial"); 
         
-        
-        
+                
         try{
-                        
+            
+            LoggerGuppy.verboseURL(request);
+            LoggerGuppy.verboseHeader(request);
+
+            Set<String> pathList = getServletContext().getResourcePaths("/images");
+            for(String s:pathList){
+                System.out.println(s);
+            }
+            
             switch(Util.getContentType(request)){ 
                     
                 //**************************************************************
@@ -88,37 +101,62 @@ public class FileUploadServlet extends HttpServlet {
                         
                             // -1- Get Parts from request
                             Collection<Part> parts = request.getParts();
-                            
+                        
+                            // -2- Check parts is not empty
                             if(parts.isEmpty()){                                
                                 res = Result.FAILURE_PARAM_MISMATCH;
                                 
+                            // -3- Get Parameters From parts
                             }else{
                                 
-                                Iterator<Part> iterator = parts.iterator();
-                                while ( iterator.hasNext () ){
-                                    Part part = iterator.next();
+                                Map params = Util.getParameterFromParts(parts);
+                                
+                                try{
+                                    String cdfsDo = (String)params.get("cdfsDo");
+                                    switch(cdfsDo){ 
+                                        case "addFile":  
+                                                                                            
+                                                // -3.1- Get parameter from  part 
+                                                String cdDest = (String) params.get("cdTo");
+                                                Part part = (Part) params.get("cdFile");
+                                                
+                                                // -3.2- Check directory exist
+                                                if( (cdDest.equalsIgnoreCase("sections")) || (cdDest.equalsIgnoreCase("products")) ){
+                                                    
+                                                    // -3.2.1- Prepare file
+                                                    String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
+                                                    outputStream = new FileOutputStream(new File(getServletContext().getRealPath("/images/" + cdDest), fileName) );
+                                                    inputStream = part.getInputStream();
 
-                                    // -1.1- Get form field 
-                                    if(part.getContentType()==null){
-                                        System.out.println("Value :: " + IOUtils.toString(part.getInputStream()));
+                                                    int read = 0;
+                                                    final byte[] bytes = new byte[1024];
 
-                                    // -1.2- Get file as base64
-                                    }else{
+                                                    while ((read = inputStream.read(bytes)) != -1) {
+                                                        outputStream.write(bytes, 0, read);
+                                                    }
 
-                                        String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                        outputStream = new FileOutputStream(new File(getServletContext().getRealPath("/images/sections"), fileName) );
-                                        inputStream = part.getInputStream();
+                                                    res = Result.SUCCESS.setContent( Util.getBaseURL(request) + "/images/" + cdDest + "/" + fileName );
+                                                
+                                                }else{
+                                                    res = Result.FAILURE_PROCESS.setContent( "Upload file type error." );
+                                                }
+                                                
+                                            break;
 
-                                        int read = 0;
-                                        final byte[] bytes = new byte[1024];
-
-                                        while ((read = inputStream.read(bytes)) != -1) {
-                                            outputStream.write(bytes, 0, read);
-                                        }
-
-                                        res = Result.SUCCESS.setContent( Util.getBaseURL(request) + "/images/sections/" + fileName );
+                                        default:
+                                                res = Result.FAILURE_PARAM_MISMATCH;
+                                            break;
                                     }
+                                    
+                                } catch(NullPointerException e){
+                                    // -??- Multipart değerlerden parametrenin çekilememe durumudur
+                                    res = Result.FAILURE_PARAM_MISMATCH.setContent("FileUploadServlet - NullPointerException caused by parameter mismatch");
+                                
+                                } catch(ClassCastException e){
+                                    // -??- Multipart değerlerden parametre casting error durumudur
+                                    res = Result.FAILURE_PROCESS_CASTING.setContent("Casting error for parameter");
                                 }
+                                                                
                             }
                         
                         break;
@@ -135,60 +173,7 @@ public class FileUploadServlet extends HttpServlet {
                         break;
                                                 
             }
-            
-            
-//            if(request.getParameter("cdfsDo")!=null){
-//                switch(request.getParameter("cdfsDo")){ 
-//
-//                //**************************************************************
-//                //**************************************************************
-//                //**                    ADD FILE CASE
-//                //**************************************************************
-//                //**************************************************************
-//                    case "addFile":     
-//                        
-//                            if(request.getHeader("content-type")!=null && (request.getHeader("content-type").indexOf("multipart/form-data") >= 0 )){
-//
-//                                // -1- Get Parts from request
-//                                Collection<Part> parts = request.getParts();
-//                                Iterator<Part> iterator = parts.iterator();
-//                                
-//                                while ( iterator.hasNext () ){
-//                                    Part part = iterator.next();
-//                                    
-//                                    // -1.1- Get form field 
-//                                    if(part.getContentType()==null){
-//                                        System.out.println("Value :: " + IOUtils.toString(part.getInputStream()));
-//
-//                                    // -1.2- Get file as base64
-//                                    }else{
-//                                        
-//                                        String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-//                                        outputStream = new FileOutputStream(new File(getServletContext().getRealPath("/images/sections"), fileName) );
-//                                        inputStream = part.getInputStream();
-//
-//                                        int read = 0;
-//                                        final byte[] bytes = new byte[1024];
-//
-//                                        while ((read = inputStream.read(bytes)) != -1) {
-//                                            outputStream.write(bytes, 0, read);
-//                                        }
-//                                                                                                                        
-//                                        res = Result.SUCCESS.setContent( Util.getBaseURL(request) + "/images/sections/" + fileName );
-//                                    }
-//                                }
-//
-//                            }else{
-//                                res = Result.FAILURE_PROCESS_CONTENTTYPE;
-//                            }
-//                        
-//                        break;
-//                }
-//
-//            }else{
-//                res = Result.FAILURE_PARAM_MISMATCH;
-//            }
-            
+         
         } catch (Exception e){
             res = Result.FAILURE_PROCESS.setContent("Exception");
             
