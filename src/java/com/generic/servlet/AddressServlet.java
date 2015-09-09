@@ -8,12 +8,14 @@ package com.generic.servlet;
 import com.generic.checker.Checker;
 import com.generic.db.DBAddress;
 import com.generic.db.MysqlDBOperations;
+import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +47,8 @@ public class AddressServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+            throws ServletException, IOException {        
+        response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
         
         
@@ -63,21 +65,17 @@ public class AddressServlet extends HttpServlet {
          *
          * 
          * !! SHORTCUTs !!
-         * carpe diem address           --> cdm
-         * carpe diem address servlet   --> cdms        
+         * carpe diem address           --> cda
+         * carpe diem address language  --> cdal
+         * carpe diem address servlet   --> cdas        
          *
          */
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);        
+        MysqlDBOperations mysql = new MysqlDBOperations();       
+        
+        Result res = Result.FAILURE_PROCESS.setContent("initial");
         Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Result res = Result.FAILURE_PROCESS;
-        Map resultMap = new HashMap();
-        
-        
-        
-        //verbose(request);
-        
+                
         
         
         //**********************************************************************
@@ -86,21 +84,18 @@ public class AddressServlet extends HttpServlet {
         //**********************************************************************
         //**********************************************************************
         try {
-            
-            
                         
-            if(request.getParameter("cdasDO")!=null){                 
-                switch(request.getParameter("cdasDO")){ 
+                        
+            if(request.getParameter("cdasDo")!=null){                 
+                switch(request.getParameter("cdasDo")){ 
                     
                 //**************************************************************
                 //**************************************************************
                 //**                    ADD TO ADDRESS CASE
                 //**************************************************************
                 //**************************************************************
-                    case "addAddress":
-                        
-                            
-
+                    case "addAddress":                       
+                            res = DBAddress.addAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
                         break;
                         
                         
@@ -109,10 +104,8 @@ public class AddressServlet extends HttpServlet {
                 //**                GET ADRESS-CITY CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getCityList":                                                        
-                                                        
-                            res = DBAddress.selectDistict( ResourceMysql.TABLE_ADDRESS , "city");
-                            
+                    case "getCityList":
+                            res = DBAddress.getCityList();
                         break;
                         
                 
@@ -121,14 +114,8 @@ public class AddressServlet extends HttpServlet {
                 //**                GET ADRESS-BOROUGH CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getBoroughList":                                                        
-                            
-                            if(!Checker.anyNull(request.getParameter("cdaCity"))){
-                                res = DBAddress.getBoroughList(request.getParameter("cdaCity"));
-                            }else{
-                                res = Result.FAILURE_PARAM_MISMATCH;
-                            }
-                                                        
+                    case "getBoroughList":
+                            res = DBAddress.getBoroughList(request.getParameter("cdaCity"));              
                         break;
                         
                 
@@ -138,13 +125,7 @@ public class AddressServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "getLocalityList":
-                                                        
-                            if(!Checker.anyNull(request.getParameter("cdaCity") , request.getParameter("cdaBorough"))){
-                                res = DBAddress.getLocalityList(request.getParameter("cdaCity") , request.getParameter("cdaBorough"));
-                            }else{
-                                res = Result.FAILURE_PARAM_MISMATCH;
-                            }
-                            
+                            res = DBAddress.getLocalityList(request.getParameter("cdaIso"), request.getParameter("cdaCity") , request.getParameter("cdaBorough"));                            
                         break;
                         
                         
@@ -154,8 +135,6 @@ public class AddressServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "deleteAdress":
-                                                                            
-                            
                             
                         break;
                         
@@ -183,32 +162,7 @@ public class AddressServlet extends HttpServlet {
             
         }                        
         
-    }
-    
-    
-    /**
-     * 
-     * @param request 
-     */
-    public void verbose(HttpServletRequest request){
-        Enumeration<String> enume = request.getParameterNames();
-        while(enume.hasMoreElements()){
-            String key = enume.nextElement();
-            System.out.println("Incoming parameter  --> " + key + " :: " + request.getParameter(key));
-        }
-            System.out.println("URL                 --> " + request.getScheme() + "://" + 
-                                                            request.getServerName() +":"+
-                                                            request.getServerPort() +
-                                                            request.getRequestURI() + 
-                                                            (request.getQueryString()==null?"":"?" + request.getQueryString()) );
-            
-        Enumeration<String> enumeHeader = request.getHeaderNames();
-        while(enumeHeader.hasMoreElements()){
-            String headerKey = enumeHeader.nextElement();            
-            System.out.println( "HEADER -- " + headerKey + " :: " + request.getHeader(headerKey));
-        }
-    }
-    
+    }    
     
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -11,6 +11,7 @@ import com.generic.result.Result;
 import com.generic.servlet.Auth;
 import com.generic.util.Address;
 import com.generic.util.MarketUser;
+import com.generic.util.Util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -275,7 +276,7 @@ public class DBUser extends DBGeneric{
                 
                 // -4- If not exist then continue
                 preStat = conn.prepareStatement(resource.getPropertyValue("mysql.user.update.insert.1"));                
-                preStat.setString(1, "mu-"+UUID.randomUUID().toString());
+                preStat.setString(1, "mu-"+Util.generateID());
                 preStat.setString(2, userEmail);
                 preStat.setString(3, password);
                 preStat.setString(4, username);
