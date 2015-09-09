@@ -81,7 +81,7 @@ public class DBSection {
         try {
             PreparedStatement preStat = conn.prepareStatement(resource.getPropertyValue("mysql.section.select.4"));
             preStat.setString(1, sName);
-            
+
             ResultSet resultSet = preStat.executeQuery();
 
             boolean empty = true;
@@ -159,6 +159,75 @@ public class DBSection {
             } else {
                 mysql.rollback();
                 return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count more than 1");
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DBUser.class.getName()).log(Level.SEVERE, null, ex);
+            return Result.FAILURE_DB.setContent("SQL Exception");
+
+        } finally {
+            mysql.closeAllConnection();
+        }
+    }
+
+    public static Result updateSection(String sid, String sName, String sImage, String pid) {
+        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
+        MysqlDBOperations mysql = new MysqlDBOperations();
+        Connection conn = mysql.getConnection();
+
+        try {
+            PreparedStatement preStat;
+            int executeResult = 0;
+            int finalExecuteResult = 0; //stores how many changes will be done
+            if (sName != null) {
+                finalExecuteResult++;
+                preStat = conn.prepareStatement(resource.getPropertyValue("mysql.section.update.1"));
+                preStat.setString(1, sName);
+                preStat.setString(2, sid);
+
+                executeResult += preStat.executeUpdate();
+            }
+            if(sImage != null){
+                finalExecuteResult++;
+                preStat = conn.prepareStatement(resource.getPropertyValue("mysql.section.update.2"));
+                preStat.setString(1, sImage);
+                preStat.setString(2, sid);
+
+                executeResult += preStat.executeUpdate();
+            }
+            if(pid != null){
+                preStat = conn.prepareStatement(resource.getPropertyValue("mysql.section.select.5"));
+                preStat.setString(1, pid);
+                ResultSet resultSet = preStat.executeQuery();
+
+                boolean empty = true;
+                try {
+                    empty = !(resultSet.first());
+                    resultSet.beforeFirst();
+                } catch (SQLException ex) {
+                    Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB.setContent("SQL Exception");
+                }
+
+                if (empty) {
+                    return Result.FAILURE_PARAM_WRONG.setContent("Section parent id doesn't exist.");
+                }
+                
+                finalExecuteResult++;
+                preStat = conn.prepareStatement(resource.getPropertyValue("mysql.section.update.3"));
+                preStat.setString(1, pid);
+                preStat.setString(2, sid);
+
+                executeResult += preStat.executeUpdate();
+            }
+            
+            
+            if (executeResult == finalExecuteResult) {
+                mysql.commitAndCloseConnection();
+                return Result.SUCCESS;
+            } else {
+                mysql.rollback();
+                return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count < 3");
             }
 
         } catch (SQLException ex) {
