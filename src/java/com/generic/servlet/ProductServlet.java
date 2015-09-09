@@ -26,18 +26,17 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-
 /**
  *
  * @author Kemal Sami KARACA
- * @version 1.001 
- * 
- *      This servlet will be used to manage production data
+ * @version 1.001
+ *
+ * This servlet will be used to manage production data
  */
 @MultipartConfig
 @WebServlet(name = "ProductServlet", urlPatterns = {"/ProductServlet"})
 public class ProductServlet extends HttpServlet {
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -48,134 +47,130 @@ public class ProductServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {        
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();        
-        
+            throws ServletException, IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
         /**
-         * cdpsDo   :: getProduct
-         *              :: cdpUID         
-         *          :: setProduct
-         *              :: cdpUID         
-         *          :: removeProduct
+         * cdpsDo :: getProduct :: cdpUID :: setProduct :: cdpUID ::
+         * removeProduct
          *
-         * 
-         * !! KISALTMALAR !!
-         * carpe diem product           --> cdp
-         * carpe dirm product servlet   --> cdps
-         * carpe diem product unique id --> cdpUID
-         * carpe diem product common id --> cdpCID
-         * carpe diem product market id --> cdpmID
+         *
+         * !! KISALTMALAR !! carpe diem product --> cdp carpe dirm product
+         * servlet --> cdps carpe diem product unique id --> cdpUID carpe diem
+         * product common id --> cdpCID carpe diem product market id --> cdpmID
          *
          */
         HttpSession session = request.getSession(false);
         Gson gson = new Gson();
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Result res = Result.FAILURE_PROCESS;               
-        
-        
+        Result res = Result.FAILURE_PROCESS;
+
         /**
-         *  Bu servlet(servis)'in amacı product ile ilgili işlemlerin yapılmasıdır
-         *  Kullanıcı product görüntüleme, market tarafından yeni product eklenme,
-         *  product fiyatı editleme veya ilgili product silme gibi temel işlevleri
-         *  karşılar
-         *  
+         * Bu servlet(servis)'in amacı product ile ilgili işlemlerin
+         * yapılmasıdır Kullanıcı product görüntüleme, market tarafından yeni
+         * product eklenme, product fiyatı editleme veya ilgili product silme
+         * gibi temel işlevleri karşılar
+         *
          */
         Enumeration<String> enume = request.getParameterNames();
-        while(enume.hasMoreElements()){
+        while (enume.hasMoreElements()) {
             String key = enume.nextElement();
             System.out.println("Incoming parameter --> " + key + " :: " + request.getParameter(key));
-        }        
-        
+        }
+
         try {
-            
-            if(request.getParameter("cdpsDo")!=null){                 
-                switch(request.getParameter("cdpsDo")){ 
-                    
-                //**************************************************************
-                //**************************************************************
-                //**                    GET PRODUCT CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getProduct": 
 
-                            if(request.getParameter("cdpUID")!=null){
-                                    
-                                    res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
+            if (request.getParameter("cdpsDo") != null) {
+                switch (request.getParameter("cdpsDo")) {
 
-                            } else if(request.getParameter("cdpCID")!=null){
-                                
-                                    res = DBProduct.getProduct(request.getParameter("cdpCID"));
-                                
-                            } else{
-                                    res = Result.FAILURE_PARAM_MISMATCH;
-                            }
+                //**************************************************************
+                    //**************************************************************
+                    //**                    GET PRODUCT CASE
+                    //**************************************************************
+                    //**************************************************************
+                    case "getProduct":
 
-                        break;
-                   
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                GET PRODUCT LIST CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getProductList": 
+                        if (request.getParameter("cdpUID") != null) {
 
-                            if(request.getParameter("cdpmID")!=null){
-                                    
-                                    res = DBProduct.getProductList(request.getParameter("cdpmID"));
+                            res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
 
-                            } else{
-                                    res = Result.FAILURE_PARAM_MISMATCH;
-                            }
+                        } else if (request.getParameter("cdpCID") != null) {
+
+                            res = DBProduct.getProduct(request.getParameter("cdpCID"));
+
+                        } else {
+                            res = Result.FAILURE_PARAM_MISMATCH;
+                        }
 
                         break;
-                        
-                        
+
                 //**************************************************************
+                    //**************************************************************
+                    //**                GET PRODUCT LIST CASE
+                    //**************************************************************
+                    //**************************************************************
+                    case "getProductList":
+
+                        if (request.getParameter("cdpmID") != null) {
+
+                            res = DBProduct.getProductList(request.getParameter("cdpmID"));
+
+                        } else {
+                            res = Result.FAILURE_PARAM_MISMATCH;
+                        }
+
+                        break;
+
                 //**************************************************************
-                //**                    ADD CASE
-                //**************************************************************
-                //**************************************************************
+                    //**************************************************************
+                    //**                    ADD CASE
+                    //**************************************************************
+                    //**************************************************************
                     case "addProduct":
-                                                
-                        
+
                         break;
-                        
-                        
+
                 //**************************************************************
+                    //**************************************************************
+                    //**                    ADD CASE
+                    //**************************************************************
+                    //**************************************************************
+                    case "getCampaignProductList":
+                        res = DBProduct.getActiveCampaignProducts();
+                        break;
+
                 //**************************************************************
-                //**                    REMOVE CASE
-                //**************************************************************
-                //**************************************************************
+                    //**************************************************************
+                    //**                    REMOVE CASE
+                    //**************************************************************
+                    //**************************************************************
                     case "removeProduct":
                         break;
-                              
-                        
+
                 //**************************************************************
-                //**************************************************************
-                //**                    DEFAULT CASE
-                //**************************************************************
-                //**************************************************************
+                    //**************************************************************
+                    //**                    DEFAULT CASE
+                    //**************************************************************
+                    //**************************************************************
                     default:
                         res = Result.FAILURE_PARAM_WRONG;
                         break;
                 }
 
-            }else{
+            } else {
                 res = Result.FAILURE_PARAM_MISMATCH;
             }
-         
-            
+
         } catch (Exception ex) {
             Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } finally{                        
-                                                
+        } finally {
+
             mysql.closeAllConnection();
             out.write(gson.toJson(res));
             out.close();
-            
+
         }
     }
 
