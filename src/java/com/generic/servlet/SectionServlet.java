@@ -83,13 +83,13 @@ public class SectionServlet extends HttpServlet {
                         res = DBSection.getSections(pid);
                         break;
                     case "addSection":
-                        String pid2 = request.getParameter("cdsParentId");
+                        pid = request.getParameter("cdsParentId");
                         String sName = request.getParameter("cdsName");
                         String sImage = request.getParameter("cdsImage");
                         if(Checker.anyNull(sName)){
                             res = Result.FAILURE_PARAM_MISMATCH;
                         }else{
-                            res = DBSection.addSection(pid2, sName, sImage);
+                            res = DBSection.addSection(pid, sName, sImage);
                         }
                         break;
                     case "deleteSection":
@@ -99,6 +99,13 @@ public class SectionServlet extends HttpServlet {
                         }else{
                             res = DBSection.deleteSection(sid);
                         }
+                        break;
+                    case "updateSection":
+                        sid = request.getParameter("cdsId");
+                        pid = request.getParameter("cdsParentId");
+                        sName = request.getParameter("cdsName");
+                        sImage = request.getParameter("cdsImage");
+                        res = DBSection.updateSection(sid, sName, sImage, pid);
                         break;
                 }
             }else{
