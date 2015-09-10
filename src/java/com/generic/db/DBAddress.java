@@ -232,72 +232,135 @@ public class DBAddress extends DBGeneric{
     
     
     
-    //**************************************************************************
-    //**************************************************************************
-    //**                        ADD ADDRESS
-    //**************************************************************************
-    //**************************************************************************
-    public static Result addAddress(String city , String borough, String locality){            
-            MysqlDBOperations mysql = new MysqlDBOperations();
-            ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-            Connection conn = mysql.getConnection();
-                        
-            try{                                
-                
-                if(!Checker.anyNull(city,borough,locality)){               
-                    
-                    // -1- Check address exist
-                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.address.select.3"));                    
-                    preStat.setString(1, city.toUpperCase());
-                    preStat.setString(2, borough.toUpperCase());
-                    preStat.setString(3, locality.toUpperCase());
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        ADD ADDRESS
+        //**************************************************************************
+        //**************************************************************************
+        public static Result addAddress(String city , String borough, String locality){
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
 
-                    ResultSet resultSet = preStat.executeQuery();
+                try{                                
 
-                    boolean empty = false;
-                    try {
-                        empty = !(resultSet.first());
-                        resultSet.beforeFirst();
-                    } catch (SQLException ex) {
-                        Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    if(!Checker.anyNull(city,borough,locality)){               
 
-                    if (!empty) {
-                        return Result.FAILURE_PROCESS.setContent("ALREADY EXIST");
-                    }
-                    
-                    
-                    // -2- Create prepare statement
-                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.address.update.insert.1"));
-                    preStat.setString(1, "adr-"+Util.generateID());
-                    preStat.setString(2, city.toUpperCase());
-                    preStat.setString(3, borough.toUpperCase());
-                    preStat.setString(4, locality.toUpperCase());
+                        // -1- Check address exist
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.address.select.3"));                    
+                        preStat.setString(1, city.toUpperCase());
+                        preStat.setString(2, borough.toUpperCase());
+                        preStat.setString(3, locality.toUpperCase());
 
-                    // -3- Execute query
-                    int executeResult = preStat.executeUpdate();
+                        ResultSet resultSet = preStat.executeQuery();
 
-                    // -4- Result
-                    if(executeResult==1){
-                        mysql.commitAndCloseConnection();
-                        return Result.SUCCESS;
-                    }else if(executeResult==0){
-                        return Result.SUCCESS_EMPTY;
+                        boolean empty = false;
+                        try {
+                            empty = !(resultSet.first());
+                            resultSet.beforeFirst();
+                        } catch (SQLException ex) {
+                            Logger.getLogger(MysqlDBOperations.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        if (!empty) {
+                            return Result.FAILURE_PROCESS.setContent("ALREADY EXIST");
+                        }
+
+
+                        // -2- Create prepare statement
+                        preStat = conn.prepareStatement(rs.getPropertyValue("mysql.address.update.insert.1"));
+                        preStat.setString(1, "adr-"+Util.generateID());
+                        preStat.setString(2, city.toUpperCase());
+                        preStat.setString(3, borough.toUpperCase());
+                        preStat.setString(4, locality.toUpperCase());
+
+                        // -3- Execute query
+                        int executeResult = preStat.executeUpdate();
+
+                        // -4- Result
+                        if(executeResult==1){
+                            mysql.commitAndCloseConnection();
+                            return Result.SUCCESS;
+                        }else if(executeResult==0){
+                            return Result.SUCCESS_EMPTY;
+                        }else{
+                            return Result.FAILURE_PROCESS;
+                        }  
+
                     }else{
-                        return Result.FAILURE_PROCESS;
-                    }  
-                    
-                }else{
-                    return Result.FAILURE_PARAM_MISMATCH;
-                }
-                
-            } catch (SQLException ex) {
-                Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_DB;                
-            }finally{
-                mysql.closeAllConnection();
-            } 
-            
-    }
+                        return Result.FAILURE_PARAM_MISMATCH;
+                    }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;                
+                }finally{
+                    mysql.closeAllConnection();
+                } 
+
+        }
+        
+        
+        
+        
+        
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            DELETE OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        DELETE ADDRESS
+        //**************************************************************************
+        //**************************************************************************
+        public static Result deleteAddress(String aid){
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+
+                try{                                
+
+                    if(!Checker.anyNull(aid)){               
+
+                        // -1- Check address exist
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.address.update.delete.1"));
+                        preStat.setString(1, aid);
+
+                        // -3- Execute query
+                        int executeResult = preStat.executeUpdate();
+
+                        // -4- Result
+                        if(executeResult==1){
+                            mysql.commitAndCloseConnection();
+                            return Result.SUCCESS;
+                        }else if(executeResult==0){
+                            return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count 0");
+                        }else{
+                            mysql.rollback();
+                            return Result.FAILURE_DB_EFFECTED_ROW_NUM.setContent("Effected row count more than 1");                            
+                        }  
+
+                    }else{
+                        return Result.FAILURE_PARAM_MISMATCH;
+                    }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;                
+                }finally{
+                    mysql.closeAllConnection();
+                } 
+
+        }       
    
 }

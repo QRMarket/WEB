@@ -125,7 +125,7 @@ public class AddressServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************
                     case "getLocalityList":
-                            res = DBAddress.getLocalityList(request.getParameter("cdaIso"), request.getParameter("cdaCity") , request.getParameter("cdaBorough"));                            
+                            res = DBAddress.getLocalityList(request.getParameter("cdaIso"), request.getParameter("cdaCity") , request.getParameter("cdaBorough"));
                         break;
                         
                         
@@ -134,8 +134,8 @@ public class AddressServlet extends HttpServlet {
                 //**                REMOVE ADDRESS CASE
                 //**************************************************************
                 //**************************************************************
-                    case "deleteAdress":
-                            
+                    case "deleteAddress":
+                            res = DBAddress.deleteAddress(request.getParameter("cdaID"));
                         break;
                         
                         
