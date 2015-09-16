@@ -98,6 +98,26 @@ public class AddressServlet extends HttpServlet {
                             res = DBAddress.addAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
                         break;
                         
+                                          
+                //**************************************************************
+                //**************************************************************
+                //**                GET ADRESS-CITY CASE
+                //**************************************************************
+                //**************************************************************
+                    case "getAddress":
+                            res = DBAddress.getAddress(request.getParameter("cdaID"));
+                        break;
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                SEARCH ADRESS CASE
+                //**************************************************************
+                //**************************************************************
+                    case "searchAddress":
+                            res = DBAddress.searchAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
+                        break;
+                        
                         
                 //**************************************************************
                 //**************************************************************

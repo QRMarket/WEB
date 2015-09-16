@@ -29,7 +29,10 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 /**
  *
  * @author Kemal Sami KARACA
- * @version 1.001
+ * @since 10.03.2015
+ * @version 1.01
+ * 
+ * @last 10.09.2015
  *
  * This servlet will be used to manage production data
  */
@@ -48,23 +51,24 @@ public class ProductServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
         /**
-         * cdpsDo :: getProduct :: cdpUID :: setProduct :: cdpUID ::
-         * removeProduct
+         *  cdpsDo :: 
+         *      getProduct :: 
+         *              cdpUID || cdpCID
          *
          *
-         * !! KISALTMALAR !! carpe diem product --> cdp carpe dirm product
-         * servlet --> cdps carpe diem product unique id --> cdpUID carpe diem
-         * product common id --> cdpCID carpe diem product market id --> cdpmID
+         * !! KISALTMALAR !! 
+         * carpe diem product --> cdp 
+         * carpe dirm product servlet --> cdps 
+         * carpe diem product unique id --> cdpUID 
+         * carpe diem product common id --> cdpCID 
+         * carpe diem product market id --> cdpmID
          *
-         */
-        HttpSession session = request.getSession(false);
+         */        
         Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.FAILURE_PROCESS;
 
         /**
@@ -86,10 +90,10 @@ public class ProductServlet extends HttpServlet {
                 switch (request.getParameter("cdpsDo")) {
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                    GET PRODUCT CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                    GET PRODUCT CASE
+                //**************************************************************
+                //**************************************************************
                     case "getProduct":
 
                         if (request.getParameter("cdpUID") != null) {
@@ -107,10 +111,10 @@ public class ProductServlet extends HttpServlet {
                         break;
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                GET PRODUCT LIST CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                GET PRODUCT LIST CASE
+                //**************************************************************
+                //**************************************************************
                     case "getProductList":
 
                         if (request.getParameter("cdpmID") != null) {
@@ -124,36 +128,36 @@ public class ProductServlet extends HttpServlet {
                         break;
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                    ADD CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                    ADD CASE
+                //**************************************************************
+                //**************************************************************
                     case "addProduct":
 
                         break;
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                    ADD CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                    ADD CASE
+                //**************************************************************
+                //**************************************************************
                     case "getCampaignProductList":
-                        res = DBProduct.getActiveCampaignProducts();
+                            res = DBProduct.getActiveCampaignProducts();
                         break;
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                    REMOVE CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                    REMOVE CASE
+                //**************************************************************
+                //**************************************************************
                     case "removeProduct":
                         break;
 
                 //**************************************************************
-                    //**************************************************************
-                    //**                    DEFAULT CASE
-                    //**************************************************************
-                    //**************************************************************
+                //**************************************************************
+                //**                    DEFAULT CASE
+                //**************************************************************
+                //**************************************************************
                     default:
                         res = Result.FAILURE_PARAM_WRONG;
                         break;
@@ -167,7 +171,6 @@ public class ProductServlet extends HttpServlet {
             Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
 
-            mysql.closeAllConnection();
             out.write(gson.toJson(res));
             out.close();
 
