@@ -5,7 +5,7 @@
         <welcome-file>login.html</welcome-file>
         <welcome-file>login.htm</welcome-file>
     </welcome-file-list>
-    <filter>
+<!--    <filter>
         <filter-name>AuthFilter</filter-name>
         <filter-class>com.generic.filter.AuthFilter</filter-class>
     </filter>
@@ -20,7 +20,7 @@
     <filter-mapping>
         <filter-name>AuthFilter_Market</filter-name>
         <url-pattern>/marketPanel.jsp</url-pattern>
-    </filter-mapping>
+    </filter-mapping>-->
     <servlet>
         <servlet-name>AddressServlet</servlet-name>
         <servlet-class>com.generic.servlet.AddressServlet</servlet-class>
