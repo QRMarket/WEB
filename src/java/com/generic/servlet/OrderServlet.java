@@ -50,11 +50,14 @@ public class OrderServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+
+        response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
         
         /**
-         * cdpsDo   :: confirmOrderList
+         * cdosDo   :: getOrderCount
+         * 
+         *          :: confirmOrderList
          *              :: aid (address id)
          *              :: ptype (payment type ['cash','card',...])
          *              :: date (order date)
@@ -64,17 +67,13 @@ public class OrderServlet extends HttpServlet {
          * !! KISALTMALAR !!
          * carpe diem order             --> cdo
          * carpe diem order servlet     --> cdos
-         * carpe diem product unique id --> cdpUID
-         * carpe dime product amount    --> cdpAmount
          * carpe diem user              --> cdu          
          *
          */
         HttpSession session = request.getSession(false);
+                
+        Result res = Result.FAILURE_PROCESS.setContent("initial");
         Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Result res = Result.FAILURE_PROCESS;
-        
         
         /**
          *  Bu servlet(servis)'in amacı order ile ilgili işlemlerin yapılmasıdır
@@ -96,7 +95,15 @@ public class OrderServlet extends HttpServlet {
             
             if(request.getParameter("cdosDo")!=null){                 
                 switch(request.getParameter("cdosDo")){                                     
-                        
+                    
+                
+                    
+                    
+                    
+                //--------------------------------------------------------------
+                //--------------------------------------------------------------
+                //  --- --- --- ---- ----- INSERT PART ----- ---- --- --- ---
+                    
                 //**************************************************************
                 //**************************************************************
                 //**            SET&ADD PRODUCT TO ORDERLIST
@@ -169,6 +176,27 @@ public class OrderServlet extends HttpServlet {
                                 
                             }
                         
+                        break;
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                //--------------------------------------------------------------
+                //--------------------------------------------------------------
+                //  --- --- --- ---- ----- GET PART ----- ---- --- --- ---
+                 
+                //**************************************************************
+                //**************************************************************
+                //**                GET ORDER COUNT
+                //**************************************************************
+                //**************************************************************
+                    case "getOrderCount":
+                                                                            
+                            res = DBOrder.getOrderCount();
+                            
                         break;
                         
                         
@@ -377,7 +405,6 @@ public class OrderServlet extends HttpServlet {
          
         }finally{                        
                         
-            mysql.closeAllConnection();
             out.write(gson.toJson(res));
             out.close();
             

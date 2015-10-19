@@ -1,6 +1,7 @@
 package com.generic.db;
 
 import com.generic.checker.Checker;
+import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.Address;
 import com.generic.util.MarketOrder;
@@ -25,10 +26,66 @@ import javax.servlet.http.HttpSession;
  * @since 02.2015
  * @version 1.01
  * 
- * @last 11.03.2015
+ * @last 01.10.2015
  */
 public class DBOrder {
     
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                    GET ORDER COUNT
+        //**************************************************************************
+        //**************************************************************************
+        public static Result getOrderCount(){
+                MysqlDBOperations mysql = new MysqlDBOperations();            
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();  
+
+                try{                                                
+
+                    // -1- Get Query
+                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.count.1"));
+                    ResultSet resultSet = preStat.executeQuery();
+
+                    // -2- Get Result
+                    if(resultSet.first()){
+                        
+                        int count = resultSet.getInt(1);
+                        return Result.SUCCESS.setContent(count);
+
+                    }else{
+                        return Result.SUCCESS_EMPTY;
+                    }       
+                        
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;                
+                }finally{
+                    mysql.closeAllConnection();
+                } 
+
+                //return Result.FAILURE_PROCESS;
+        }
+    
+       
+        
+        
+        
+        
+        
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            XXX OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
     
     /**
      * 
