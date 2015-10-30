@@ -5,13 +5,19 @@
  */
 package com.generic.servlet;
 
+import com.generic.result.Result;
+import com.generic.util.Util;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,15 +28,19 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 /**
  *
  * @author kemalsamikaraca
  */
+
+@MultipartConfig
 @WebServlet(name = "test", urlPatterns = {"/test"})
 public class test extends HttpServlet {
 
@@ -45,97 +55,78 @@ public class test extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        
+        
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            
-            
-            // Recipient's email ID needs to be mentioned.
-            String to = "kskaraca@gmail.com";
-
-            // Sender's email ID needs to be mentioned
-            String from = "web@gmail.com";
-
-            // Assuming you are sending email from localhost
-            String host = "localhost";
-
-            // Get system properties
-            Properties properties = System.getProperties();
-
-            // Setup mail server
-            properties.setProperty("mail.smtp.host", host);
-
-            // Get the default Session object.
-            Session session = Session.getDefaultInstance(properties);
-
-            try{
-                // Create a default MimeMessage object.
-                MimeMessage message = new MimeMessage(session);
-
-                try {
-                    // Set From: header field of the header.
-                    message.setFrom(new InternetAddress(from));
-                } catch (MessagingException ex) {
-                    Logger.getLogger(test.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                // Set To: header field of the header.
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-
-                // Set Subject: header field
-                message.setSubject("This is the Subject Line!");
-
-                // Now set the actual message
-                message.setText("This is actual message");
-
-                // Send message
-                Transport.send(message);
-                System.out.println("Sent message successfully....");
-            }catch (MessagingException mex) {
-               mex.printStackTrace();
-            }
-            
-/*
-            Connection conn=null;
-            Statement stmt=null;
-            ResultSet rs=null;
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                if (conn == null || conn.isClosed()) {       
-                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/QR_Market_DB", "root", "");
-                    conn.setAutoCommit(false);                
-                }
+        
+        
+        
+        PrintWriter outTemp = response.getWriter();        
+        
+        Result res = Result.FAILURE_PROCESS;
+        Gson gson = new Gson();
                 
-                String username = "admin' OR '1'='1";
-                String password = "";
-                String sql = "select * from marketUser where mu_mail='" + username +"' and mu_password='" + password + "'";
-                stmt = conn.createStatement();
-                rs = stmt.executeQuery(sql);
-                if (rs.next()) {                
-                        out.println("Successfully logged in");
-                } else {
-                        out.println("Username and/or password not recognized");
-                }
-                
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(test.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                
-                try {
-                    conn.close();
-                    stmt.close();
-                    rs.close();
+        
+        
+        
+        try  { 
+            
+            System.out.println(" **** **** **** **** **** ");
+            System.out.println("/test Servlet called");
+            System.out.println(request.getContentType());
+            res = res.setContent(request.getContentType());
+            
+            switch (Util.getContentType(request)){
+                case MULTIPART_FORM_DATA:
                     
-                } catch (SQLException ex) {
-                    Logger.getLogger(test.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
+                    Collection<Part> parts = request.getParts();
+                    Iterator<Part> iterator = parts.iterator();
+                    
+                    System.out.println("--- ---- ---- ---");
+                    System.out.println(request.getParameter("name"));
+                    System.out.println(request.getParameter("surname"));
+                    System.out.println("--- ---- ---- ---");
+                    
+                    Part reqPart = request.getPart("n");
+                    System.out.println("Content-type :: " + reqPart.getContentType());
+                    System.out.println("Name :: " + reqPart.getName());
+                    System.out.println("Submitted fileName :: " + reqPart.getSubmittedFileName());
+                    
+//                    while ( iterator.hasNext () ){
+//                        Part p = iterator.next();
+//                        
+//                        System.out.println("Content-type :: " + p.getContentType());
+//                        System.out.println("Name :: " + p.getName());
+//                        System.out.println("Submitted fileName :: " + p.getSubmittedFileName());
+//                    }
+                    
+                    res = res.setContent("Multipart-content-type called");
+                    
+                    break;
+
+                case APPLICATION_FORM_URLENCODED:                    
+                    res = res.setContent("Application form urlencoded");
+                    break;
+
+                case NULL:
+                    res = res.setContent("Application null ");
+                    break;
+
+                default:
+                    res = res.setContent(Util.getContentType(request));
+                    break;
             }
-*/            
             
+            
+            
+        }catch (Exception e){
+            
+        }finally{
+            outTemp.write(gson.toJson(res));
+            outTemp.close();
         }
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

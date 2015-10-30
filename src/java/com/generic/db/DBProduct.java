@@ -10,7 +10,6 @@ import com.generic.result.Result;
 import com.generic.util.CampaignProduct;
 import com.generic.util.MarketProduct;
 import com.generic.util.MarketProductImage;
-import com.generic.util.Section;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,7 +21,6 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.fileupload.FileItem;
 
 /**
  *
@@ -34,6 +32,8 @@ import org.apache.commons.fileupload.FileItem;
  */
 public class DBProduct {
 
+    
+    // <editor-fold defaultstate="collapsed" desc="Product GET Operations">
     /**
      *
      * @param pUID
@@ -96,7 +96,9 @@ public class DBProduct {
             mysql.closeAllConnection();
         }
     }
-
+    
+    
+    
     /**
      *
      * @param pUID
@@ -156,6 +158,8 @@ public class DBProduct {
         }
     }
 
+    
+    
     /**
      *
      * @param companyId
@@ -196,6 +200,12 @@ public class DBProduct {
         }
     }
 
+    
+    // </editor-fold>  
+    
+    
+    
+    // <editor-fold defaultstate="collapsed" desc="Product INSERT Operations">
     /**
      *
      * @return
@@ -235,7 +245,12 @@ public class DBProduct {
 
         return res;
     }
+    
+    
+    // </editor-fold>
+    
 
+    
     public static Result getActiveCampaignProducts() {
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");

@@ -32,8 +32,15 @@ public class Util {
         
     
     public static enum ContentType{
-        MULTIPART,
-        URL_ENCODED
+        NULL,        
+        MULTIPART_FORM_DATA,
+        APPLICATION_FORM_URLENCODED,
+        TEXT_PLAIN,
+        TEXT_XML,
+        TEXT_HTML,
+        APPLICATION_JSON,
+        APPLICATION_JAVASCRIPT,
+        APPLICATION_XML
     }
     
     
@@ -101,10 +108,28 @@ public class Util {
     ----------------------------------------------------------------------------*/
     public static ContentType getContentType(HttpServletRequest request){
         
-        if(request.getHeader("content-type")!=null && (request.getHeader("content-type").indexOf("multipart/form-data") >= 0))
-            return ContentType.MULTIPART;
+        if(request.getHeader("content-type")!=null){
+            if(request.getHeader("content-type").indexOf("multipart/form-data") >= 0){
+                return ContentType.MULTIPART_FORM_DATA;
+            }else if( request.getHeader("content-type").indexOf("application/x-www-form-urlencoded") >= 0 ){
+                return ContentType.APPLICATION_FORM_URLENCODED;
+            }else if( request.getHeader("content-type").indexOf("text/plain") >= 0 ){
+                return ContentType.TEXT_PLAIN;
+            }else if( request.getHeader("content-type").indexOf("text/xml") >= 0 ){
+                return ContentType.TEXT_XML;
+            }else if( request.getHeader("content-type").indexOf("text/html") >= 0 ){
+                return ContentType.TEXT_HTML;
+            }else if( request.getHeader("content-type").indexOf("application/json") >= 0 ){
+                return ContentType.APPLICATION_JSON;
+            }else if( request.getHeader("content-type").indexOf("application/javascript") >= 0 ){
+                return ContentType.APPLICATION_JAVASCRIPT;
+            }else if( request.getHeader("content-type").indexOf("application/xml") >= 0 ){
+                return ContentType.APPLICATION_XML;
+            } 
+            
+        }            
         
-        return null;
+        return ContentType.NULL;
     }
     
     

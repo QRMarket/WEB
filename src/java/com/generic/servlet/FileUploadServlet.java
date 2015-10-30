@@ -85,7 +85,7 @@ public class FileUploadServlet extends HttpServlet {
                 //**            CONTENT-TYPE MULTIPART CASE
                 //**************************************************************
                 //**************************************************************
-                    case MULTIPART :                                                     
+                    case MULTIPART_FORM_DATA :                                                     
                         
                             // -1- Get Parts from request
                             Collection<Part> parts = request.getParts();

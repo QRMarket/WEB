@@ -1,16 +1,19 @@
 package com.generic.servlet;
 
 import com.generic.db.DBProduct;
-import com.generic.db.MysqlDBOperations;
-import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -19,12 +22,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.net.ftp.FTPClient;
+import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -35,15 +37,41 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
  * @last 10.09.2015
  *
  * This servlet will be used to manage production data
+ * 
+ *      Bu servlet(servis)'in amacı product ile ilgili işlemlerin
+ *      yapılmasıdır Kullanıcı product görüntüleme, market tarafından yeni
+ *      product eklenme, product fiyatı editleme veya ilgili product silme
+ *      gibi temel işlevleri karşılar
+ * 
  */
+
 @MultipartConfig
 @WebServlet(name = "ProductServlet", urlPatterns = {"/ProductServlet"})
 public class ProductServlet extends HttpServlet {
 
+    private static enum ProductServletOperations{
+        NULL,
+        INSERT_PRODUCT,
+    }        
+    
+    private ProductServletOperations getRequestOperation(HttpServletRequest request){
+        
+        if(request.getParameter("do") != null){
+            
+            switch (request.getParameter("do")) {
+                case "addProduct":
+                    return ProductServletOperations.INSERT_PRODUCT;                
+            }
+        }  
+        
+        return ProductServletOperations.NULL;
+    }
+    
+    
+    
+    
+    
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -51,9 +79,11 @@ public class ProductServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         response.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-
+        PrintWriter out = response.getWriter();              
+        
+        
         /**
          *  cdpsDo :: 
          *      getProduct :: 
@@ -67,106 +97,201 @@ public class ProductServlet extends HttpServlet {
          * carpe diem product common id --> cdpCID 
          * carpe diem product market id --> cdpmID
          *
-         */        
+         */
         Gson gson = new Gson();
         Result res = Result.FAILURE_PROCESS;
-
-        /**
-         * Bu servlet(servis)'in amacı product ile ilgili işlemlerin
-         * yapılmasıdır Kullanıcı product görüntüleme, market tarafından yeni
-         * product eklenme, product fiyatı editleme veya ilgili product silme
-         * gibi temel işlevleri karşılar
-         *
-         */
-        Enumeration<String> enume = request.getParameterNames();
-        while (enume.hasMoreElements()) {
-            String key = enume.nextElement();
-            System.out.println("Incoming parameter --> " + key + " :: " + request.getParameter(key));
-        }
-
+                
+        
         try {
-
-            if (request.getParameter("cdpsDo") != null) {
-                switch (request.getParameter("cdpsDo")) {
-
+                        
+            switch (Util.getContentType(request)){                
+                    
                 //**************************************************************
                 //**************************************************************
-                //**                    GET PRODUCT CASE
+                //**        Content-Type :: multipart/form-data
                 //**************************************************************
                 //**************************************************************
-                    case "getProduct":
+                case MULTIPART_FORM_DATA:                                            
+                                                
+                        switch (getRequestOperation(request)){
+                            
+                            
+                            //--------------------------------------------------
+                            //-- ---           INSERT PRODUCT             --- --
+                            //--------------------------------------------------
+                            case INSERT_PRODUCT:
+                                                                    
+                                
+                                
+                                    String productName = request.getParameter("name");
+                                    String productBarcode = request.getParameter("barcode");
+                                    String productDescription = request.getParameter("desc");
+                                    
+                                    
+                                    // TRY TO -- Get parts                                     
+                                    InputStream inputStream = null;
+                                    OutputStream outputStream = null; 
+                                    Collection<Part> parts = request.getParts();
+                                    Iterator<Part> iterator = parts.iterator();
 
-                        if (request.getParameter("cdpUID") != null) {
+                                    while ( iterator.hasNext () ){
+                                        Part part = iterator.next();
+                                        System.out.println("___ ___ ___ ___ ___ ___"); 
+                                        System.out.println("Content-type :: " + part.getContentType());
+                                        System.out.println("Name :: " + part.getName());
+                                        System.out.println("Submitted fileName :: " + part.getSubmittedFileName());
+                                        
+                                        if(part.getName().equalsIgnoreCase("files")){
+                                            
+                                            String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
+                                            inputStream = part.getInputStream();
+                                            
+                                            FTPClient client = new FTPClient();
+                                            client.connect("188.226.240.230");                                
+                                            
+                                            if (client.login("guppyftp", "guppyftp")) {
+                                                
+                                                System.out.println("Login success...");
+                                                client.setFileType(FTPClient.BINARY_FILE_TYPE);
+                                                client.storeFile("sampleFolder/"+fileName, inputStream);                                                
+                                                
+                                                if (client.logout()) {
+                                                    System.out.println("Logout from FTP server...");
+                                                }
+                                                
+                                            } else {
+                                                System.out.println("Login fail...");
+                                            }
 
-                            res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
+                                            client.disconnect();                                            
+                                        }
+                                        
+                                        
+                                        
+                                    }
+                                    
+                                             
+                                break;
+                                
+                            default:
+                                break;
+                        }
+                        
+                    break;
+                    
+                    
+                    
+                    
+                    
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: application/x-www-form-urlencoded
+                //**************************************************************
+                //**************************************************************    
+                case APPLICATION_FORM_URLENCODED:            
+            
+                        if (request.getParameter("cdpsDo") != null) {
+                            switch (request.getParameter("cdpsDo")) {
 
-                        } else if (request.getParameter("cdpCID") != null) {
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    GET PRODUCT CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case "getProduct":
 
-                            res = DBProduct.getProduct(request.getParameter("cdpCID"));
+                                    if (request.getParameter("cdpUID") != null) {
+
+                                        res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
+
+                                    } else if (request.getParameter("cdpCID") != null) {
+
+                                        res = DBProduct.getProduct(request.getParameter("cdpCID"));
+
+                                    } else {
+                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                    }
+
+                                    break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                GET PRODUCT LIST CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case "getProductList":
+
+                                    if (request.getParameter("cdpmID") != null) {
+
+                                        res = DBProduct.getProductList(request.getParameter("cdpmID"));
+
+                                    } else {
+                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                    }
+
+                                    break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    ADD CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case "addProduct":
+
+                                    break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    ADD CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case "getCampaignProductList":
+                                        res = DBProduct.getActiveCampaignProducts();
+                                    break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    REMOVE CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case "removeProduct":
+                                    break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    DEFAULT CASE
+                            //**************************************************************
+                            //**************************************************************
+                                default:
+                                    res = Result.FAILURE_PARAM_WRONG;
+                                    break;
+                            }
 
                         } else {
                             res = Result.FAILURE_PARAM_MISMATCH;
                         }
 
-                        break;
-
+                    break;
+                    
+                    
+                    
+                    
+                    
                 //**************************************************************
                 //**************************************************************
-                //**                GET PRODUCT LIST CASE
+                //**        Content-Type :: EXCEPTION
                 //**************************************************************
-                //**************************************************************
-                    case "getProductList":
-
-                        if (request.getParameter("cdpmID") != null) {
-
-                            res = DBProduct.getProductList(request.getParameter("cdpmID"));
-
-                        } else {
-                            res = Result.FAILURE_PARAM_MISMATCH;
-                        }
-
-                        break;
-
-                //**************************************************************
-                //**************************************************************
-                //**                    ADD CASE
-                //**************************************************************
-                //**************************************************************
-                    case "addProduct":
-
-                        break;
-
-                //**************************************************************
-                //**************************************************************
-                //**                    ADD CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getCampaignProductList":
-                            res = DBProduct.getActiveCampaignProducts();
-                        break;
-
-                //**************************************************************
-                //**************************************************************
-                //**                    REMOVE CASE
-                //**************************************************************
-                //**************************************************************
-                    case "removeProduct":
-                        break;
-
-                //**************************************************************
-                //**************************************************************
-                //**                    DEFAULT CASE
-                //**************************************************************
-                //**************************************************************
-                    default:
-                        res = Result.FAILURE_PARAM_WRONG;
-                        break;
-                }
-
-            } else {
-                res = Result.FAILURE_PARAM_MISMATCH;
-            }
-
+                //**************************************************************    
+                default:
+                    
+                    break;
+                
+                
+                
+            } // content-type switch end
+                
+            
+            
         } catch (Exception ex) {
             Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
