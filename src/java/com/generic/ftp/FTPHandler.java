@@ -18,19 +18,32 @@ public class FTPHandler {
     private static String ftpUsername = "guppyftp";
     private static String ftpPassword = "guppyftp";
     
-    private FTPClient ftpClient;
+    private static FTPClient ftpClient;
             
-    public static FTPClient getFTPClient() throws IOException{
-        FTPClient client = new FTPClient();
-        client.connect(ftpHost);        
         
-        if (client.login(ftpUsername, ftpPassword)){
-            client.setFileType(FTPClient.BINARY_FILE_TYPE);            
-            return client;
+    
+    public static FTPClient getFTPClient() throws IOException{
+       
+        ftpClient = (ftpClient==null ? new FTPClient() : ftpClient);
+        
+        if(!ftpClient.isConnected()){
+            ftpClient.connect(ftpHost);
         }
+    
+        if(ftpClient.login(ftpUsername, ftpPassword)){
+            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);  
+            return ftpClient;
+        }        
         
         return null;
-    }       
+    }  
+    
+    
+    public static void closeFTPClient() throws IOException{
+        ftpClient.logout();
+        ftpClient.disconnect();
+    }
+    
     
     public static String getFTP_URL(){
         return "ftp://" + ftpUsername + ":" + ftpPassword + "@" + ftpHost + "/";

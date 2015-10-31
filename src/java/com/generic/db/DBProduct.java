@@ -259,7 +259,7 @@ public class DBProduct {
 
                         preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
                         preStat.setString(1, productImage.getImageID());
-                        preStat.setString(2, null);
+                        preStat.setString(2, product.getProductID());
                         preStat.setString(3, productImage.getImageContentType());
                         preStat.setString(4, productImage.getImageSourceType());
                         preStat.setString(5, productImage.getImageSource());
@@ -268,12 +268,11 @@ public class DBProduct {
                         
                         if(productImageQueryResult==1){
                             FTPClient client = FTPHandler.getFTPClient();
-                            if(client.rename("temps/"+productImage.getImageFileName() , productImage.getImageSource() )){
+                            if(client.rename("temps/"+productImage.getImageFileName() , "products/"+productImage.getImageFileName() )){
                                mysql.commit(); 
                             }
                             
-                            client.logout();
-                            client.disconnect();
+                            FTPHandler.closeFTPClient();
                         }
                     }                
 

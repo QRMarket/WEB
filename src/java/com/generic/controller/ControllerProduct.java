@@ -60,7 +60,7 @@ public class ControllerProduct {
                                     MarketProductImage productImageObject = new MarketProductImage();
                                     productImageObject.setImageID(generatedID);
                                     productImageObject.setImageFileName(imageFileName);
-                                    productImageObject.setImageSource("products/"+imageFileName);
+                                    productImageObject.setImageSource("http://188.226.240.230/products/"+imageFileName);
                                     productImageObject.setImageSourceType("FTP");          
                                     productImageObject.setImageContentType(
                                                         new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL() + "temps/"+imageFileName)));
@@ -69,8 +69,7 @@ public class ControllerProduct {
                                 
                                 }
                                 
-                                client.logout();
-                                client.disconnect();
+                                FTPHandler.closeFTPClient();
                                 imageInputStream.close();
                             }
                         }
