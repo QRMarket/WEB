@@ -75,24 +75,37 @@ public class test extends HttpServlet {
             System.out.println(" **** **** **** **** **** ");
             System.out.println("/test Servlet called");
             System.out.println(request.getContentType());
+            System.out.println(" **** **** **** **** **** ");
             res = res.setContent(request.getContentType());
             
             switch (Util.getContentType(request)){
                 case MULTIPART_FORM_DATA:
                     
-                    Collection<Part> parts = request.getParts();
-                    Iterator<Part> iterator = parts.iterator();
+                    Part p = request.getPart("files");
+                    Collection<String> theader = p.getHeaderNames();
                     
-                    System.out.println("--- ---- ---- ---");
-                    System.out.println(request.getParameter("name"));
-                    System.out.println(request.getParameter("surname"));
-                    System.out.println("--- ---- ---- ---");
+                    Iterator<String> headerIter = theader.iterator();
+                    while ( headerIter.hasNext () ){
+                        String headerName = headerIter.next(); 
+                        System.out.println(headerName);
+                        System.out.println(p.getHeader(headerName));
+                        System.out.println("--- ---- --- ---- --- ---- ---");
+                    }
                     
-                    Part reqPart = request.getPart("n");
-                    System.out.println("Content-type :: " + reqPart.getContentType());
-                    System.out.println("Name :: " + reqPart.getName());
-                    System.out.println("Submitted fileName :: " + reqPart.getSubmittedFileName());
                     
+//                    Collection<Part> parts = request.getParts();
+//                    Iterator<Part> iterator = parts.iterator();
+//                    
+//                    System.out.println("--- ---- ---- ---");
+//                    System.out.println(request.getParameter("name"));
+//                    System.out.println(request.getParameter("surname"));
+//                    System.out.println("--- ---- ---- ---");
+//                    
+//                    Part reqPart = request.getPart("n");
+//                    System.out.println("Content-type :: " + reqPart.getContentType());
+//                    System.out.println("Name :: " + reqPart.getName());
+//                    System.out.println("Submitted fileName :: " + reqPart.getSubmittedFileName());
+//                    
 //                    while ( iterator.hasNext () ){
 //                        Part p = iterator.next();
 //                        

@@ -114,66 +114,30 @@ public class ProductServlet extends HttpServlet {
                 case MULTIPART_FORM_DATA:                                            
                                                 
                         switch (getRequestOperation(request)){
-                            
-                            
+                                                        
                             //--------------------------------------------------
                             //-- ---           INSERT PRODUCT             --- --
                             //--------------------------------------------------
-                            case INSERT_PRODUCT:
-                                                                    
-                                
-                                
-                                    String productName = request.getParameter("name");
-                                    String productBarcode = request.getParameter("barcode");
-                                    String productDescription = request.getParameter("desc");
-                                    
-                                    
-                                    // TRY TO -- Get parts                                     
-                                    InputStream inputStream = null;
-                                    OutputStream outputStream = null; 
-                                    Collection<Part> parts = request.getParts();
-                                    Iterator<Part> iterator = parts.iterator();
-
-                                    while ( iterator.hasNext () ){
-                                        Part part = iterator.next();
-                                        System.out.println("___ ___ ___ ___ ___ ___"); 
-                                        System.out.println("Content-type :: " + part.getContentType());
-                                        System.out.println("Name :: " + part.getName());
-                                        System.out.println("Submitted fileName :: " + part.getSubmittedFileName());
-                                        
-                                        if(part.getName().equalsIgnoreCase("files")){
-                                            
-                                            String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                            inputStream = part.getInputStream();
-                                            
-                                            FTPClient client = new FTPClient();
-                                            client.connect("188.226.240.230");                                
-                                            
-                                            if (client.login("guppyftp", "guppyftp")) {
-                                                
-                                                System.out.println("Login success...");
-                                                client.setFileType(FTPClient.BINARY_FILE_TYPE);
-                                                client.storeFile("sampleFolder/"+fileName, inputStream);                                                
-                                                
-                                                if (client.logout()) {
-                                                    System.out.println("Logout from FTP server...");
-                                                }
-                                                
-                                            } else {
-                                                System.out.println("Login fail...");
-                                            }
-
-                                            client.disconnect();                                            
-                                        }
-                                        
-                                        
-                                        
-                                    }
-                                    
-                                             
+                            case INSERT_PRODUCT:                                             
+                                    res = DBProduct.addProduct(request);
                                 break;
                                 
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---     "do" PARAMETER EXCEPTION         --- --
+                            //--------------------------------------------------  
+                            case NULL:
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                                break;
+                                
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
                             default:
+                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>MULTIPART_FORM_DATA>default case");
                                 break;
                         }
                         

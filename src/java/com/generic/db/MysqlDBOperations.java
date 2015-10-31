@@ -118,7 +118,7 @@ public class MysqlDBOperations {
         }
     }
     
-    private void commit(){
+    public void commit(){
         try {
             if(conn!=null && !conn.isClosed()){
                 conn.commit();

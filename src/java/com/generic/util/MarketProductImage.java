@@ -17,6 +17,7 @@ public class MarketProductImage {
     
     
     private String imageID;
+    private String imageProductID;      // image owner id       
     private String imageSource;
     private String imageSourceType;     // base64, url, ...
     private String imageContentType;    // image/png
@@ -94,6 +95,20 @@ public class MarketProductImage {
      */
     public void setImageType(String imageType) {
         this.imageType = imageType;
+    }
+
+    /**
+     * @return the imageProductID
+     */
+    public String getImageProductID() {
+        return imageProductID;
+    }
+
+    /**
+     * @param imageProductID the imageProductID to set
+     */
+    public void setImageProductID(String imageProductID) {
+        this.imageProductID = imageProductID;
     }
     
     
