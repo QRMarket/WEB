@@ -26,27 +26,25 @@ public class MarketProduct {
     private double price; 
     private double amount;
     private ArrayList<MarketProductImage> productImages;
+    private String brandID;
+              
     
-    /**
-     * @deprecated 
-     */
-    private ArrayList<String> images;   
-    
-    
-    public MarketProduct(){}
+    public MarketProduct(){
+        this.productImages = new ArrayList<>();
+    }
     
     public MarketProduct(String productID , double amount){
         this.productID = productID;
         this.amount = amount;
-        this.images = new ArrayList();
+        this.productImages = new ArrayList<>();
     }
     
     public MarketProduct(String productID , String productName, String productionType , double price){
         this.productID = productID;
         this.productName = productName;
         this.priceType = productionType;
-        this.price = price;        
-        this.images = new ArrayList();
+        this.price = price; 
+        this.productImages = new ArrayList<>();
     }
     
     public MarketProduct(String productID , String productName, String productionType , double price , double amount){
@@ -55,7 +53,7 @@ public class MarketProduct {
         this.priceType = productionType;
         this.price = price;
         this.amount = amount;
-        this.images = new ArrayList();
+        this.productImages = new ArrayList<>();
     }            
 
     /**
@@ -126,21 +124,7 @@ public class MarketProduct {
      */
     public void setAmount(double amount) {
         this.amount = amount;
-    }
-
-    /**
-     * @return the images
-     */
-    public ArrayList<String> getImages() {
-        return images;
-    }
-
-    /**
-     * @param images the images to set
-     */
-    public void setImages(ArrayList<String> images) {
-        this.images = images;
-    }
+    }    
 
     /**
      * @return the branchName
@@ -196,6 +180,20 @@ public class MarketProduct {
      */
     public void setProductImages(ArrayList<MarketProductImage> productImages) {
         this.productImages = productImages;
+    }
+
+    /**
+     * @return the brandID
+     */
+    public String getBrandID() {
+        return brandID;
+    }
+
+    /**
+     * @param brandID the brandID to set
+     */
+    public void setBrandID(String brandID) {
+        this.brandID = brandID;
     }
     
 }

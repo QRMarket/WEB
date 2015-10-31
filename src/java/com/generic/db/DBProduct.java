@@ -6,6 +6,7 @@
 package com.generic.db;
 
 import com.generic.checker.Checker;
+import com.generic.ftp.FTPHandler;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.CampaignProduct;
@@ -218,174 +219,81 @@ public class DBProduct {
     // <editor-fold defaultstate="collapsed" desc="Product INSERT Operations">
     /**
      *
-     * @param request
+     * @param product
      * @return
      */
-    public static Result addProduct(HttpServletRequest request) {
-
-            // BEFORE METHOD PARTs
-        
-            // -- ** -- Aşağıda alınan değerler başka bir class içerisinde alınıp
-            // -- ** -- bu fonksiyona parametre olarak gelecektir. Diğer bir deyişle
-            // -- ** -- Parametre "HttpServletRequest request" yerine "String name,..." 
-            // -- ** -- gibi olacaktır. (Product productObj, List<ProductImage> productImgObj) 
-            // -- ** -- şeklinde olması daha iyi olabilir.
-            String product_id = Util.generateID();
-            String productName = request.getParameter("name");
-            String productBarcode = request.getParameter("barcode");
-            String productDescription = request.getParameter("desc");
-            String productBrandId = request.getParameter("brand_id");
-            
-            List<MarketProductImage> productImages = new ArrayList<>();                        
-            
-        
-            
-            
-            
-            
-            
-            // METHOD PARTs
-            
+    public static Result addProduct(MarketProduct product) {
+  
             Result result = Result.FAILURE_PROCESS;
             MysqlDBOperations mysql = new MysqlDBOperations();            
             ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
             Connection conn = mysql.getConnection();                        
             
             try {
-            
-                if(!Checker.anyNull(productName,productBrandId)){ 
-                    
-                    // - 1 - "products" DB 
-                    // -1.1- Insert to DB-->"products" 
-                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.update.insert.1"));
-                        preStat.setString(1, product_id);
-                        preStat.setString(2, productName);
-                        preStat.setString(3, productBarcode);
-                        preStat.setString(4, productDescription);
-                        preStat.setString(5, productBrandId);
+                                                 
+                // - 1 - "products" DB 
+                // -1.1- Insert to DB-->"products" 
+                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.update.insert.1"));
+                    preStat.setString(1, product.getProductID());
+                    preStat.setString(2, product.getProductName());
+                    preStat.setString(3, product.getProductCode());
+                    preStat.setString(4, product.getProductDesc());
+                    preStat.setString(5, product.getBrandID());
 
-                        int executeResult = preStat.executeUpdate(); 
+                    int executeResult = preStat.executeUpdate(); 
+
+                // -1.2- Get&Check insert result
+                    if(executeResult==0){
+                        return Result.SUCCESS_EMPTY;
+                    }else if(executeResult>1){
+                        return Result.FAILURE_PROCESS;
+                    }                    
+
+                // -1.3- Commit if product added                    
+                    mysql.commit();
                     
-                    // -1.2- Get&Check insert result
-                        if(executeResult==0){
-                            return Result.SUCCESS_EMPTY;
-                        }else if(executeResult>1){
-                            return Result.FAILURE_PROCESS;
-                        }                    
                     
-                    // -1.3- Commit if product added                    
-                        mysql.commit();
+                // - 2 - "productImage" DB
+                // -2.1- Insert to DB-->"productImage"
+                    for (MarketProductImage productImage : product.getProductImages()) {
+
+                        preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
+                        preStat.setString(1, productImage.getImageID());
+                        preStat.setString(2, null);
+                        preStat.setString(3, productImage.getImageContentType());
+                        preStat.setString(4, productImage.getImageSourceType());
+                        preStat.setString(5, productImage.getImageSource());
+
+                        int productImageQueryResult = preStat.executeUpdate(); 
                         
-                                                
-                    // - 2 - FTP Part
-                    // -2.1- Insert Files to FTP
-                        InputStream inputStream = null;
-                        Collection<Part> parts = request.getParts();
-                        Iterator<Part> partsIterator = parts.iterator();
-
-                        while ( partsIterator.hasNext () ){
-
-                            Part part = partsIterator.next();
-
-                            if(part.getName().equalsIgnoreCase("files")){
-                                String fileName = Util.generateID() + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                inputStream = part.getInputStream();
-
-                                FTPClient client = new FTPClient();
-                                client.connect("188.226.240.230");
-
-                                if (client.login("guppyftp", "guppyftp")){
-
-                                    client.setFileType(FTPClient.BINARY_FILE_TYPE);
-                                    boolean isStored = client.storeFile("products/"+fileName, inputStream);
-                                    
-                                    if(isStored){
-                                        MarketProductImage addedProductImage = new MarketProductImage();
-                                        addedProductImage.setImageID(Util.generateID());
-                                        addedProductImage.setImageProductID(product_id);
-                                        addedProductImage.setImageSourceType("FTP");
-                                        addedProductImage.setImageSource("products/"+fileName);
-                                        
-                                        productImages.add(addedProductImage);
-                                    }
-
-                                    if (client.logout()) 
-                                        System.out.println("Logout from FTP server...");
-                                    
-                                }else{
-                                    System.out.println("Login fail...");
-                                }
-                                client.disconnect();
+                        if(productImageQueryResult==1){
+                            FTPClient client = FTPHandler.getFTPClient();
+                            if(client.rename("temps/"+productImage.getImageFileName() , productImage.getImageSource() )){
+                               mysql.commit(); 
                             }
-                        }
-                        
-                        if(inputStream!=null){
-                            inputStream.close();
-                        }
-                        
-                        
-                    
-                    // -3.1- Insert to DB-->"productImage"
-                        for (MarketProductImage productImage : productImages) {
                             
-                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
-                            preStat.setString(1, productImage.getImageID());
-                            preStat.setString(2, productImage.getImageProductID());
-                            preStat.setString(3, productImage.getImageSourceType());
-                            preStat.setString(4, productImage.getImageSource());
-
-                            int productImageQueryResult = preStat.executeUpdate(); 
-                            
-                    // -3.2- Set Warning On Errors                            
-//                            if(productImageQueryResult==0){
-//                                return Result.SUCCESS_EMPTY;
-//                            }else if(productImageQueryResult>1){
-//                                return Result.FAILURE_PROCESS;
-//                            }
+                            client.logout();
+                            client.disconnect();
                         }
-                    
-                    return Result.SUCCESS;
-                    
-                    
-                    
-                }else{
-                    return Result.FAILURE_PARAM_MISMATCH;
-                }
+                    }                
 
-                
-
-//                // EXECUTE QUERY
-//                String query = String.format(rs.getString("mysql.product.update.insert.1"), productID, pName, pBranch, pCode, pDesc);
-//                int effectedRowNumber = mysql.execUpdate(query);
-//
-//                query = String.format(rs.getString("mysql.productImage.update.insert.1"), imageID, productID, fileContentType, fileBase64);
-//                int effectedRowNumber2 = mysql.execUpdate(query);
-//
-//                if (effectedRowNumber > 0 && effectedRowNumber2 > 0) {
-//                    mysql.commitAndCloseConnection();
-//                    result = Result.SUCCESS;
-//                } else {
-//                    result = Result.FAILURE_DB_EFFECTED_ROW_NUM;
-//                }
-
+                return Result.SUCCESS.setContent(product);                                       
                 
             } catch (NullPointerException ex) {
-                return Result.FAILURE_PROCESS.setContent(ex.toString());
+                Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                result = Result.FAILURE_PROCESS.setContent(ex.toString());
             } catch (SQLException ex) {                
                 Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_DB.setContent(ex.toString());
+                result = Result.FAILURE_DB.setContent(ex.toString());
             } catch (IOException ex) {
                 Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_PROCESS.setContent(ex.toString());
-            } catch (ServletException ex) {
-                Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_PROCESS.setContent(ex.toString());
+                result = Result.FAILURE_PROCESS.setContent(ex.toString());
             } finally {
-                mysql.commitAndCloseConnection();
+                mysql.closeAllConnection();
             }
 
         // -- ** --UNREACHABLE STATE
-//        return result;
+        return result;
     }
     
     

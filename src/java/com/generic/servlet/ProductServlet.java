@@ -1,5 +1,6 @@
 package com.generic.servlet;
 
+import com.generic.controller.ControllerProduct;
 import com.generic.db.DBProduct;
 import com.generic.result.Result;
 import com.generic.util.Util;
@@ -119,7 +120,8 @@ public class ProductServlet extends HttpServlet {
                             //-- ---           INSERT PRODUCT             --- --
                             //--------------------------------------------------
                             case INSERT_PRODUCT:                                             
-                                    res = DBProduct.addProduct(request);
+//                                    res = DBProduct.addProduct(request);
+                                    res = ControllerProduct.insertProduct(request);
                                 break;
                                 
                                 

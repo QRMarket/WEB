@@ -5,6 +5,8 @@
  */
 package com.generic.util;
 
+import java.io.InputStream;
+
 /**
  *
  * @author Kemal Sami KARACA
@@ -16,12 +18,16 @@ package com.generic.util;
 public class MarketProductImage {
     
     
+    // DB Columns
     private String imageID;
     private String imageProductID;      // image owner id       
     private String imageSource;
     private String imageSourceType;     // base64, url, ...
     private String imageContentType;    // image/png
-    private String imageType;           // tumbnail,normal, ...    
+    private String imageType;           // tumbnail,normal, ... 
+    
+    // ADDITIONAL PARAMETERS    
+    private String imageFileName;
     
     public MarketProductImage(){
         
@@ -109,6 +115,20 @@ public class MarketProductImage {
      */
     public void setImageProductID(String imageProductID) {
         this.imageProductID = imageProductID;
+    }
+
+    /**
+     * @return the imageFileName
+     */
+    public String getImageFileName() {
+        return imageFileName;
+    }
+
+    /**
+     * @param imageFileName the imageFileName to set
+     */
+    public void setImageFileName(String imageFileName) {
+        this.imageFileName = imageFileName;
     }
     
     
