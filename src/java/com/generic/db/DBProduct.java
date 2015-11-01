@@ -238,7 +238,9 @@ public class DBProduct {
                     preStat.setString(2, product.getProductName());
                     preStat.setString(3, product.getProductCode());
                     preStat.setString(4, product.getProductDesc());
-                    preStat.setString(5, product.getBrandID());
+                    preStat.setString(5, product.getSectionID());
+                    preStat.setString(6, product.getBrandID());
+                    preStat.setString(7, product.getUserID());
 
                     int executeResult = preStat.executeUpdate(); 
 

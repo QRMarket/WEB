@@ -5,6 +5,7 @@
  */
 package com.generic.servlet;
 
+import com.generic.controller.ControllerBrand;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -54,21 +55,14 @@ public class test extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        
+            throws ServletException, IOException {                
         
         response.setContentType("text/html;charset=UTF-8");
         
-        
-        
-        PrintWriter outTemp = response.getWriter();        
-        
+        PrintWriter outTemp = response.getWriter();                
         Result res = Result.FAILURE_PROCESS;
         Gson gson = new Gson();
                 
-        
-        
         
         try  { 
             
@@ -119,7 +113,7 @@ public class test extends HttpServlet {
                     break;
 
                 case APPLICATION_FORM_URLENCODED:                    
-                    res = res.setContent("Application form urlencoded");
+                    res = ControllerBrand.getBrandByID(request);
                     break;
 
                 case NULL:

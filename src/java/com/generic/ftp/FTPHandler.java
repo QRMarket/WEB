@@ -14,9 +14,9 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class FTPHandler {
     
-    private static String ftpHost = "188.226.240.230";
-    private static String ftpUsername = "guppyftp";
-    private static String ftpPassword = "guppyftp";
+    public static String ftpHost = "188.226.240.230";
+    public static String ftpUsername = "guppyftp";
+    public static String ftpPassword = "guppyftp";
     
     private static FTPClient ftpClient;
             
@@ -45,8 +45,8 @@ public class FTPHandler {
     }
     
     
-    public static String getFTP_URL(){
-        return "ftp://" + ftpUsername + ":" + ftpPassword + "@" + ftpHost + "/";
+    public static String getFTP_URL(String directory){
+        return String.format("ftp://%s:%s@%s/%s/", ftpUsername, ftpPassword, ftpHost,directory);
     }
     
 }

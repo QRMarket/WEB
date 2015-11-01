@@ -119,8 +119,7 @@ public class ProductServlet extends HttpServlet {
                             //--------------------------------------------------
                             //-- ---           INSERT PRODUCT             --- --
                             //--------------------------------------------------
-                            case INSERT_PRODUCT:                                             
-//                                    res = DBProduct.addProduct(request);
+                            case INSERT_PRODUCT:
                                     res = ControllerProduct.insertProduct(request);
                                 break;
                                 

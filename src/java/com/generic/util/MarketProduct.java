@@ -17,16 +17,21 @@ import java.util.ArrayList;
  */
 public class MarketProduct {
     
-    private String productID;    
-    private String productName;
-    private String productCode;
-    private String productDesc;    
-    private String branchName;
-    private String priceType;
-    private double price; 
-    private double amount;
-    private ArrayList<MarketProductImage> productImages;
-    private String brandID;
+    // Table columns
+        private String productID;    
+        private String productName;
+        private String productCode;
+        private String productDesc;    
+        private String branchName;
+        private String priceType;
+        private double price; 
+        private double amount;
+        private ArrayList<MarketProductImage> productImages;    
+    
+    // Foreign keys
+        private String sectionID;
+        private String brandID;    
+        private String userID;
               
     
     public MarketProduct(){
@@ -195,5 +200,33 @@ public class MarketProduct {
     public void setBrandID(String brandID) {
         this.brandID = brandID;
     }
-    
+
+    /**
+     * @return the userID
+     */
+    public String getUserID() {
+        return userID;
+    }
+
+    /**
+     * @param userID the userID to set
+     */
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    /**
+     * @return the sectionID
+     */
+    public String getSectionID() {
+        return sectionID;
+    }
+
+    /**
+     * @param sectionID the sectionID to set
+     */
+    public void setSectionID(String sectionID) {
+        this.sectionID = sectionID;
+    }
+
 }
