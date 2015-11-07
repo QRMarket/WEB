@@ -6,18 +6,24 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.controller.ControllerCompany;
+import com.generic.controller.ControllerProduct;
 import com.generic.db.DBAddress;
 import com.generic.db.DBCompany;
+import com.generic.db.DBProduct;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,6 +38,39 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "CompanyServlet", urlPatterns = {"/CompanyServlet"})
 public class CompanyServlet extends HttpServlet {
 
+    
+    private static enum ProductServletOperations{
+        NULL,
+        INSERT_COMPANY,
+        INSERT_DISTRIBUTER,
+        GET_COMPANY_LIST,
+        GET_DISTRIBUTER_LIST_BY_ADDRESS,
+        GET_DISTRIBUTER_LIST_BY_COMPANY,
+        REMOVE_COMPANY,
+        REMOVE_DISTRIBUTER,
+    }        
+    
+    private ProductServletOperations getRequestOperation(HttpServletRequest request){
+        
+        if(request.getParameter("do") != null){
+            
+            switch (request.getParameter("do")) {
+                case "addCompany":
+                    return ProductServletOperations.INSERT_COMPANY; 
+                case "addDistributer":
+                    return ProductServletOperations.INSERT_DISTRIBUTER; 
+                case "getCompanyList":
+                    return ProductServletOperations.GET_COMPANY_LIST; 
+                case "getDistributerListByAdrress":
+                    return ProductServletOperations.GET_DISTRIBUTER_LIST_BY_ADDRESS; 
+                case "getDistributerListByCompany":
+                    return ProductServletOperations.GET_DISTRIBUTER_LIST_BY_COMPANY;              
+            }
+        }  
+        
+        return ProductServletOperations.NULL;
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -56,64 +95,166 @@ public class CompanyServlet extends HttpServlet {
          * carpe diem company servlet   --> cdms        
          *
          */
-        HttpSession session = request.getSession(false);
         Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.FAILURE_PROCESS;
-        Map resultMap = new HashMap();
+                
         
-        
-        
-        //verbose(request);
-        
-        
-        
-        //**********************************************************************
-        //**********************************************************************
-        //**                 STRIKE UP SERVLET OPERATION
-        //**********************************************************************
-        //**********************************************************************
         try {
-            
-            
                         
-            if(request.getParameter("cdcsDO")!=null){                 
-                switch(request.getParameter("cdcsDO")){ 
+            switch (Util.getContentType(request)){                
                     
                 //**************************************************************
                 //**************************************************************
-                //**                    ADD TO ADDRESS CASE
+                //**        Content-Type :: multipart/form-data
                 //**************************************************************
                 //**************************************************************
-                    case "getCompanyList":
+                case MULTIPART_FORM_DATA:                                            
+                                                
+                        switch (getRequestOperation(request)){
+                                                        
+                            //--------------------------------------------------
+                            //-- ---           INSERT COMPANY             --- --
+                            //--------------------------------------------------
+                            case INSERT_COMPANY:                                             
+                                    //res = ControllerCompany.insertCompany(request);
+                                break;
+                                
+                                
+                                                            
+                            //--------------------------------------------------
+                            //-- ---           INSERT DISTRIBUTER             --- --
+                            //--------------------------------------------------
+                            case INSERT_DISTRIBUTER:                                             
+                                    //res = ControllerCompany.insertDistributer(request);
+                                break;
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---     "do" PARAMETER EXCEPTION         --- --
+                            //--------------------------------------------------  
+                            case NULL:
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                                break;
+                                
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
+                            default:
+                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>MULTIPART_FORM_DATA>default case");
+                                break;
+                        }
                         
-                            res = DBCompany.selectDistict(ResourceMysql.TABLE_COMPANY, "companyName");
+                    break;
+                    
+                    
+                    
+                    
+                    
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: application/x-www-form-urlencoded
+                //**************************************************************
+                //**************************************************************    
+                case APPLICATION_FORM_URLENCODED:            
+            
+                    switch (getRequestOperation(request)){
 
-                        break;
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                    DEFAULT CASE
-                //**************************************************************
-                //**************************************************************
-                    default:
-                        res = Result.FAILURE_PARAM_WRONG;
-                        break;
-                }
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    GET COMPANY LIST CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case GET_COMPANY_LIST:
 
-            }else{
-                res = Result.FAILURE_PARAM_MISMATCH;
-            }
-         
-        }finally{                        
-                        
-            mysql.closeAllConnection();
+                                    //ControllerCompany.getCompanyList(request);
+                                break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                GET DISTRIBUTER LIST BY ADDRESS CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case GET_DISTRIBUTER_LIST_BY_ADDRESS:
+
+                                    //ControllerCompany.getDistributerListByAddress(request);
+                                break;
+
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    GET DISTRIBUTER LIST BY COMPANY CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case GET_DISTRIBUTER_LIST_BY_COMPANY:
+                                    //ControllerCompany.getDistributerListByCompany(request);
+                                break;
+
+                            //**************************************************************
+                            //**************************************************************
+                            //**                    REMOVE CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case REMOVE_COMPANY:
+                                    break;
+
+                                
+                                //**************************************************************
+                            //**************************************************************
+                            //**                    REMOVE CASE
+                            //**************************************************************
+                            //**************************************************************
+                                case REMOVE_DISTRIBUTER:
+                                    break;
+
+                                
+                            //--------------------------------------------------
+                            //-- ---     "do" PARAMETER EXCEPTION         --- --
+                            //--------------------------------------------------  
+                            case NULL:
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                                break;
+                                
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
+                            default:
+                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>APPLICATION_FORM_URLENCODED>default case");
+                                break;
+                            }
+
+                    break;
+                    
+                    
+                    
+                    
+                    
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: EXCEPTION
+                //**************************************************************
+                //**************************************************************    
+                default:
+                    
+                    break;
+                
+                
+                
+            } // content-type switch end
+                
+            
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+
             out.write(gson.toJson(res));
             out.close();
-            
-        }                        
+
+        }       
         
     }
     

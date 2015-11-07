@@ -6,15 +6,19 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.controller.ControllerSection;
 import com.generic.db.DBSection;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +33,34 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "SectionServlet", urlPatterns = {"/SectionServlet"})
 public class SectionServlet extends HttpServlet {
 
+    private static enum ProductServletOperations {
+
+        NULL,
+        INSERT_SECTION,
+        GET_SECTION_LIST,
+        REMOVE_SECTION,
+        UPDATE_SECTION,
+    }
+
+    private ProductServletOperations getRequestOperation(HttpServletRequest request) {
+
+        if (request.getParameter("do") != null) {
+
+            switch (request.getParameter("do")) {
+                case "addSection":
+                    return ProductServletOperations.INSERT_SECTION;
+                case "getSections":
+                    return ProductServletOperations.GET_SECTION_LIST;
+                case "deleteSection":
+                    return ProductServletOperations.REMOVE_SECTION;
+                case "updateSection":
+                    return ProductServletOperations.UPDATE_SECTION;
+            }
+        }
+
+        return ProductServletOperations.NULL;
+    }
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -42,95 +74,119 @@ public class SectionServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
-        /**
-         * cdssDO   :: getSections
-         *              -->parentId
-         *          
-         *          
-         * 
-         *          
-         *          
-         *          
-         * 
-         *
-         * 
-         * !! SHORTCUTs !!
-         * carpe diem address           --> cdm
-         * carpe diem address servlet   --> cdms        
-         *
-         */
-        
-        HttpSession session = request.getSession(false);
+
         Gson gson = new Gson();
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         Result res = Result.FAILURE_PROCESS;
-        Map resultMap = new HashMap();
-        
-        try{
-            if(request.getParameter("cdssDo")!=null){                 
-                switch(request.getParameter("cdssDo")){ 
+        try {
+
+            switch (Util.getContentType(request)) {
+
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: multipart/form-data
+                //**************************************************************
+                //**************************************************************
+                case MULTIPART_FORM_DATA:
+
+                    switch (getRequestOperation(request)) {
+
+                        //--------------------------------------------------
+                        //-- ---           INSERT SECTION             --- --
+                        //--------------------------------------------------
+                        case INSERT_SECTION:
+                            ControllerSection.insertSection(request);
+
+                        case NULL:
+                            res = Result.FAILURE_PARAM_MISMATCH;
+                            break;
+
+                            //--------------------------------------------------
+                        //-- ---            DEFAULT CASE              --- --
+                        //--------------------------------------------------  
+                        default:
+                            res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>MULTIPART_FORM_DATA>default case");
+                            break;
+                    }
+
+                    break;
+                case APPLICATION_FORM_URLENCODED:            
+
+                switch (getRequestOperation(request)){
+                    
                     
                 //**************************************************************
                 //**************************************************************
                 //**                    GET SECTIONS CASE
                 //**************************************************************
                 //**************************************************************
-                    case "getSections":
-                        String pid = request.getParameter("cdsParentId");
-                       
-                        res = DBSection.getSections(pid);
-                        break;
-                    case "addSection":
-                        pid = request.getParameter("cdsParentId");
-                        String sName = request.getParameter("cdsName");
-                        String sImage = request.getParameter("cdsImage");
-                        if(Checker.anyNull(sName)){
-                            res = Result.FAILURE_PARAM_MISMATCH;
-                        }else{
-                            res = DBSection.addSection(pid, sName, sImage);
-                        }
-                        break;
-                    case "deleteSection":
-                        String sid = request.getParameter("cdsId");
-                        if(Checker.anyNull(sid)){
-                            res = Result.FAILURE_PARAM_MISMATCH;
-                        }else{
-                            res = DBSection.deleteSection(sid);
-                        }
-                        break;
-                    case "updateSection":
-                        sid = request.getParameter("cdsId");
-                        pid = request.getParameter("cdsParentId");
-                        sName = request.getParameter("cdsName");
-                        sImage = request.getParameter("cdsImage");
-                        res = DBSection.updateSection(sid, sName, sImage, pid);
+                    
+                    case GET_SECTION_LIST:
+                        ControllerSection.getSections(request);
+                    break;
+
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    REMOVE SECTION CASE
+                //**************************************************************
+                //**************************************************************
+                        
+                    case REMOVE_SECTION:
+                        ControllerSection.removeSection(request);
+                    break;
+                        
+                        
+                        
+                //**************************************************************
+                //**************************************************************
+                //**                    UPDATE SECTION CASE
+                //**************************************************************
+                //**************************************************************
+                        
+                    case UPDATE_SECTION:
+                        ControllerSection.updateSection(request);
+                    break;
+
+                    //--------------------------------------------------
+                    //-- ---            DEFAULT CASE              --- --
+                    //--------------------------------------------------  
+                    default:
+                            res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>APPLICATION_FORM_URLENCODED>default case");
                         break;
                 }
-            }else{
-                res = Result.FAILURE_PARAM_MISMATCH;
-            }
-        }catch(Exception ex){
-            System.out.println(ex.getMessage());
-        }finally{
-            mysql.closeAllConnection();
-            out.write(gson.toJson(res));
-            out.close();
-        }
-    }
+            break;
+                
+                    
+            //**************************************************************
+            //**************************************************************
+            //**        Content-Type :: EXCEPTION
+            //**************************************************************
+            //**************************************************************    
+            default:
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                break;
+            }
+     } catch (Exception ex) {
+            Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+    } finally {
+
+        out.write(gson.toJson(res));
+        out.close();
+
+    }
+}
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+/**
+ * Handles the HTTP <code>GET</code> method.
+ *
+ * @param request servlet request
+ * @param response servlet response
+ * @throws ServletException if a servlet-specific error occurs
+ * @throws IOException if an I/O error occurs
+ */
+@Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -144,7 +200,7 @@ public class SectionServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -155,7 +211,7 @@ public class SectionServlet extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+        public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 
