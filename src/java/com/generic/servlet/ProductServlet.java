@@ -53,6 +53,10 @@ public class ProductServlet extends HttpServlet {
     private static enum ProductServletOperations{
         NULL,
         INSERT_PRODUCT,
+        GET_PRODUCT,
+        GET_PRODUCT_LIST,
+        GET_CAMPAIGN_PRODUCT_LIST,
+        REMOVE_PRODUCT,
     }        
     
     private ProductServletOperations getRequestOperation(HttpServletRequest request){
@@ -61,7 +65,15 @@ public class ProductServlet extends HttpServlet {
             
             switch (request.getParameter("do")) {
                 case "addProduct":
-                    return ProductServletOperations.INSERT_PRODUCT;                
+                    return ProductServletOperations.INSERT_PRODUCT; 
+                case "getProduct":
+                    return ProductServletOperations.GET_PRODUCT; 
+                case "getProductList":
+                    return ProductServletOperations.GET_PRODUCT_LIST; 
+                case "getCampaignProductList":
+                    return ProductServletOperations.GET_CAMPAIGN_PRODUCT_LIST; 
+                case "removeProduct":
+                    return ProductServletOperations.REMOVE_PRODUCT;              
             }
         }  
         
@@ -119,7 +131,8 @@ public class ProductServlet extends HttpServlet {
                             //--------------------------------------------------
                             //-- ---           INSERT PRODUCT             --- --
                             //--------------------------------------------------
-                            case INSERT_PRODUCT:
+                            case INSERT_PRODUCT:                                             
+//                                    res = DBProduct.addProduct(request);
                                     res = ControllerProduct.insertProduct(request);
                                 break;
                                 
@@ -155,23 +168,22 @@ public class ProductServlet extends HttpServlet {
                 //**************************************************************    
                 case APPLICATION_FORM_URLENCODED:            
             
-                        if (request.getParameter("cdpsDo") != null) {
-                            switch (request.getParameter("cdpsDo")) {
+                    switch (getRequestOperation(request)){
 
                             //**************************************************************
                             //**************************************************************
                             //**                    GET PRODUCT CASE
                             //**************************************************************
                             //**************************************************************
-                                case "getProduct":
+                                case GET_PRODUCT:
 
-                                    if (request.getParameter("cdpUID") != null) {
+                                    if (request.getParameter("productUniqueId") != null) {
 
-                                        res = DBProduct.getCompanyProductInfo(request.getParameter("cdpUID"));
+                                        res = ControllerProduct.getCompanyProductInfo(request);
 
-                                    } else if (request.getParameter("cdpCID") != null) {
+                                    } else if (request.getParameter("productCommonId") != null) {
 
-                                        res = DBProduct.getProduct(request.getParameter("cdpCID"));
+                                        res = ControllerProduct.getProduct(request);
 
                                     } else {
                                         res = Result.FAILURE_PARAM_MISMATCH;
@@ -184,11 +196,14 @@ public class ProductServlet extends HttpServlet {
                             //**                GET PRODUCT LIST CASE
                             //**************************************************************
                             //**************************************************************
-                                case "getProductList":
+                                case GET_PRODUCT_LIST:
 
-                                    if (request.getParameter("cdpmID") != null) {
+                                    if (request.getParameter("sectionId") != null) {
 
-                                        res = DBProduct.getProductList(request.getParameter("cdpmID"));
+                                        res = ControllerProduct.getProductListBySection(request);
+
+                                    } else if (request.getParameter("distributerId") != null) {
+                                        res = ControllerProduct.getProductListByDistributer(request);
 
                                     } else {
                                         res = Result.FAILURE_PARAM_MISMATCH;
@@ -196,21 +211,13 @@ public class ProductServlet extends HttpServlet {
 
                                     break;
 
-                            //**************************************************************
-                            //**************************************************************
-                            //**                    ADD CASE
-                            //**************************************************************
-                            //**************************************************************
-                                case "addProduct":
-
-                                    break;
 
                             //**************************************************************
                             //**************************************************************
-                            //**                    ADD CASE
+                            //**                    GET CAMPAIGN PRODUCT LIST CASE
                             //**************************************************************
                             //**************************************************************
-                                case "getCampaignProductList":
+                                case GET_CAMPAIGN_PRODUCT_LIST:
                                         res = DBProduct.getActiveCampaignProducts();
                                     break;
 
@@ -219,22 +226,27 @@ public class ProductServlet extends HttpServlet {
                             //**                    REMOVE CASE
                             //**************************************************************
                             //**************************************************************
-                                case "removeProduct":
+                                case REMOVE_PRODUCT:
                                     break;
 
-                            //**************************************************************
-                            //**************************************************************
-                            //**                    DEFAULT CASE
-                            //**************************************************************
-                            //**************************************************************
-                                default:
-                                    res = Result.FAILURE_PARAM_WRONG;
-                                    break;
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---     "do" PARAMETER EXCEPTION         --- --
+                            //--------------------------------------------------  
+                            case NULL:
+                                    res = Result.FAILURE_PARAM_MISMATCH;
+                                break;
+                                
+                                
+                                
+                            //--------------------------------------------------
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
+                            default:
+                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>APPLICATION_FORM_URLENCODED>default case");
+                                break;
                             }
-
-                        } else {
-                            res = Result.FAILURE_PARAM_MISMATCH;
-                        }
 
                     break;
                     

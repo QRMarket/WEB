@@ -101,4 +101,71 @@ public class ControllerProduct {
     }
     
     
+    public static Result getProduct(HttpServletRequest request){
+        
+        String productId = request.getParameter("productCommonId");
+
+    // -1.1- Check Product Common Id
+        if(!Checker.anyNull( productId)){ 
+            return DBProduct.getProduct(productId);
+
+        }else{
+            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
+        }
+    }
+    
+    
+    
+    public static Result getCompanyProductInfo(HttpServletRequest request){
+        
+        String productId = request.getParameter("productUniqueId");
+
+    // -1.1- Check Product Common Id
+        if(!Checker.anyNull( productId)){ 
+            return DBProduct.getCompanyProductInfo(productId);
+
+        }else{
+            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
+        }
+    }
+    
+    
+    
+    public static Result getProductListByDistributer(HttpServletRequest request){
+        
+        String distributerId = request.getParameter("distributerId");
+
+    // -1.1- Check Product Common Id
+        if(!Checker.anyNull( distributerId)){ 
+            String limit = request.getParameter("limit");
+            if(limit == null){
+                limit = "20";
+            }
+            return DBProduct.getProductListByDistributer(distributerId, Integer.parseInt(limit));
+
+        }else{
+            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
+        }
+        
+    }
+    
+    public static Result getProductListBySection(HttpServletRequest request){
+        
+        String sectionId = request.getParameter("sectionId");
+
+    // -1.1- Check Product Common Id
+        if(!Checker.anyNull( sectionId)){ 
+            String limit = request.getParameter("limit");
+            if(limit == null){
+                limit = "20";
+            }
+            return DBProduct.getProductListBySection(sectionId, Integer.parseInt(limit));
+
+        }else{
+            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
+        }
+        
+    }
+    
+    
 }
