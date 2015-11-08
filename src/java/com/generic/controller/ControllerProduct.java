@@ -6,7 +6,6 @@ import com.generic.ftp.FTPHandler;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
 import com.generic.util.MarketProductImage;
-import com.generic.util.MarketUser;
 import com.generic.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -37,14 +36,15 @@ public class ControllerProduct {
             try {                                
                 
                 // -1.1- Create Product Object
-                    MarketProduct productObj = new MarketProduct();        
+                    MarketProduct productObj = new MarketProduct();
                     productObj.setProductID("t_" + Util.generateID());
                     productObj.setProductName(request.getParameter("name"));
                     productObj.setProductCode(request.getParameter("barcode"));
                     productObj.setProductDesc(request.getParameter("desc"));
                     productObj.setBrandID(request.getParameter("brand_id"));
+                    productObj.setSectionID(request.getParameter("section_id"));
                     productObj.setUserID("123459");
-                    productObj.setSectionID("100");
+                    
 
                 // -1.2- Check Product Object Values
                     if(!Checker.anyNull( productObj.getProductName(), productObj.getBrandID(), productObj.getUserID())){ 
@@ -87,13 +87,12 @@ public class ControllerProduct {
                                                         
                     return DBProduct.addProduct(productObj);
                     
-            } catch (IOException ex) {
-                Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_PROCESS.setContent(ex.toString());
-            } catch (ServletException ex) {
+            } catch (IOException | ServletException ex) {
                 Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                 return Result.FAILURE_PROCESS.setContent(ex.toString());
             }
+//        return Result.FAILURE_PROCESS;
+        
             
         
         

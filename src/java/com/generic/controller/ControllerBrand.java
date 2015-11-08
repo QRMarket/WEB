@@ -20,6 +20,22 @@ import javax.servlet.http.HttpServletRequest;
 public class ControllerBrand {
     
     
+    public static Result getBrandAll(){
+        
+        Result result = Result.FAILURE_PROCESS;
+        
+        try {                                
+                                    
+            return DBBrand.getBrand_All();
+                    
+        } catch (Exception ex) {
+            Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+            result = Result.FAILURE_PROCESS.setContent(ex.toString());
+        }
+        
+        return result;        
+    }
+    
     
     public static Result getBrandByID(HttpServletRequest request){
         

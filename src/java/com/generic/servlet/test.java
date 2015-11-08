@@ -113,7 +113,7 @@ public class test extends HttpServlet {
                     break;
 
                 case APPLICATION_FORM_URLENCODED:                    
-                    res = ControllerBrand.getBrandByID(request);
+                    res = ControllerBrand.getBrandAll();
                     break;
 
                 case NULL:
@@ -124,7 +124,6 @@ public class test extends HttpServlet {
                     res = res.setContent(Util.getContentType(request));
                     break;
             }
-            
             
             
         }catch (Exception e){

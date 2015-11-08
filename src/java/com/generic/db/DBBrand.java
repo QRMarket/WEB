@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,16 +23,58 @@ import java.util.logging.Logger;
 public class DBBrand {
     
     // <editor-fold defaultstate="collapsed" desc="Brand GET Operations">
+        
+    public static Result getBrand_All(){
+            Result result = Result.FAILURE_PROCESS; 
+            ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+            MysqlDBOperations mysql = new MysqlDBOperations();            
+            Connection conn = mysql.getConnection();
+            
+            try {
+                
+                // -1.1- Select from DB-->"brand" 
+                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.brand.select.1"));                    
+                    
+                // -1.2- Get result
+                    ResultSet resultSet = preStat.executeQuery();
+                
+                // -1.3- Check Result                     
+                    if(resultSet.first()){
+                        
+                        ArrayList<Brands> brandList = new ArrayList<>();
+                        do{
+                          
+                            Brands resultBrand = new Brands();
+                            resultBrand.setId(resultSet.getString("id"));
+                            resultBrand.setParent_id(resultSet.getString("parent_id"));
+                            resultBrand.setBrand_name(resultSet.getString("brand_name"));                            
+                            brandList.add(resultBrand);
+                            
+                        }while(resultSet.next());
+                        
+                        result = Result.SUCCESS.setContent(brandList);
+                        
+                    }else{
+                        result = Result.SUCCESS_EMPTY;
+                    }                                        
+                    
+            }catch(SQLException ex){
+                Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                result = Result.FAILURE_DB.setContent(ex.toString());
+            }finally{
+                mysql.closeAllConnection();
+            }
+                        
+        return result;
+    }
     
-    public static Result getBrand_ById(Brands brand){
-        
-        
+    
+    public static Result getBrand_ById(Brands brand){        
             Result result = Result.FAILURE_PROCESS;
             ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
             MysqlDBOperations mysql = new MysqlDBOperations();            
             Connection conn = mysql.getConnection();
-           
-        
+            
             try {
                 
                 // -1.1- Select from DB-->"brand" 
@@ -44,7 +87,12 @@ public class DBBrand {
                 // -1.3- Check Result                     
                     if(resultSet.first()){
                         
-                        result = Result.SUCCESS.setContent(resultSet.getString("brand_name"));
+                        Brands resultBrand = new Brands();
+                        resultBrand.setId(resultSet.getString("id"));
+                        resultBrand.setParent_id(resultSet.getString("parent_id"));
+                        resultBrand.setBrand_name(resultSet.getString("brand_name"));
+                        
+                        result = Result.SUCCESS.setContent(resultBrand);
                         
                     }else{
                         result = Result.SUCCESS_EMPTY;
@@ -61,5 +109,8 @@ public class DBBrand {
     }
     
     // </editor-fold>  
+    
+    
+    
     
 }
