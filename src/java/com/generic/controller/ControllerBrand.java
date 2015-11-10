@@ -39,6 +39,7 @@ public class ControllerBrand {
     
     public static Result getBrandByID(HttpServletRequest request){
         
+        Result result = Result.FAILURE_PROCESS;
         try {                                
                 
             // -1.1- Create Product Object
@@ -46,16 +47,15 @@ public class ControllerBrand {
                 brandObj.setId(request.getParameter("id"));                    
 
             // -1.2- Check Product Object Values
-                if(!Checker.anyNull( brandObj.getId() )){ 
-                    return DBBrand.getBrand_ById(brandObj);
-                }                       
+                result = DBBrand.getBrand_ById(brandObj);
+                                      
                     
         } catch (Exception ex) {
             Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
             return Result.FAILURE_PROCESS.setContent(ex.toString());
         }
         
-        return Result.FAILURE_PROCESS;    
+        return result;
     }
     
 }

@@ -295,6 +295,7 @@ public class DBProduct {
     }
     
     // </editor-fold>  
+    
     // <editor-fold defaultstate="collapsed" desc="Product INSERT Operations">
     /**
      *
@@ -310,49 +311,51 @@ public class DBProduct {
 
         try {
 
-                // - 1 - "products" DB 
+            // - 1 - "products" DB 
             // -1.1- Insert to DB-->"products" 
-            PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.update.insert.1"));
-            preStat.setString(1, product.getProductID());
-            preStat.setString(2, product.getProductName());
-            preStat.setString(3, product.getProductCode());
-            preStat.setString(4, product.getProductDesc());
-            preStat.setString(5, product.getBrandID());
+                PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.update.insert.1"));
+                preStat.setString(1, product.getProductID());
+                preStat.setString(2, product.getProductName());
+                preStat.setString(3, product.getProductCode());
+                preStat.setString(4, product.getProductDesc());
+                preStat.setString(5, product.getSectionID());
+                preStat.setString(6, product.getBrandID());
+                preStat.setString(7, product.getUserID());
 
-            int executeResult = preStat.executeUpdate();
+                int executeResult = preStat.executeUpdate();
 
             // -1.2- Get&Check insert result
-            if (executeResult == 0) {
-                return Result.SUCCESS_EMPTY;
-            } else if (executeResult > 1) {
-                return Result.FAILURE_PROCESS;
-            }
+                if (executeResult == 0) {
+                    return Result.SUCCESS_EMPTY;
+                } else if (executeResult > 1) {
+                    return Result.FAILURE_PROCESS;
+                }
 
             // -1.3- Commit if product added                    
-            mysql.commit();
+                mysql.commit();
 
                 // - 2 - "productImage" DB
             // -2.1- Insert to DB-->"productImage"
-            for (MarketProductImage productImage : product.getProductImages()) {
+                for (MarketProductImage productImage : product.getProductImages()) {
 
-                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
-                preStat.setString(1, productImage.getImageID());
-                preStat.setString(2, product.getProductID());
-                preStat.setString(3, productImage.getImageContentType());
-                preStat.setString(4, productImage.getImageSourceType());
-                preStat.setString(5, productImage.getImageSource());
+                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
+                    preStat.setString(1, productImage.getImageID());
+                    preStat.setString(2, product.getProductID());
+                    preStat.setString(3, productImage.getImageContentType());
+                    preStat.setString(4, productImage.getImageSourceType());
+                    preStat.setString(5, productImage.getImageSource());
 
-                int productImageQueryResult = preStat.executeUpdate();
+                    int productImageQueryResult = preStat.executeUpdate();
 
-                if (productImageQueryResult == 1) {
-                    FTPClient client = FTPHandler.getFTPClient();
-                    if (client.rename("temps/" + productImage.getImageFileName(), "products/" + productImage.getImageFileName())) {
-                        mysql.commit();
+                    if (productImageQueryResult == 1) {
+                        FTPClient client = FTPHandler.getFTPClient();
+                        if (client.rename(FTPHandler.dirTemps + productImage.getImageFileName(), FTPHandler.dirProducts + productImage.getImageFileName())) {
+                            mysql.commit();
+                        }
+
+                        FTPHandler.closeFTPClient();
                     }
-
-                    FTPHandler.closeFTPClient();
                 }
-            }
 
             return Result.SUCCESS.setContent(product);
 
@@ -374,6 +377,7 @@ public class DBProduct {
     }
 
     // </editor-fold>
+    
     public static Result getActiveCampaignProducts() {
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");

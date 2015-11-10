@@ -18,6 +18,11 @@ public class FTPHandler {
     public static String ftpUsername = "guppyftp";
     public static String ftpPassword = "guppyftp";
     
+    public static final String dirTemps         = "images/temps/";
+    public static final String dirProducts      = "images/products/";
+    public static final String dirSections      = "images/sections/";
+    public static final String dirBrands        = "images/brands/";
+    
     private static FTPClient ftpClient;
             
         
@@ -31,7 +36,8 @@ public class FTPHandler {
         }
     
         if(ftpClient.login(ftpUsername, ftpPassword)){
-            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);  
+            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE); 
+            ftpClient.enterLocalPassiveMode();
             return ftpClient;
         }        
         
@@ -46,7 +52,7 @@ public class FTPHandler {
     
     
     public static String getFTP_URL(String directory){
-        return String.format("ftp://%s:%s@%s/%s/", ftpUsername, ftpPassword, ftpHost,directory);
+        return String.format("ftp://%s:%s@%s/%s", ftpUsername, ftpPassword, ftpHost,directory);
     }
     
 }

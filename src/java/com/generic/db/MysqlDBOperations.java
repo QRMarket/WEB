@@ -98,7 +98,7 @@ public class MysqlDBOperations {
             Class.forName("com.mysql.jdbc.Driver");
             if (conn == null || conn.isClosed()) {
                 conn = DriverManager.getConnection("jdbc:mysql://188.226.240.230:3306/QR_Market_DB", "guppy", "guppy");
-                //conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/QR_Market_DB", "root", "");
+//                conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/QR_Market_DB", "root", "");
                 conn.setAutoCommit(false);                
             }
         } catch (Exception e) {

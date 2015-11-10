@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,12 +75,18 @@ public class DBBrand {
             ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
             MysqlDBOperations mysql = new MysqlDBOperations();            
             Connection conn = mysql.getConnection();
+            List<Brands> brands = new ArrayList<>();
             
             try {
                 
                 // -1.1- Select from DB-->"brand" 
-                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.brand.select.2"));
-                    preStat.setString(1, brand.getId());
+                    PreparedStatement preStat;
+                    if (brand.getId() != null) {
+                        preStat = conn.prepareStatement(rs.getPropertyValue("mysql.brand.select.2"));
+                        preStat.setString(1, brand.getId());
+                    } else {
+                        preStat = conn.prepareStatement(rs.getPropertyValue("mysql.brand.select.3"));
+                    }
                     
                 // -1.2- Get result
                     ResultSet resultSet = preStat.executeQuery();
@@ -87,12 +94,15 @@ public class DBBrand {
                 // -1.3- Check Result                     
                     if(resultSet.first()){
                         
-                        Brands resultBrand = new Brands();
-                        resultBrand.setId(resultSet.getString("id"));
-                        resultBrand.setParent_id(resultSet.getString("parent_id"));
-                        resultBrand.setBrand_name(resultSet.getString("brand_name"));
+                        do {    
+                            Brands resultBrand = new Brands();
+                            resultBrand.setId(resultSet.getString("id"));
+                            resultBrand.setParent_id(resultSet.getString("parent_id"));
+                            resultBrand.setBrand_name(resultSet.getString("brand_name"));
+                            brands.add(resultBrand);
+                        } while (resultSet.next());
                         
-                        result = Result.SUCCESS.setContent(resultBrand);
+                        result = Result.SUCCESS.setContent(brands);
                         
                     }else{
                         result = Result.SUCCESS_EMPTY;

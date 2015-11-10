@@ -33,6 +33,7 @@ public class ControllerProduct {
     
     public static Result insertProduct(HttpServletRequest request){
         
+            Result result = Result.FAILURE_PROCESS;
             try {                                
                 
                 // -1.1- Create Product Object
@@ -62,27 +63,28 @@ public class ControllerProduct {
                                 InputStream imageInputStream = part.getInputStream();
                                                                 
                                 FTPClient client = FTPHandler.getFTPClient();
-                                if(client.storeFile("temps/"+imageFileName, imageInputStream)){
+                                
+                                if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
                                     
                                     MarketProductImage productImageObject = new MarketProductImage();
                                     productImageObject.setImageID(generatedID);
                                     productImageObject.setImageFileName(imageFileName);
-                                    productImageObject.setImageSource(String.format("http://%s/products/", FTPHandler.ftpHost) + imageFileName);
+                                    productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
                                     productImageObject.setImageSourceType("FTP");          
                                     productImageObject.setImageContentType(
-                                                        new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL("temps") +imageFileName)));
+                                                        new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL(FTPHandler.dirTemps) +imageFileName)));
                                                                         
                                     productObj.getProductImages().add(productImageObject);
                                 
                                 }
                                 
                                 FTPHandler.closeFTPClient();
-                                imageInputStream.close();
+                                imageInputStream.close();  
                             }
                         }
 
                     }else{
-                        return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
+                        return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct > AnyNull Exception");
                     }
                                                         
                     return DBProduct.addProduct(productObj);
@@ -91,12 +93,8 @@ public class ControllerProduct {
                 Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                 return Result.FAILURE_PROCESS.setContent(ex.toString());
             }
-//        return Result.FAILURE_PROCESS;
-        
             
-        
-        
-//        return Result.FAILURE_PROCESS;
+//        return result;
         
     }
     
