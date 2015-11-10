@@ -33,7 +33,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "SectionServlet", urlPatterns = {"/SectionServlet"})
 public class SectionServlet extends HttpServlet {
 
-    private static enum ProductServletOperations {
+    private static enum ServletOperations {
 
         NULL,
         INSERT_SECTION,
@@ -42,25 +42,26 @@ public class SectionServlet extends HttpServlet {
         UPDATE_SECTION,
     }
 
-    private ProductServletOperations getRequestOperation(HttpServletRequest request) {
+    private ServletOperations getRequestOperation(HttpServletRequest request) {
 
         if (request.getParameter("do") != null) {
 
             switch (request.getParameter("do")) {
-                case "addSection":
-                    return ProductServletOperations.INSERT_SECTION;
+                case "addSection":                    
+                    return ServletOperations.INSERT_SECTION;
                 case "getSections":
-                    return ProductServletOperations.GET_SECTION_LIST;
+                    return ServletOperations.GET_SECTION_LIST;
                 case "deleteSection":
-                    return ProductServletOperations.REMOVE_SECTION;
+                    return ServletOperations.REMOVE_SECTION;
                 case "updateSection":
-                    return ProductServletOperations.UPDATE_SECTION;
+                    return ServletOperations.UPDATE_SECTION;
             }
         }
 
-        return ProductServletOperations.NULL;
+        return ServletOperations.NULL;
     }
 
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -78,7 +79,7 @@ public class SectionServlet extends HttpServlet {
         Gson gson = new Gson();
         Result res = Result.FAILURE_PROCESS;
         try {
-
+            
             switch (Util.getContentType(request)) {
 
                 //**************************************************************
@@ -88,93 +89,92 @@ public class SectionServlet extends HttpServlet {
                 //**************************************************************
                 case MULTIPART_FORM_DATA:
 
-                    switch (getRequestOperation(request)) {
+                        switch (getRequestOperation(request)) {
 
-                        //--------------------------------------------------
-                        //-- ---           INSERT SECTION             --- --
-                        //--------------------------------------------------
-                        case INSERT_SECTION:
-                            ControllerSection.insertSection(request);
+                            //--------------------------------------------------
+                            //-- ---           INSERT SECTION             --- --
+                            //--------------------------------------------------
+                            case INSERT_SECTION:
+                                ControllerSection.insertSection(request);
 
-                        case NULL:
-                            res = Result.FAILURE_PARAM_MISMATCH;
+                            case NULL:
+                                res = Result.FAILURE_PARAM_MISMATCH;
+                                break;
+
+                            //--------------------------------------------------
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
+                            default:
+                                res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>MULTIPART_FORM_DATA>default case");
+                                break;
+                        }
+
+                    break;
+                 
+                    
+                
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: application/x-www-form-urlencoded
+                //**************************************************************
+                //**************************************************************
+                case APPLICATION_FORM_URLENCODED:  
+
+                        switch (getRequestOperation(request)){
+
+
+                            //--------------------------------------------------
+                            //-- ---           GET SECTION LIST           --- --
+                            //--------------------------------------------------
+                            case GET_SECTION_LIST:
+                                    res = ControllerSection.getSections(request);
+                                break;
+
+
+                            //--------------------------------------------------
+                            //-- ---         REMOVE SECTION               --- --
+                            //--------------------------------------------------
+                            case REMOVE_SECTION:
+                                    res = ControllerSection.removeSection(request);
+                                break;
+
+
+                            //--------------------------------------------------
+                            //-- ---         UPDATE SECTION               --- --
+                            //--------------------------------------------------
+                            case UPDATE_SECTION:
+                                    res = ControllerSection.updateSection(request);
                             break;
 
                             //--------------------------------------------------
-                        //-- ---            DEFAULT CASE              --- --
-                        //--------------------------------------------------  
-                        default:
-                            res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>MULTIPART_FORM_DATA>default case");
-                            break;
-                    }
+                            //-- ---            DEFAULT CASE              --- --
+                            //--------------------------------------------------  
+                            default:
+                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>APPLICATION_FORM_URLENCODED>default case");
+                                break;
+                        }
 
                     break;
-                case APPLICATION_FORM_URLENCODED:            
-
-                switch (getRequestOperation(request)){
-                    
-                    
-                //**************************************************************
-                //**************************************************************
-                //**                    GET SECTIONS CASE
-                //**************************************************************
-                //**************************************************************
-                    
-                    case GET_SECTION_LIST:
-                        ControllerSection.getSections(request);
-                    break;
-
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                    REMOVE SECTION CASE
-                //**************************************************************
-                //**************************************************************
-                        
-                    case REMOVE_SECTION:
-                        ControllerSection.removeSection(request);
-                    break;
-                        
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                    UPDATE SECTION CASE
-                //**************************************************************
-                //**************************************************************
-                        
-                    case UPDATE_SECTION:
-                        ControllerSection.updateSection(request);
-                    break;
-
-                    //--------------------------------------------------
-                    //-- ---            DEFAULT CASE              --- --
-                    //--------------------------------------------------  
-                    default:
-                            res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>APPLICATION_FORM_URLENCODED>default case");
-                        break;
-                }
-            break;
                 
                     
-            //**************************************************************
-            //**************************************************************
-            //**        Content-Type :: EXCEPTION
-            //**************************************************************
-            //**************************************************************    
-            default:
-
-                break;
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: EXCEPTION
+                //**************************************************************
+                //**************************************************************    
+                default:
+                        res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>Main Content-Type Switch>default case");                        
+                    break;
             }
-     } catch (Exception ex) {
-            Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
-    } finally {
+            
+        } catch (Exception ex) {
+                Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
 
-        out.write(gson.toJson(res));
-        out.close();
-
+            out.write(gson.toJson(res));
+            out.close();
+        }
     }
-}
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 /**

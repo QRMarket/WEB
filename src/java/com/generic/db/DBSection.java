@@ -28,6 +28,8 @@ import javax.mail.internet.InternetAddress;
  */
 public class DBSection {
 
+    
+    // <editor-fold defaultstate="collapsed" desc="Section GET Operations">
     public static Result getSections(String parentId) {
         MysqlDBOperations mysql = new MysqlDBOperations();
         ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
@@ -72,7 +74,9 @@ public class DBSection {
             mysql.closeAllConnection();
         }
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Section INSERT Operations">
     public static Result addSection(String pid, String sName, String sImage) {
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         MysqlDBOperations mysql = new MysqlDBOperations();
@@ -140,7 +144,9 @@ public class DBSection {
             mysql.closeAllConnection();
         }
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Section DELETE Operations">
     public static Result deleteSection(String sid) {
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         MysqlDBOperations mysql = new MysqlDBOperations();
@@ -169,7 +175,9 @@ public class DBSection {
             mysql.closeAllConnection();
         }
     }
-
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Section UPDATE Operations">    
     public static Result updateSection(String sid, String sName, String sImage, String pid) {
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
         MysqlDBOperations mysql = new MysqlDBOperations();
@@ -238,4 +246,6 @@ public class DBSection {
             mysql.closeAllConnection();
         }
     }
+    // </editor-fold>
+    
 }
