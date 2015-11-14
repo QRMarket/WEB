@@ -101,35 +101,24 @@ public class BrandServlet extends HttpServlet {
 
                         switch (getRequestOperation(request)){
 
-                            //--------------------------------------------------
-                            //-- ---           GET SECTION LIST           --- --
-                            //--------------------------------------------------
+                            
                             case GET_BRAND_LIST:
                                     res = ControllerBrand.getBrandByID(request);
                                 break;
 
 
-                            //--------------------------------------------------
-                            //-- ---         REMOVE SECTION               --- --
-                            //--------------------------------------------------
                             case UPDATE_BRAND:
                                     res = Result.SUCCESS_EMPTY.setContent("This Servlet On Progress > UPDATE_BRAND");
                                 break;
 
 
-                            //--------------------------------------------------
-                            //-- ---         UPDATE SECTION               --- --
-                            //--------------------------------------------------
                             case REMOVE_BRAND:
                                     res = Result.SUCCESS_EMPTY.setContent("This Servlet On Progress > REMOVE_BRAND");
-                            break;
+                                break;
 
-
-                            //--------------------------------------------------
-                            //-- ---            DEFAULT CASE              --- --
-                            //--------------------------------------------------  
+                                
                             default:
-                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On BrandServlet>APPLICATION_FORM_URLENCODED>default case");
+                                    res = Result.FAILURE_PARAM_MISMATCH.setContent("Unexpected Error On BrandServlet>APPLICATION_FORM_URLENCODED>default case");
                                 break;
                         }
 
@@ -138,7 +127,7 @@ public class BrandServlet extends HttpServlet {
                     
                 //**************************************************************
                 //**************************************************************
-                //**        Content-Type :: EXCEPTION
+                //**        Content-Type :: Default Content-Type
                 //**************************************************************
                 //**************************************************************    
                 default:

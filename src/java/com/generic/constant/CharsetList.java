@@ -3,18 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.memory.cache;
+package com.generic.constant;
 
 /**
  *
  * @author kemalsamikaraca
  */
-public class Cache {
+public enum CharsetList {
     
-    
-    
-    public static void getUserRole(){
-        
-    }
+    TR
     
 }

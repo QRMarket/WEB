@@ -9,6 +9,27 @@ import javax.servlet.http.HttpServletRequest;
 public class ControllerSection {
     
     
+    // <editor-fold defaultstate="collapsed" desc="GET Operations">
+    
+    /**
+     * 
+     * @param request
+     * @return 
+     */
+    public static Result getSections(HttpServletRequest request){
+        
+        return DBSection.getSections(request.getParameter("parentId"));
+        
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
+    
+    /**
+     * 
+     * @param request
+     * @return 
+     */
     public static Result insertSection(HttpServletRequest request){
         
         String sectionId = request.getParameter("sectionId");
@@ -25,12 +46,7 @@ public class ControllerSection {
         }
         
     }
-    
-    
-    public static Result getSections(HttpServletRequest request){
-        String parentId = request.getParameter("parentId");
-        return DBSection.getSections(parentId);
-    }
+    // </editor-fold>
     
     
     public static Result removeSection(HttpServletRequest request){

@@ -91,28 +91,18 @@ public class SectionServlet extends HttpServlet {
 
                         switch (getRequestOperation(request)) {
 
-                            //--------------------------------------------------
-                            //-- ---           INSERT SECTION             --- --
-                            //--------------------------------------------------
                             case INSERT_SECTION:
-                                ControllerSection.insertSection(request);
+                                res = ControllerSection.insertSection(request);
 
-                            case NULL:
-                                res = Result.FAILURE_PARAM_MISMATCH;
-                                break;
-
-                            //--------------------------------------------------
-                            //-- ---            DEFAULT CASE              --- --
-                            //--------------------------------------------------  
                             default:
-                                res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>MULTIPART_FORM_DATA>default case");
+                                res = Result.FAILURE_PARAM_MISMATCH.setContent("Unexpected Error On SectionServlet>MULTIPART_FORM_DATA>default case");
                                 break;
                         }
 
                     break;
-                 
                     
-                
+                    
+                    
                 //**************************************************************
                 //**************************************************************
                 //**        Content-Type :: application/x-www-form-urlencoded
@@ -122,33 +112,18 @@ public class SectionServlet extends HttpServlet {
 
                         switch (getRequestOperation(request)){
 
-
-                            //--------------------------------------------------
-                            //-- ---           GET SECTION LIST           --- --
-                            //--------------------------------------------------
                             case GET_SECTION_LIST:
                                     res = ControllerSection.getSections(request);
                                 break;
 
-
-                            //--------------------------------------------------
-                            //-- ---         REMOVE SECTION               --- --
-                            //--------------------------------------------------
                             case REMOVE_SECTION:
                                     res = ControllerSection.removeSection(request);
                                 break;
 
-
-                            //--------------------------------------------------
-                            //-- ---         UPDATE SECTION               --- --
-                            //--------------------------------------------------
                             case UPDATE_SECTION:
                                     res = ControllerSection.updateSection(request);
-                            break;
+                                break;
 
-                            //--------------------------------------------------
-                            //-- ---            DEFAULT CASE              --- --
-                            //--------------------------------------------------  
                             default:
                                     res = Result.FAILURE_PROCESS.setContent("Unexpected Error On SectionServlet>APPLICATION_FORM_URLENCODED>default case");
                                 break;
@@ -159,7 +134,7 @@ public class SectionServlet extends HttpServlet {
                     
                 //**************************************************************
                 //**************************************************************
-                //**        Content-Type :: EXCEPTION
+                //**        Content-Type :: Default Content-Type
                 //**************************************************************
                 //**************************************************************    
                 default:

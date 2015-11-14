@@ -317,7 +317,7 @@ public class DBOrder {
                         marketOrder.setCompanyName(mysqlResult.getString("companyName"));
                          
                         // Get address of order
-                        Result address = DBAddress.getAddress(mysqlResult.getString("add_id"));
+                        Result address = DBAddress.getAddressById(mysqlResult.getString("add_id"));
                         if(address.checkResult(Result.SUCCESS)){
                             marketOrder.setAdress((Address)address.getContent());
                         }                                                                        

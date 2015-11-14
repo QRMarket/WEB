@@ -6,12 +6,14 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
+import com.generic.controller.ControllerAddress;
 import com.generic.db.DBAddress;
 import com.generic.db.MysqlDBOperations;
 import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
+import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,6 +39,38 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "AddressServlet", urlPatterns = {"/AddressServlet"})
 public class AddressServlet extends HttpServlet {
 
+    
+    private static enum ServletOperations{
+        NULL,
+        GET_ADDRESS,
+        SEARCH_ADDRESS,
+        GET_CITY_LIST,
+        GET_BOROUGH_LIST,
+        GET_LOCALITY_LIST
+    }        
+    
+    private ServletOperations getRequestOperation(HttpServletRequest request){
+        
+        if(request.getParameter("do") != null){
+            
+            switch (request.getParameter("do")) {
+                case "getAddressById":
+                    return ServletOperations.GET_ADDRESS; 
+                case "searchAddress":
+                    return ServletOperations.SEARCH_ADDRESS; 
+                case "getCityList":
+                    return ServletOperations.GET_CITY_LIST;  
+                case "getBoroughList":
+                    return ServletOperations.GET_BOROUGH_LIST;  
+                case "getLocalityList":
+                    return ServletOperations.GET_LOCALITY_LIST;
+            }
+        }  
+        
+        return ServletOperations.NULL;
+    }
+    
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -48,138 +82,110 @@ public class AddressServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {        
+        
         response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
-        
-        /**
-         * cdasDO   :: getCityList
-         *
-         *          :: getBoroughList
-         *              --> cdaCity
-         * 
-         *          :: getLocalityList
-         *              --> cdaCity
-         *              --> cdaBorough
-         * 
-         *
-         * 
-         * !! SHORTCUTs !!
-         * carpe diem address           --> cda
-         * carpe diem address language  --> cdal
-         * carpe diem address servlet   --> cdas        
-         *
-         */
-        HttpSession session = request.getSession(false);        
-        MysqlDBOperations mysql = new MysqlDBOperations();       
-        
-        Result res = Result.FAILURE_PROCESS.setContent("initial");
-        Gson gson = new Gson();
-                
-        
-        
-        //**********************************************************************
-        //**********************************************************************
-        //**                 STRIKE UP SERVLET OPERATION
-        //**********************************************************************
-        //**********************************************************************
-        try {
-                        
-                        
-            if(request.getParameter("cdasDo")!=null){                 
-                switch(request.getParameter("cdasDo")){ 
-                    
-                //**************************************************************
-                //**************************************************************
-                //**                    ADD TO ADDRESS CASE
-                //**************************************************************
-                //**************************************************************
-                    case "addAddress":                       
-                            res = DBAddress.addAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
-                        break;
-                        
-                                          
-                //**************************************************************
-                //**************************************************************
-                //**                GET ADRESS-CITY CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getAddress":
-                            res = DBAddress.getAddress(request.getParameter("cdaID"));
-                        break;
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                SEARCH ADRESS CASE
-                //**************************************************************
-                //**************************************************************
-                    case "searchAddress":
-                            res = DBAddress.searchAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
-                        break;
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                GET ADRESS-CITY CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getCityList":
-                            res = DBAddress.getCityList();
-                        break;
-                        
-                
-                //**************************************************************
-                //**************************************************************
-                //**                GET ADRESS-BOROUGH CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getBoroughList":
-                            res = DBAddress.getBoroughList(request.getParameter("cdaCity"));              
-                        break;
-                        
-                
-                //**************************************************************
-                //**************************************************************
-                //**                GET ADRESS-LOCALITY CASE
-                //**************************************************************
-                //**************************************************************
-                    case "getLocalityList":
-                            res = DBAddress.getLocalityList(request.getParameter("cdaIso"), request.getParameter("cdaCity") , request.getParameter("cdaBorough"));
-                        break;
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                REMOVE ADDRESS CASE
-                //**************************************************************
-                //**************************************************************
-                    case "deleteAddress":
-                            res = DBAddress.deleteAddress(request.getParameter("cdaID"));
-                        break;
-                        
-                        
-                        
-                //**************************************************************
-                //**************************************************************
-                //**                    DEFAULT CASE
-                //**************************************************************
-                //**************************************************************
-                    default:
-                        res = Result.FAILURE_PARAM_WRONG;
-                        break;
-                }
 
-            }else{
-                res = Result.FAILURE_PARAM_MISMATCH;
-            }
-         
-        }finally{                        
+        Gson gson = new Gson();
+        Result res = Result.FAILURE_PROCESS;
+        
+        try {
+                
+            switch (Util.getContentType(request)) {
+                
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: multipart/form-data
+                    //**************************************************************
+                    //**************************************************************
+                    case MULTIPART_FORM_DATA:
+                            res = Result.SUCCESS_EMPTY.setContent("This Servlet On Progress > MULTIPART_CONTENT_TYPE");
+                        break;
                         
-            mysql.closeAllConnection();
+                        
+                        
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: application/x-www-form-urlencoded
+                    //**************************************************************
+                    //**************************************************************
+                    case APPLICATION_FORM_URLENCODED:  
+
+                            switch (getRequestOperation(request)){
+
+                                case GET_ADDRESS:
+                                        res = ControllerAddress.getAddressById(request);
+                                    break;
+
+                                case SEARCH_ADDRESS:
+                                        res = ControllerAddress.searchAddress(request);
+                                    break;
+
+                                case GET_CITY_LIST:
+                                        res = ControllerAddress.getCityList();
+                                    break;
+                                    
+                                case GET_BOROUGH_LIST:
+                                        res = ControllerAddress.getBoroughList(request);
+                                    break;
+                                    
+                                case GET_LOCALITY_LIST:
+                                        res = ControllerAddress.getLocalityList(request);
+                                    break;
+                                    
+                                default:
+                                        res = Result.FAILURE_PARAM_MISMATCH.setContent("Unexpected Error On BrandServlet>APPLICATION_FORM_URLENCODED>default case");
+                                    break;
+                            }
+
+                        break;
+
+                
+            }
+                    
+            
+            
+            
+//            if(request.getParameter("cdasDo")!=null){                 
+//                switch(request.getParameter("cdasDo")){ 
+//                    
+//                //**************************************************************
+//                //**************************************************************
+//                //**                    ADD TO ADDRESS CASE
+//                //**************************************************************
+//                //**************************************************************
+//                    case "addAddress":                       
+//                            res = DBAddress.addAddress(request.getParameter("city"), request.getParameter("borough"), request.getParameter("locality"));
+//                        break;
+//                        
+//                //**************************************************************
+//                //**************************************************************
+//                //**                REMOVE ADDRESS CASE
+//                //**************************************************************
+//                //**************************************************************
+//                    case "deleteAddress":
+//                            res = DBAddress.deleteAddress(request.getParameter("cdaID"));
+//                        break;
+//                        
+//                //**************************************************************
+//                //**************************************************************
+//                //**                    DEFAULT CASE
+//                //**************************************************************
+//                //**************************************************************
+//                    default:
+//                        res = Result.FAILURE_PARAM_WRONG;
+//                        break;
+//                }
+//
+//            }else{
+//                res = Result.FAILURE_PARAM_MISMATCH;
+//            }
+         
+            
+            
+        }finally{
             out.write(gson.toJson(res));
             out.close();
-            
         }                        
         
     }    

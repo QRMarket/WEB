@@ -2,6 +2,7 @@ package com.generic.servlet;
 
 import com.generic.controller.ControllerProduct;
 import com.generic.db.DBProduct;
+import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -112,12 +113,16 @@ public class ProductServlet extends HttpServlet {
          *
          */
         Gson gson = new Gson();
-        Result res = Result.FAILURE_PROCESS;
-                        
+        Result res = Result.FAILURE_PROCESS.setContent("Servlet >> initial error");
+           
+        System.out.println("----- ----- ----- ----- ----- -----");
+        System.out.println("----- ----- ----- ----- ----- -----");
+        LoggerGuppy.verboseURL(request);
+        LoggerGuppy.verboseHeader(request);
         
         try {
                         
-            switch (Util.getContentType(request)){                
+            switch (Util.getContentType(request)){
                     
                 //**************************************************************
                 //**************************************************************
@@ -167,13 +172,9 @@ public class ProductServlet extends HttpServlet {
                 //**************************************************************    
                 case APPLICATION_FORM_URLENCODED:            
             
-                    switch (getRequestOperation(request)){
+                        switch (getRequestOperation(request)){
 
-                            //**************************************************************
-                            //**************************************************************
-                            //**                    GET PRODUCT CASE
-                            //**************************************************************
-                            //**************************************************************
+                        
                                 case GET_PRODUCT:
 
                                     if (request.getParameter("productUniqueId") != null) {
@@ -189,12 +190,9 @@ public class ProductServlet extends HttpServlet {
                                     }
 
                                     break;
-
-                            //**************************************************************
-                            //**************************************************************
-                            //**                GET PRODUCT LIST CASE
-                            //**************************************************************
-                            //**************************************************************
+                                    
+                                    
+                                    
                                 case GET_PRODUCT_LIST:
 
                                     if (request.getParameter("sectionId") != null) {
@@ -205,47 +203,32 @@ public class ProductServlet extends HttpServlet {
                                         res = ControllerProduct.getProductListByDistributer(request);
 
                                     } else {
-                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                        res = ControllerProduct.getProductList(request);
                                     }
 
                                     break;
 
 
-                            //**************************************************************
-                            //**************************************************************
-                            //**                    GET CAMPAIGN PRODUCT LIST CASE
-                            //**************************************************************
-                            //**************************************************************
+                           
                                 case GET_CAMPAIGN_PRODUCT_LIST:
                                         res = DBProduct.getActiveCampaignProducts();
                                     break;
 
-                            //**************************************************************
-                            //**************************************************************
-                            //**                    REMOVE CASE
-                            //**************************************************************
-                            //**************************************************************
+                            
                                 case REMOVE_PRODUCT:
+                                        res = Result.SUCCESS_EMPTY.setContent("onProgress");
                                     break;
 
                                 
-                                
-                            //--------------------------------------------------
-                            //-- ---     "do" PARAMETER EXCEPTION         --- --
-                            //--------------------------------------------------  
-                            case NULL:
-                                    res = Result.FAILURE_PARAM_MISMATCH;
-                                break;
+                                case NULL:
+                                        res = Result.FAILURE_PARAM_MISMATCH;
+                                    break;
                                 
                                 
-                                
-                            //--------------------------------------------------
-                            //-- ---            DEFAULT CASE              --- --
-                            //--------------------------------------------------  
-                            default:
-                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>APPLICATION_FORM_URLENCODED>default case");
-                                break;
-                            }
+                                default:
+                                        res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>APPLICATION_FORM_URLENCODED>default case");
+                                    break;
+                                }
 
                     break;
                     
@@ -267,9 +250,9 @@ public class ProductServlet extends HttpServlet {
             } // content-type switch end
                 
             
-            
         } catch (Exception ex) {
             Logger.getLogger(ProductServlet.class.getName()).log(Level.SEVERE, null, ex);
+            res = Result.FAILURE_PROCESS.setContent(ex.toString());
         } finally {
 
             out.write(gson.toJson(res));

@@ -11,6 +11,7 @@ import com.generic.db.DBProduct;
 import com.generic.db.DBUser;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
+import com.generic.util.UserRole;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,10 +34,7 @@ public class CarpeTester {
     
     public static void main(String[] args){
                 
-        String base64 = fileToBase64("/Users/kemal/Desktop/Richard-Harrow2.jpg");
-        
-        //Result res = DBProduct.addProduct(null , base64);        
-        //System.out.println(res.getResultCode());
+        System.out.println( UserRole.intValue(UserRole.ADMIN) );
         
     }
     

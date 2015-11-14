@@ -6,6 +6,7 @@ import com.generic.ftp.FTPHandler;
 import com.generic.result.Result;
 import com.generic.util.MarketProduct;
 import com.generic.util.MarketProductImage;
+import com.generic.util.UserRole;
 import com.generic.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +16,10 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -30,10 +33,9 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class ControllerProduct {
     
-    
     public static Result insertProduct(HttpServletRequest request){
         
-            Result result = Result.FAILURE_PROCESS;
+            Result result = Result.FAILURE_PROCESS.setContent("Controller>Product>insert>initial case");;
             try {                                
                 
                 // -1.1- Create Product Object
@@ -58,28 +60,34 @@ public class ControllerProduct {
                             
                             if(part.getName().equalsIgnoreCase("files")){
                                                          
-                                String generatedID = Util.generateID();
-                                String imageFileName = generatedID + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                InputStream imageInputStream = part.getInputStream();
-                                                                
-                                FTPClient client = FTPHandler.getFTPClient();
-                                
-                                if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
+                                try{
                                     
-                                    MarketProductImage productImageObject = new MarketProductImage();
-                                    productImageObject.setImageID(generatedID);
-                                    productImageObject.setImageFileName(imageFileName);
-                                    productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
-                                    productImageObject.setImageSourceType("FTP");          
-                                    productImageObject.setImageContentType(
-                                                        new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL(FTPHandler.dirTemps) +imageFileName)));
-                                                                        
-                                    productObj.getProductImages().add(productImageObject);
+                                    String generatedID = Util.generateID();
+                                    String imageFileName = generatedID + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
+                                    InputStream imageInputStream = part.getInputStream();
+
+                                    FTPClient client = FTPHandler.getFTPClient();
+
+                                    if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
+
+                                        MarketProductImage productImageObject = new MarketProductImage();
+                                        productImageObject.setImageID(generatedID);
+                                        productImageObject.setImageFileName(imageFileName);
+                                        productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
+                                        productImageObject.setImageSourceType("FTP");          
+                                        productImageObject.setImageContentType(
+                                                            new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL(FTPHandler.dirTemps) +imageFileName)));
+
+                                        productObj.getProductImages().add(productImageObject);
+
+                                    }
+
+                                    FTPHandler.closeFTPClient();
+                                    imageInputStream.close();  
                                 
+                                }catch(Exception ex){
+                                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                
-                                FTPHandler.closeFTPClient();
-                                imageInputStream.close();  
                             }
                         }
 
@@ -128,6 +136,11 @@ public class ControllerProduct {
     }
     
     
+    public static Result getProductList(HttpServletRequest request){
+        
+            return DBProduct.getCommonProductList(request.getParameter("productCommonId"));
+            
+    }
     
     public static Result getProductListByDistributer(HttpServletRequest request){
         

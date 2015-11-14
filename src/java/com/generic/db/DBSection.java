@@ -38,34 +38,34 @@ public class DBSection {
         List<Section> sections = new ArrayList<>();
         try {
 
-            // GET ADDRESS
-            PreparedStatement preStat;
-            if (parentId != null) {
-                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.2"));
+            // SET PREPARE STATEMENT
+                PreparedStatement preStat;
+                if (parentId != null) {
+                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.2"));
+                    preStat.setString(1, parentId);
+                } else {
+                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.3"));
+                }
+            
+            // GET RESULT
+                ResultSet mysqlResult = preStat.executeQuery();
+                if (mysqlResult.first()) {
 
-                preStat.setString(1, parentId);
-            } else {
-                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.3"));
-            }
-            ResultSet mysqlResult = preStat.executeQuery();
+                    do {
+                        Section section;
+                        section = new Section();
+                        section.setSid(mysqlResult.getString("sid"));
+                        section.setSec_parent_id(mysqlResult.getString("sec_parent_id"));
+                        section.setSec_name(mysqlResult.getString("sec_name"));
+                        section.setSec_image(mysqlResult.getString("sec_image"));
+                        sections.add(section);
+                    } while (mysqlResult.next());
 
-            if (mysqlResult.first()) {
+                    return Result.SUCCESS.setContent(sections);
 
-                do {
-                    Section section;
-                    section = new Section();
-                    section.setSid(mysqlResult.getString("sid"));
-                    section.setSec_parent_id(mysqlResult.getString("sec_parent_id"));
-                    section.setSec_name(mysqlResult.getString("sec_name"));
-                    section.setSec_image(mysqlResult.getString("sec_image"));
-                    sections.add(section);
-                } while (mysqlResult.next());
-
-                return Result.SUCCESS.setContent(sections);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
+                } else {
+                    return Result.SUCCESS_EMPTY;
+                }
 
         } catch (Exception ex) {
             Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);

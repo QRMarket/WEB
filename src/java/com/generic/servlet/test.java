@@ -5,36 +5,22 @@
  */
 package com.generic.servlet;
 
-import com.generic.controller.ControllerBrand;
+import com.generic.checker.Checker;
+import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
+import com.generic.util.UserRole;
 import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -45,6 +31,8 @@ import javax.servlet.http.Part;
 @WebServlet(name = "test", urlPatterns = {"/test"})
 public class test extends HttpServlet {
 
+    
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -57,78 +45,67 @@ public class test extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {                
         
-        response.setContentType("text/html;charset=UTF-8");
-        
+        response.setContentType("text/html;charset=UTF-8");        
         PrintWriter outTemp = response.getWriter();                
         Result res = Result.FAILURE_PROCESS;
         Gson gson = new Gson();
                 
+        System.out.println("Incoming request from :: " + request.getSession().getId());
         
-        try  { 
-            
-            System.out.println(" **** **** **** **** **** ");
-            System.out.println("/test Servlet called");
-            System.out.println(request.getContentType());
-            System.out.println(" **** **** **** **** **** ");
-            res = res.setContent(request.getContentType());
+        try  {             
             
             switch (Util.getContentType(request)){
                 case MULTIPART_FORM_DATA:
-                    
-                    Part p = request.getPart("files");
-                    Collection<String> theader = p.getHeaderNames();
-                    
-                    Iterator<String> headerIter = theader.iterator();
-                    while ( headerIter.hasNext () ){
-                        String headerName = headerIter.next(); 
-                        System.out.println(headerName);
-                        System.out.println(p.getHeader(headerName));
-                        System.out.println("--- ---- --- ---- --- ---- ---");
-                    }
-                    
-                    
-//                    Collection<Part> parts = request.getParts();
-//                    Iterator<Part> iterator = parts.iterator();
-//                    
-//                    System.out.println("--- ---- ---- ---");
-//                    System.out.println(request.getParameter("name"));
-//                    System.out.println(request.getParameter("surname"));
-//                    System.out.println("--- ---- ---- ---");
-//                    
-//                    Part reqPart = request.getPart("n");
-//                    System.out.println("Content-type :: " + reqPart.getContentType());
-//                    System.out.println("Name :: " + reqPart.getName());
-//                    System.out.println("Submitted fileName :: " + reqPart.getSubmittedFileName());
-//                    
-//                    while ( iterator.hasNext () ){
-//                        Part p = iterator.next();
-//                        
-//                        System.out.println("Content-type :: " + p.getContentType());
-//                        System.out.println("Name :: " + p.getName());
-//                        System.out.println("Submitted fileName :: " + p.getSubmittedFileName());
-//                    }
-                    
-                    res = res.setContent("Multipart-content-type called");
-                    
+                    res = res.setContent("Content-type :: multipart ");
                     break;
 
                 case APPLICATION_FORM_URLENCODED:                    
-                    res = ControllerBrand.getBrandAll();
-                    break;
-
-                case NULL:
-                    res = res.setContent("Application null ");
+                    res = res.setContent("Content-type :: application/url_encoded ");
                     break;
 
                 default:
-                    res = res.setContent(Util.getContentType(request));
-                    break;
+                    
+                    if(request.getParameter("a")!=null){
+                        HttpSession session = request.getSession(true);
+                        
+                        session.setAttribute("name", request.getParameter("a")); 
+                        session.setAttribute("userrole", UserRole.ADMIN);
+                        
+                        ServletContext sc=request.getSession().getServletContext();
+                        sc.setAttribute(session.getId(), session);
+                        
+                        res = Result.SUCCESS.setContent(session);
+                        
+                    }else if(request.getParameter("token")!=null){
+                        
+                        String sessionId = request.getParameter("token");
+                        ServletContext sc = request.getSession().getServletContext();
+                        HttpSession session = (HttpSession)sc.getAttribute(sessionId);
+
+                        if(session==null){
+                            res = Result.FAILURE_CACHE.setContent("CACHE NOT FOUND ERROR");
+                        }else if(!Checker.hasRole((UserRole)session.getAttribute("userrole"), UserRole.CUSTOMER)){
+                            res = Result.FAILURE_AUTH_PERMISSION.setContent("ADMIN Permission Required");
+                        }else{
+                            res = Result.SUCCESS.setContent(session);
+                        }
+                        
+                        
+                    }
+                    
+                break;
             }
             
             
         }catch (Exception e){
-            
+            System.out.println(e.getMessage());
         }finally{
+            
+            System.out.println("----- ----- ----- ----- ----- -----");
+            System.out.println("----- ----- ----- ----- ----- -----");
+            LoggerGuppy.verboseURL(request);
+            LoggerGuppy.verboseHeader(request);
+            
             outTemp.write(gson.toJson(res));
             outTemp.close();
         }

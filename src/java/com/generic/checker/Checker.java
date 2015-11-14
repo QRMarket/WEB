@@ -5,9 +5,8 @@
  */
 package com.generic.checker;
 
-import com.generic.logger.LoggerGuppy;
+import com.generic.util.UserRole;
 import java.util.Calendar;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -156,6 +155,21 @@ public class Checker {
         return allNull;
     }
     
+    /**
+     * 
+     * @param args
+     * @return 
+     * 
+     * This function check that user has role 
+     */
+    public static <T> boolean hasRole(UserRole userRole, T... args){
+        
+        boolean hasRole=false;
+        for(T arg:args)
+            hasRole = hasRole || ( arg==userRole );
+                
+        return hasRole;
+    }
     
     
     
