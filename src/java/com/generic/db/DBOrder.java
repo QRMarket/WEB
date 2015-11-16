@@ -1,24 +1,22 @@
 package com.generic.db;
 
-import com.generic.checker.Checker;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
-import com.generic.util.Address;
-import com.generic.util.MarketOrder;
-import com.generic.util.MarketProduct;
+import com.generic.entity.Address;
+import com.generic.entity.Orders;
+import com.generic.entity.MarketProduct;
+import com.generic.entity.OrderProduct;
+import com.generic.util.Util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -29,6 +27,107 @@ import javax.servlet.http.HttpSession;
  * @last 01.10.2015
  */
 public class DBOrder {
+    
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        CONFIRM ORDER
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param session
+         * @param addID
+         * @param date
+         * @param ptype
+         * @param note
+         * @return 
+         */
+//        public static Result confirmOrder(HttpSession session , String addID, long date, String ptype , String note){
+        public static Result confirmOrder(Orders orderObj){
+        
+                Result result = Result.FAILURE_PROCESS;
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+                PreparedStatement preStat;
+                boolean isSuccessInsertion;
+            
+//                if(!Checker.isValidDate(date))
+//                    return Result.FAILURE_CHECKER_DATE;
+
+                try{   
+                    String order_id = Util.generateID();
+                    
+                    preStat = conn.prepareStatement(rs.getString("mysql.order.update.insert.1"));
+                    preStat.setString(1, order_id);
+                    preStat.setString(2, "1" );
+                    preStat.setString(3, null);
+                    preStat.setLong(4, orderObj.getDate());
+                    preStat.setLong(5, orderObj.getDelay());
+                    preStat.setString(6, orderObj.getNote());
+                    preStat.setDouble(7, -1);
+                    preStat.setString(8, orderObj.getUserID());
+                    preStat.setString(9, orderObj.getDistributerAddressID());
+                    
+                    
+                    if(preStat.executeUpdate()==1){
+                        List<OrderProduct> orderProductList = orderObj.getOrderProductList();
+                        isSuccessInsertion = orderProductList.size()>0;
+
+                        // - * - If process fail then break operation
+                        insertionFail:
+                            for(OrderProduct orderProduct:orderProductList){
+                                preStat = conn.prepareStatement(rs.getString("mysql.orderProduct.update.insert.1"));
+                                preStat.setString(1, order_id);
+                                preStat.setString(2, orderProduct.getCompanyProduct_id());
+                                preStat.setDouble(3, orderProduct.getQuantity());
+
+                                if(preStat.executeUpdate()!=1){
+                                    isSuccessInsertion = false;
+                                    break insertionFail;
+                                }
+                            }
+
+                        // - * - Return success
+                            if(isSuccessInsertion){
+                                mysql.commitAndCloseConnection();
+                                return Result.SUCCESS.setContent("onProgress");
+                            }
+
+                        // - * - If operation fail then rollback 
+                            mysql.rollbackAndCloseConnection();
+                    }
+
+                } catch (Exception ex) {
+                    mysql.rollbackAndCloseConnection();
+                    Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_PROCESS.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }                
+
+            return result;
+        }
+    
+    // </editor-fold>
+    
+    
+    
+        
+        
+        
+        
+        
+        
     
     
     //------------------------------------------------------------------------------
@@ -87,111 +186,6 @@ public class DBOrder {
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
     
-    /**
-     * 
-     * @return 
-     */
-    public static String orderIDGenerator(){
-        return "order-"+UUID.randomUUID().toString();
-    }
-    
-    /**
-     *   
-     * @return  
-     */
-    public static Result confirmOrder(HttpSession session , String addID, long date, String ptype , String note){
-        
-            
-            if(!Checker.isValidDate(date))
-                return Result.FAILURE_CHECKER_DATE;
-            
-        
-            MysqlDBOperations mysql = new MysqlDBOperations();
-            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
-            Connection conn = mysql.getConnection();
-                        
-            try{   
-                        
-                // -1- Initialization
-                PreparedStatement preStat = conn.prepareStatement(rs.getString("mysql.order.update.insert.1"));
-                Map proMap = (Map) session.getAttribute("cduPMap");
-                boolean isSuccessInsertion = (proMap.size()>0);
-                String query;
-                
-                // -1.1-GENERATE ORDER-ID
-                String oid = orderIDGenerator(); 
-                
-                // -1.2-GET USER-ID
-                String userID = (String) session.getAttribute("cduUserId");
-                
-                                
-                // -2- Insert Order to table
-                try {
-                    preStat.setString(1, oid);
-                    preStat.setString(2, "UNDELIVERED");
-                    preStat.setString(3, ptype);
-                    preStat.setLong(4, date);
-                    preStat.setLong(5, 0);
-                    preStat.setString(6, note);
-                    preStat.setDouble(7, 10);
-                    preStat.setString(8, userID);
-                    preStat.setString(9, "c_34567");
-                    preStat.setString(10, addID);
-
-                    if(preStat.executeUpdate()==1){
-                                                
-                        // -3- Insert Products to orderProduct
-                        ArrayList<MarketProduct> proList = new ArrayList( ((Map)session.getAttribute("cduPMap")).values());
-
-                        // -3.1- If process fail then break operation
-                        insertionFail:
-                            for(MarketProduct pro:proList){
-
-                                try {
-                                    preStat = conn.prepareStatement(rs.getString("mysql.orderProduct.update.insert.1"));
-                                    preStat.setString(1, oid);
-                                    preStat.setString(2, pro.getProductID());
-                                    preStat.setDouble(3, pro.getAmount());
-
-                                    if(preStat.executeUpdate()!=1){
-                                        isSuccessInsertion = false;
-                                        break insertionFail;
-                                    }
-
-                                } catch (SQLException ex) {
-                                    Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);
-                                    isSuccessInsertion = false;
-                                    break insertionFail;
-                                }                                                                            
-                            }
-
-                        // -4- Return success
-                        if(isSuccessInsertion){
-                            mysql.commitAndCloseConnection();
-                            return Result.SUCCESS;
-                        }
-                        
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);                        
-                }
-                                
-                   
-                // -5- If operation fail then rollback 
-                mysql.rollbackAndCloseConnection();
-                                               
-                
-            }catch(ClassCastException e){                                
-                return Result.FAILURE_PROCESS_CASTING.setContent("Class casting error. Check server log");
-            } catch (SQLException ex) {
-                Logger.getLogger(DBOrder.class.getName()).log(Level.SEVERE, null, ex);
-            }finally{
-                mysql.closeAllConnection();
-            }                
-        
-        return Result.FAILURE_PROCESS;
-            
-    }
     
     /**
      * 
@@ -203,7 +197,7 @@ public class DBOrder {
             ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
             MysqlDBOperations mysql = new MysqlDBOperations();
             
-            MarketOrder marketOrder = new MarketOrder();            
+            Orders marketOrder = new Orders();            
             List<MarketProduct> pList = new ArrayList<>();            
             
             
@@ -232,14 +226,14 @@ public class DBOrder {
                         pList.add(new MarketProduct(pId, pName, ppType, pPrice, pQuantity));
                     }while(mysqlResult.next());
                     
-                    marketOrder.setProducts(pList);                    
+//                    marketOrder.setProducts(pList);                    
                     query = String.format(rs.getString("mysql.order.select.2"), cdoID);
                     
                     mysqlResult = mysql.getResultSet(query);
                     if(mysqlResult.first()){
                             marketOrder.setPaymentType(mysqlResult.getString("ptype"));
-                            marketOrder.setDate(mysqlResult.getString("date"));
-                            marketOrder.setNote(mysqlResult.getString("note"));                            
+//                            marketOrder.setDate(mysqlResult.getString("date"));
+//                            marketOrder.setNote(mysqlResult.getString("note"));                            
                     }                                                            
                     
                     return Result.SUCCESS.setContent(marketOrder);
@@ -299,7 +293,7 @@ public class DBOrder {
                     
             MysqlDBOperations mysql = new MysqlDBOperations();           
             ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
-            ArrayList<MarketOrder> cartList = new ArrayList();
+            ArrayList<Orders> cartList = new ArrayList();
             String query;
             try{
                                 
@@ -309,11 +303,11 @@ public class DBOrder {
                 
                 if(mysqlResult.first()){
                     do{
-                        MarketOrder marketOrder = new MarketOrder();
+                        Orders marketOrder = new Orders();
                         marketOrder.setOrderID(mysqlResult.getString("oid"));
                         marketOrder.setPaymentType(mysqlResult.getString("ptype"));
                         marketOrder.setNote(mysqlResult.getString("note"));
-                        marketOrder.setDate(mysqlResult.getString("date"));
+//                        marketOrder.setDate(mysqlResult.getString("date"));
                         marketOrder.setCompanyName(mysqlResult.getString("companyName"));
                          
                         // Get address of order
@@ -372,7 +366,7 @@ public class DBOrder {
                 ResultSet mysqlResult = mysql.getResultSet(query);                                
                                 
                 // INSERT PRODUCT TO ORDERLIST WITH GIVEN USER_ID
-                String orderID = mysqlResult.first() ? mysqlResult.getString("oid") : orderIDGenerator();   
+                String orderID = mysqlResult.first() ? mysqlResult.getString("oid") : "order-"+Util.generateID();   
                 
                 query  = String.format("INSERT INTO orders VALUES ('%s', '%s', '%s', '%s', '%s', '%.2f')" ,
                                         orderID , "CURRENT" , "21-10-1763", uID, pUID, pAmount);

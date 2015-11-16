@@ -5,7 +5,6 @@
  */
 package com.generic.db;
 
-import static com.generic.db.DBOrder.orderIDGenerator;
 import com.generic.resources.ResourceMysql;
 import com.generic.result.Result;
 import java.sql.ResultSet;

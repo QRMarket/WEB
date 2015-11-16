@@ -10,7 +10,7 @@ import com.generic.db.DBProduct;
 import com.generic.db.DBUser;
 import com.generic.result.Result;
 import com.generic.servlet.Auth;
-import com.generic.util.UserRole;
+import com.generic.constant.UserRole;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.internet.AddressException;

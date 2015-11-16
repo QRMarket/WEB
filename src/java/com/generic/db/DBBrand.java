@@ -7,7 +7,7 @@ package com.generic.db;
 
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
-import com.generic.util.Brands;
+import com.generic.entity.Brands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -120,7 +120,5 @@ public class DBBrand {
     
     // </editor-fold>  
     
-    
-    
-    
+  
 }

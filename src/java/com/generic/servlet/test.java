@@ -8,11 +8,15 @@ package com.generic.servlet;
 import com.generic.checker.Checker;
 import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
-import com.generic.util.UserRole;
+import com.generic.entity.Orders;
+import com.generic.constant.UserRole;
 import com.generic.util.Util;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Random;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -49,8 +53,6 @@ public class test extends HttpServlet {
         PrintWriter outTemp = response.getWriter();                
         Result res = Result.FAILURE_PROCESS;
         Gson gson = new Gson();
-                
-        System.out.println("Incoming request from :: " + request.getSession().getId());
         
         try  {             
             
@@ -61,6 +63,7 @@ public class test extends HttpServlet {
 
                 case APPLICATION_FORM_URLENCODED:                    
                     res = res.setContent("Content-type :: application/url_encoded ");
+                    res = res.setContent(request.getParameter("arr"));
                     break;
 
                 default:
@@ -101,10 +104,30 @@ public class test extends HttpServlet {
             System.out.println(e.getMessage());
         }finally{
             
+            Random rand = new Random();
             System.out.println("----- ----- ----- ----- ----- -----");
             System.out.println("----- ----- ----- ----- ----- -----");
+            System.out.println("----- ----- ----- ----- ----- -----");
+            System.out.println(rand.nextInt(1000));
             LoggerGuppy.verboseURL(request);
             LoggerGuppy.verboseHeader(request);
+            
+            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            String json = "";
+            StringBuilder everything = new StringBuilder();
+            String line;
+            while( (line = br.readLine()) != null) {
+               everything.append(line);
+            }
+            
+            json = everything.toString();
+                       
+            
+            System.out.println(json);
+            
+            Orders mo = gson.fromJson(json, Orders.class);
+            System.out.println(mo.getOrderID());
+            
             
             outTemp.write(gson.toJson(res));
             outTemp.close();

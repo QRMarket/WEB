@@ -8,7 +8,7 @@ package com.generic.db;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.servlet.Auth;
-import com.generic.util.Section;
+import com.generic.entity.Section;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

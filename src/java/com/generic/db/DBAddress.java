@@ -4,7 +4,7 @@ import com.generic.checker.Checker;
 import com.generic.locale.UtilLocaleHandler;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
-import com.generic.util.Address;
+import com.generic.entity.Address;
 import com.generic.util.Util;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -294,7 +294,7 @@ public class DBAddress extends DBGeneric{
     // </editor-fold>
     
     
-    
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations"> 
     
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -371,7 +371,7 @@ public class DBAddress extends DBGeneric{
 
         }
         
-        
+        // </editor-fold>   
         
         
         

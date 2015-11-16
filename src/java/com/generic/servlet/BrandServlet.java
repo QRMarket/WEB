@@ -11,7 +11,6 @@ import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -22,9 +21,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author kemalsamikaraca
+ * @author Guppy Org.
+ * @since 11.2015
+ * @version 1.01
+ * 
+ * @last 15.11.2015
  */
-
 @WebServlet(name = "BrandServlet", urlPatterns = {"/BrandServlet"})
 public class BrandServlet extends HttpServlet {
 

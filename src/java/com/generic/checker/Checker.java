@@ -5,7 +5,7 @@
  */
 package com.generic.checker;
 
-import com.generic.util.UserRole;
+import com.generic.constant.UserRole;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;

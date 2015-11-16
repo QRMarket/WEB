@@ -6,7 +6,7 @@
 package com.generic.db;
 
 import com.generic.result.Result;
-import com.generic.util.MarketProductImage;
+import com.generic.entity.MarketProductImage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <!-- JQuery UI -->
+        <link rel="stylesheet" href="../plugins/jQueryUI/jquery-ui.css">
+        
+        <!-- jQuery 2.1.4 -->
+        <script src="../plugins/jQuery/jQuery-2.1.4.min.js"></script>
+        <!-- jQuery UI -->
+        <script src="../plugins/jQueryUI/jquery-ui.js"></script>
+        
+        <script>
+            $(function() {
+                var arr = {};
+                arr.one = "prop_one";
+                arr.two = "prop_two";
+
+                $.post('http://localhost:8080/QR_Market_Web/test', {
+                    "arr":arr
+                }, function(data) {             
+                    
+                    console.log(data);
+                    
+                });
+            });
+        </script>
+        
+    </head>
+    <body>
+        <div>TODO write content</div>
+    </body>
+</html>

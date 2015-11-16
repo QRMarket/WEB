@@ -14,7 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  *
- * @author kemalsamikaraca
+ * @author Guppy Org.
+ * @since 11.2015
+ * @version 1.01
+ * 
+ * @last 15.11.2015
  */
 public class ControllerAddress {
     
