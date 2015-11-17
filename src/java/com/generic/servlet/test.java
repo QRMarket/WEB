@@ -126,7 +126,7 @@ public class test extends HttpServlet {
             System.out.println(json);
             
             Orders mo = gson.fromJson(json, Orders.class);
-            System.out.println(mo.getOrderID());
+            System.out.println(mo.getId());
             
             
             outTemp.write(gson.toJson(res));

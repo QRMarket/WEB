@@ -13,10 +13,10 @@ public class CompanyProduct {
     
     
     private String id;
-    private String product_id;
     private String distributer_id;
     private Double product_price;
-    private String product_price_type;
+    private String product_price_type;    
+    private MarketProduct product;          // One-To-One Relation Properties
 
     public CompanyProduct(){}
 
@@ -32,20 +32,6 @@ public class CompanyProduct {
      */
     public void setId(String id) {
         this.id = id;
-    }
-
-    /**
-     * @return the product_id
-     */
-    public String getProduct_id() {
-        return product_id;
-    }
-
-    /**
-     * @param product_id the product_id to set
-     */
-    public void setProduct_id(String product_id) {
-        this.product_id = product_id;
     }
 
     /**
@@ -88,6 +74,20 @@ public class CompanyProduct {
      */
     public void setProduct_price_type(String product_price_type) {
         this.product_price_type = product_price_type;
+    }
+
+    /**
+     * @return the product
+     */
+    public MarketProduct getProduct() {
+        return product;
+    }
+
+    /**
+     * @param product the product to set
+     */
+    public void setProduct(MarketProduct product) {
+        this.product = product;
     }
     
     

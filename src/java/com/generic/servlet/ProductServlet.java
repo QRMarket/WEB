@@ -37,14 +37,6 @@ import sun.misc.BASE64Encoder;
  * @version 1.01
  * 
  * @last 10.09.2015
- *
- * This servlet will be used to manage production data
- * 
- *      Bu servlet(servis)'in amacı product ile ilgili işlemlerin
- *      yapılmasıdır Kullanıcı product görüntüleme, market tarafından yeni
- *      product eklenme, product fiyatı editleme veya ilgili product silme
- *      gibi temel işlevleri karşılar
- * 
  */
 
 @MultipartConfig
@@ -97,6 +89,8 @@ public class ProductServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();              
         
+        Gson gson = new Gson();
+        Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> initial error");
         
         /**
          *  cdpsDo :: 
@@ -112,8 +106,6 @@ public class ProductServlet extends HttpServlet {
          * carpe diem product market id --> cdpmID
          *
          */
-        Gson gson = new Gson();
-        Result res = Result.FAILURE_PROCESS.setContent("Servlet >> initial error");
            
         System.out.println("----- ----- ----- ----- ----- -----");
         System.out.println("----- ----- ----- ----- ----- -----");
@@ -133,30 +125,16 @@ public class ProductServlet extends HttpServlet {
                                                 
                         switch (getRequestOperation(request)){
                                                         
-                            //--------------------------------------------------
-                            //-- ---           INSERT PRODUCT             --- --
-                            //--------------------------------------------------
                             case INSERT_PRODUCT:
                                     res = ControllerProduct.insertProduct(request);
                                 break;
                                 
                                 
                                 
-                            //--------------------------------------------------
-                            //-- ---     "do" PARAMETER EXCEPTION         --- --
-                            //--------------------------------------------------  
-                            case NULL:
-                                    res = Result.FAILURE_PARAM_MISMATCH;
-                                break;
-                                
-                                
-                                
-                            //--------------------------------------------------
-                            //-- ---            DEFAULT CASE              --- --
-                            //--------------------------------------------------  
                             default:
-                                    res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>MULTIPART_FORM_DATA>default case");
+                                    res = Result.FAILURE_PARAM_MISMATCH.setContent("ProductServlet -> MULTIPART_FORM_DATA");
                                 break;
+                                
                         }
                         
                     break;
@@ -176,57 +154,30 @@ public class ProductServlet extends HttpServlet {
 
                         
                                 case GET_PRODUCT:
-
-                                    if (request.getParameter("productUniqueId") != null) {
-
-                                        res = ControllerProduct.getCompanyProductInfo(request);
-
-                                    } else if (request.getParameter("productCommonId") != null) {
-
                                         res = ControllerProduct.getProduct(request);
-
-                                    } else {
-                                        res = Result.FAILURE_PARAM_MISMATCH;
-                                    }
-
                                     break;
                                     
                                     
                                     
                                 case GET_PRODUCT_LIST:
-
-                                    if (request.getParameter("sectionId") != null) {
-
-                                        res = ControllerProduct.getProductListBySection(request);
-
-                                    } else if (request.getParameter("distributerId") != null) {
-                                        res = ControllerProduct.getProductListByDistributer(request);
-
-                                    } else {
                                         res = ControllerProduct.getProductList(request);
-                                    }
-
                                     break;
-
-
-                           
+                                    
+                                    
+                                    
                                 case GET_CAMPAIGN_PRODUCT_LIST:
-                                        res = DBProduct.getActiveCampaignProducts();
+//                                        res = DBProduct.getActiveCampaignProducts();
                                     break;
 
                             
                                 case REMOVE_PRODUCT:
                                         res = Result.SUCCESS_EMPTY.setContent("onProgress");
                                     break;
-
-                                
-                                case NULL:
-                                        res = Result.FAILURE_PARAM_MISMATCH;
-                                    break;
-                                
-                                
+                                    
+                                    
+                                    
                                 default:
-                                        res = Result.FAILURE_PROCESS.setContent("Unexpected Error On ProductServlet>APPLICATION_FORM_URLENCODED>default case");
+                                        res = Result.FAILURE_PARAM_MISMATCH.setContent("ProductServlet -> MULTIPART_FORM_DATA");
                                     break;
                                 }
 
@@ -242,7 +193,7 @@ public class ProductServlet extends HttpServlet {
                 //**************************************************************
                 //**************************************************************    
                 default:
-                    
+                        res = Result.FAILURE_PROCESS.setContent("ProductServlet -> Default Content-Type Case");
                     break;
                 
                 

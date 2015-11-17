@@ -7,6 +7,7 @@ import com.generic.result.Result;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.constant.UserRole;
+import com.generic.servlet.ProductServlet;
 import com.generic.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -33,132 +34,199 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class ControllerProduct {
     
-    public static Result insertProduct(HttpServletRequest request){
+    
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="GET Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET PRODUCT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result getProduct(HttpServletRequest request){
         
-            Result result = Result.FAILURE_PROCESS.setContent("Controller>Product>insert>initial case");;
-            try {                                
+                Result result = Result.FAILURE_PROCESS;
+                if (request.getParameter("companyProductId") != null) {
+                    return DBProduct.getProductOfDistributer(request.getParameter("companyProductId"));
+                }else if (request.getParameter("productId") != null) {
+                    return DBProduct.getProduct(request.getParameter("productId"));
+                }else{
+                    result = Result.FAILURE_PARAM_MISMATCH;
+                }
+
+            return result;
+        }
+        
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET PRODUCT LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param request
+         * @return 
+         */
+        public static Result getProductList(HttpServletRequest request){
+        
+                Result result = Result.FAILURE_PROCESS;
+                int limit = 20;
                 
-                // -1.1- Create Product Object
-                    MarketProduct productObj = new MarketProduct();
-                    productObj.setProductID("t_" + Util.generateID());
-                    productObj.setProductName(request.getParameter("name"));
-                    productObj.setProductCode(request.getParameter("barcode"));
-                    productObj.setProductDesc(request.getParameter("desc"));
-                    productObj.setBrandID(request.getParameter("brand_id"));
-                    productObj.setSectionID(request.getParameter("section_id"));
-                    productObj.setUserID("123459");
+                if(request.getParameter("distributerId") != null){
                     
-
-                // -1.2- Check Product Object Values
-                    if(!Checker.anyNull( productObj.getProductName(), productObj.getBrandID(), productObj.getUserID())){ 
-
-                        Collection<Part> parts = request.getParts();
-                        Iterator<Part> partsIterator = parts.iterator();
+                        try {
+                            limit = Integer.parseInt(request.getParameter("limit"))>0 ? Integer.parseInt(request.getParameter("limit")) : limit;
+                        } catch (Exception ex){
+                            Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         
-                        while ( partsIterator.hasNext () ){
-                            Part part = partsIterator.next();
-                            
-                            if(part.getName().equalsIgnoreCase("files")){
-                                                         
-                                try{
-                                    
-                                    String generatedID = Util.generateID();
-                                    String imageFileName = generatedID + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
-                                    InputStream imageInputStream = part.getInputStream();
+                    return DBProduct.getProductListOfDistributer(request.getParameter("distributerId"), limit);
+                    
+                }else{
+                        try {
+                            limit = Integer.parseInt(request.getParameter("limit"))>0 ? Integer.parseInt(request.getParameter("limit")) : limit;
+                        } catch (Exception ex){
+                            Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    return DBProduct.getProductList(limit);
+                }
+                
+                
+                
+//                if (request.getParameter("sectionId") != null) {
+//
+//                    res = ControllerProduct.getProductListBySection(request);
+//
+//                } else if (request.getParameter("distributerId") != null) {
+//                    res = ControllerProduct.getProductListByDistributer(request);
+//
+//                } 
 
-                                    FTPClient client = FTPHandler.getFTPClient();
+        }
+    
+    // </editor-fold>
+    
+    
+    
+    
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        INSERT PRODUCT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result insertProduct(HttpServletRequest request){
 
-                                    if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
+                Result result = Result.FAILURE_PROCESS.setContent("Controller>Product>insert>initial case");;
+                try {                                
 
-                                        MarketProductImage productImageObject = new MarketProductImage();
-                                        productImageObject.setImageID(generatedID);
-                                        productImageObject.setImageFileName(imageFileName);
-                                        productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
-                                        productImageObject.setImageSourceType("FTP");          
-                                        productImageObject.setImageContentType(
-                                                            new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL(FTPHandler.dirTemps) +imageFileName)));
+                    // -1.1- Create Product Object
+                        MarketProduct productObj = new MarketProduct();
+                        productObj.setProductID("t_" + Util.generateID());
+                        productObj.setProductName(request.getParameter("name"));
+                        productObj.setProductCode(request.getParameter("barcode"));
+                        productObj.setProductDesc(request.getParameter("desc"));
+                        productObj.setBrandID(request.getParameter("brand_id"));
+                        productObj.setSectionID(request.getParameter("section_id"));
+                        productObj.setUserID("123459");
 
-                                        productObj.getProductImages().add(productImageObject);
 
+                    // -1.2- Check Product Object Values
+                        if(!Checker.anyNull( productObj.getProductName(), productObj.getBrandID(), productObj.getUserID())){ 
+
+                            Collection<Part> parts = request.getParts();
+                            Iterator<Part> partsIterator = parts.iterator();
+
+                            while ( partsIterator.hasNext () ){
+                                Part part = partsIterator.next();
+
+                                if(part.getName().equalsIgnoreCase("files")){
+
+                                    try{
+
+                                        String generatedID = Util.generateID();
+                                        String imageFileName = generatedID + part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
+                                        InputStream imageInputStream = part.getInputStream();
+
+                                        FTPClient client = FTPHandler.getFTPClient();
+
+                                        if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
+
+                                            MarketProductImage productImageObject = new MarketProductImage();
+                                            productImageObject.setImageID(generatedID);
+                                            productImageObject.setImageFileName(imageFileName);
+                                            productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
+                                            productImageObject.setImageSourceType("FTP");          
+                                            productImageObject.setImageContentType(
+                                                                new MimetypesFileTypeMap().getContentType(new File(FTPHandler.getFTP_URL(FTPHandler.dirTemps) +imageFileName)));
+
+                                            productObj.getProductImages().add(productImageObject);
+
+                                        }
+
+                                        FTPHandler.closeFTPClient();
+                                        imageInputStream.close();  
+
+                                    }catch(Exception ex){
+                                        Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-
-                                    FTPHandler.closeFTPClient();
-                                    imageInputStream.close();  
-                                
-                                }catch(Exception ex){
-                                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
+
+                        }else{
+                            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct > AnyNull Exception");
                         }
 
-                    }else{
-                        return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct > AnyNull Exception");
-                    }
-                                                        
-                    return DBProduct.addProduct(productObj);
-                    
-            } catch (IOException | ServletException ex) {
-                Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_PROCESS.setContent(ex.toString());
-            }
-            
-//        return result;
-        
-    }
-    
-    
-    public static Result getProduct(HttpServletRequest request){
-        
-        String productId = request.getParameter("productCommonId");
+                        return DBProduct.addProduct(productObj);
 
-    // -1.1- Check Product Common Id
-        if(!Checker.anyNull( productId)){ 
-            return DBProduct.getProduct(productId);
+                } catch (IOException | ServletException ex) {
+                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_PROCESS.setContent(ex.toString());
+                }
 
-        }else{
-            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
-        }
-    }
-    
-    
-    
-    public static Result getCompanyProductInfo(HttpServletRequest request){
-        
-        String productId = request.getParameter("productUniqueId");
+            // return result;
 
-    // -1.1- Check Product Common Id
-        if(!Checker.anyNull( productId)){ 
-            return DBProduct.getCompanyProductInfo(productId);
-
-        }else{
-            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
-        }
-    }
-    
-    
-    public static Result getProductList(HttpServletRequest request){
-        
-            return DBProduct.getCommonProductList(request.getParameter("productCommonId"));
-            
-    }
-    
-    public static Result getProductListByDistributer(HttpServletRequest request){
-        
-        String distributerId = request.getParameter("distributerId");
-
-    // -1.1- Check Product Common Id
-        if(!Checker.anyNull( distributerId)){ 
-            String limit = request.getParameter("limit");
-            if(limit == null){
-                limit = "20";
-            }
-            return DBProduct.getProductListByDistributer(distributerId, Integer.parseInt(limit));
-
-        }else{
-            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
         }
         
-    }
+        // </editor-fold>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     public static Result getProductListBySection(HttpServletRequest request){
         

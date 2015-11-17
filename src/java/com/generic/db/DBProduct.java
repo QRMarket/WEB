@@ -6,12 +6,15 @@
 package com.generic.db;
 
 import com.generic.checker.Checker;
+import com.generic.entity.Address;
 import com.generic.ftp.FTPHandler;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.entity.CampaignProduct;
+import com.generic.entity.CompanyProduct;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
+import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,264 +46,264 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class DBProduct {
 
-    // <editor-fold defaultstate="collapsed" desc="Product GET Operations">
-    /**
-     *
-     * @param pUID
-     * @return
-     */
-    public static Result getCompanyProductInfo(String pUID) {
-
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
-        MarketProduct product;
-        String query;
-        try {
-
-            // PREPARE QUERY                
-            query = String.format("SELECT * FROM cpRelation "
-                    + "INNER JOIN products ON cpRelation.p_id=products.pid "
-                    + "AND cprID='%s'", pUID);
-
-            ResultSet mysqlResult = mysql.getResultSet(query);
-
-            String pId, pName, ppType;
-            String p_id;
-            double pQuantity, pPrice;
-            if (mysqlResult.first()) {
-                p_id = mysqlResult.getString("p_id");
-                pId = mysqlResult.getString("cprID");
-                pName = mysqlResult.getString("productName");
-                ppType = mysqlResult.getString("productPriceType");
-                pPrice = mysqlResult.getDouble("p_price");
-                product = new MarketProduct(pId, pName, ppType, pPrice);
-
-                        // VERSION -1-
-                // After get production then we will take product images                          
-//                        query = String.format(  rs.getString("mysql.productImage.select.3") , p_id);
-//                                                
-//                        mysqlResult = mysql.getResultSet(query);
-//                        if(mysqlResult.first()){       
-//                            
-//                            do{                                
-//                                product.getImages().add(mysqlResult.getString("imageID"));
-//                            }while(mysqlResult.next());
-//                            
-//                        }
-                // VERSION -2-
-                // After get production then we will take product images
-                Result resImages = DBProductImage.getProductImageList(p_id);
-                if (resImages.checkResult(Result.SUCCESS)) {
-                    product.setProductImages((ArrayList<MarketProductImage>) resImages.getContent());
-                }
-
-                return Result.SUCCESS.setContent(product);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (SQLException ex) {
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
-        }
-    }
-
-    /**
-     *
-     * @param pUID
-     * @return
-     */
-    public static Result getProduct(String pid) {
-
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
-        MarketProduct product;
-        String query;
-
-        try {
-
-            // PREPARE QUERY                
-            query = String.format(rs.getString("mysql.product.select.2"), pid);
-
-            ResultSet mysqlResult = mysql.getResultSet(query);
-            if (mysqlResult.first()) {
-
-                product = new MarketProduct();
-                product.setProductID(mysqlResult.getString("pid"));
-                product.setProductName(mysqlResult.getString("productName"));
-                product.setPriceType(mysqlResult.getString("productPriceType"));
-                product.setBranchName(mysqlResult.getString("productBranch"));
-                product.setProductCode(mysqlResult.getString("productCode"));
-                product.setProductDesc(mysqlResult.getString("productDesc"));
-
-                // After get production then we will take product images                          
-                query = String.format(rs.getString("mysql.productImage.select.3"), pid);
-                mysqlResult = mysql.getResultSet(query);
-                if (mysqlResult.first()) {
-
-                    do {
-                        MarketProductImage productImage = new MarketProductImage();
-                        productImage.setImageID(mysqlResult.getString("imageID"));
-                        productImage.setImageContentType(mysqlResult.getString("imgContType"));
-                        productImage.setImageSourceType(mysqlResult.getString("imgSaveType"));
-                        productImage.setImageType(mysqlResult.getString("imgType"));
-                        productImage.setImageSource(mysqlResult.getString("imgSource"));
-                        product.getProductImages().add(productImage);
-                    } while (mysqlResult.next());
-
-                }
-
-                return Result.SUCCESS.setContent(product);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
-        }
-    }
-
-    /**
-     *
-     * @param pid
-     * @return
-     */
-    public static Result getCommonProductList(String pid) {
-
-        Result result = Result.FAILURE_PROCESS;
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Connection conn = mysql.getConnection();
-        List<MarketProduct> productList = new ArrayList<>();
-
-        try {
-
-            // PREPARE QUERY                
-            PreparedStatement preStat;
-            if (pid != null) {
-                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.select.2"));
-                preStat.setString(1, pid);
-            } else {
-                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.select.1"));
-            }
-
-            ResultSet mysqlResult =  preStat.executeQuery();
-            if (mysqlResult.first()) {
-
-                do{
-                    MarketProduct product = new MarketProduct();
-                    product.setProductID(mysqlResult.getString("pid"));
-                    product.setProductName(mysqlResult.getString("productName"));
-                    product.setProductCode(mysqlResult.getString("productCode"));
-                    product.setProductDesc(mysqlResult.getString("productDesc"));
-                    product.setBrandID(mysqlResult.getString("brands_id"));
-                    product.setSectionID(mysqlResult.getString("section_id"));
-                    
-
-                    // After get production then we will take product images                          
-                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.select.3"));
-                    preStat.setString(1, product.getProductID());
-                    ResultSet innerQuery =  preStat.executeQuery();
-                    if (innerQuery.first()) {
-
-                        do {
-                            MarketProductImage productImage = new MarketProductImage();
-                            productImage.setImageID(innerQuery.getString("imageID"));
-                            productImage.setImageContentType(innerQuery.getString("imgContType"));
-                            productImage.setImageSourceType(innerQuery.getString("imgSaveType"));
-                            productImage.setImageType(innerQuery.getString("imgType"));
-                            productImage.setImageSource(innerQuery.getString("imgSource"));
-                            product.getProductImages().add(productImage);
-                        } while (innerQuery.next());
-
-                    }
-                    productList.add(product);
-                    
-                }while(mysqlResult.next());
-
-                return Result.SUCCESS.setContent(productList);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB.setContent(ex.getMessage());
-        } finally {
-            mysql.closeAllConnection();
-        }
-    }
     
-    /**
-     *
-     * @param distributerId
-     * @param limit
-     * @return
-     * @description Product list of given distributer
-     */
-    public static Result getProductListByDistributer(String distributerId, Integer limit) {
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="Product GET Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET COMPANY PRODUCT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param companyProductId
+         * @return
+         */
+        public static Result getProductOfDistributer(String companyProductId) {
 
-        Result result = Result.FAILURE_PROCESS;
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Connection conn = mysql.getConnection();
-        ArrayList<MarketProduct> productList;
-
-        try {
-            // PREPARE QUERY                
-            
-            PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productDistributer.select.1"));
-            preStat.setString(1, distributerId);
-            preStat.setInt(2, limit);
-            ResultSet mysqlResult =  preStat.executeQuery();
-            if (mysqlResult.first()) {
-
-                productList = new ArrayList<>();
-                // GET CITIES FOR DB
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                CompanyProduct companyProduct;
                 
-                do {
-                    MarketProduct product = new MarketProduct();
-                    //product.setAmount(mysqlResult.getString("cprID"));
-                    product.setBranchName(mysqlResult.getString("cpr.cprID"));
-                    product.setBrandID(mysqlResult.getString("p.brands_id"));
-                    product.setPrice(mysqlResult.getDouble("cpr.p_price"));
-                    product.setPriceType(mysqlResult.getString("cpr.p_priceType"));
-                    product.setProductCode(mysqlResult.getString("p.productCode"));
-                    product.setProductDesc(mysqlResult.getString("p.productDesc"));
-                    product.setProductID(mysqlResult.getString("p.pid"));
-                    product.setProductName(mysqlResult.getString("p.productName"));
-                    product.setSectionID(mysqlResult.getString("p.section_id"));
-                    product.setUserID(mysqlResult.getString("p.user_id"));
-                    MarketProductImage productImage = new MarketProductImage();
-                    productImage.setImageID(mysqlResult.getString("pi.imageID"));
-                    productImage.setImageContentType(mysqlResult.getString("pi.imgContType"));
-                    productImage.setImageSourceType(mysqlResult.getString("pi.imgSaveType"));
-                    productImage.setImageType(mysqlResult.getString("pi.imgType"));
-                    productImage.setImageSource(mysqlResult.getString("pi.imgSource"));
-                    product.getProductImages().add(productImage);
-                    productList.add(product);
-                } while (mysqlResult.next());
+                try {
 
-                return Result.SUCCESS.setContent(productList);
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.companyProduct.select.3"));
+                        preStat.setString(1, companyProductId);
+                        
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if(resultSet.first()){
+                                
+                            companyProduct = new CompanyProduct();
+                            companyProduct.setId(resultSet.getString("id"));
+                            companyProduct.setDistributer_id(resultSet.getString("d_id"));
+                            companyProduct.setProduct_price(resultSet.getDouble("p_price"));
+                            
+                        // -2.1- Get Product Object
+                            MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
+                            companyProduct.setProduct(product);
+                            
+                        // -2.2- After getting product from db then take the product images
+                            Result imageResult = DBProductImage.getProductImageList(companyProduct.getProduct().getProductID());
+                            if (imageResult.checkResult(Result.SUCCESS)) {
+                                companyProduct.getProduct().setProductImages((ArrayList<MarketProductImage>) imageResult.getContent());
+                            }
+                            
+                            return Result.SUCCESS.setContent(companyProduct);
 
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
+                        }else{
+                            return Result.SUCCESS_EMPTY;
+                        }
+                       
+                        
+                } catch (SQLException ex) {
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
         }
-    }
+        
+          
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET PRODUCT (COMMON)
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param pid
+         * @return
+         */
+        public static Result getProduct(String productId) {
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                MarketProduct product;
+
+                try {
+                    
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.select.2"));
+                        preStat.setString(1, productId);
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if (resultSet.first()) {
+
+                            // -2.1- Get&Set Result 
+                                product = ORMHandler.resultSetToProduct(resultSet);
+
+                            // -2.1- After getting product from db then take the product images
+                                Result imageResult = DBProductImage.getProductImageList(productId);
+                                if (imageResult.checkResult(Result.SUCCESS)) {
+                                    product.setProductImages((ArrayList<MarketProductImage>) imageResult.getContent());
+                                }
+                            
+                                return Result.SUCCESS.setContent(product);
+
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
+
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                  GET DISTRIBUTER PRODUCT LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param distributerId
+         * @param limit
+         * @return
+         * @description Product list of given distributer
+         */
+        public static Result getProductListOfDistributer(String distributerId, int limit) {
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                Result result = Result.FAILURE_PROCESS;
+                ArrayList<MarketProduct> productList;
+
+                try {
+                                                
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.companyProduct.select.4"));
+                        preStat.setString(1, distributerId);
+                        preStat.setInt(2, limit);
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if (resultSet.first()) {
+
+                            productList = new ArrayList<>();
+                            
+                            do {
+                                // -2.1- ORM Operations
+                                    MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
+                                    MarketProductImage productImage = ORMHandler.resultSetToProductImage(resultSet);
+                                // -2.2- Object Settings
+                                    product.getProductImages().add(productImage);
+                                    productList.add(product);
+                            } while (resultSet.next());
+
+                            return Result.SUCCESS.setContent(productList);
+
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                  GET PRODUCT LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param limit
+         * @return
+         */
+        public static Result getProductList(int limit) {
+                
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+                Result result = Result.FAILURE_PROCESS;
+                List<MarketProduct> productList = new ArrayList<>();
+
+                try {
+
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.product.select.3"));
+                        preStat.setInt(1, limit);
+                        ResultSet resultSet =  preStat.executeQuery();
+
+                    // -2- Get Result
+                        if (resultSet.first()) {
+
+                            do{
+                                
+                                MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
+
+                                // After get production then we will take product images                          
+                                preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.select.3"));
+                                preStat.setString(1, product.getProductID());
+                                ResultSet innerQuery =  preStat.executeQuery();
+                                if (innerQuery.first()) {
+
+                                    do {
+                                        MarketProductImage productImage = new MarketProductImage();
+                                        productImage.setImageID(innerQuery.getString("imageID"));
+                                        productImage.setImageContentType(innerQuery.getString("imgContType"));
+                                        productImage.setImageSourceType(innerQuery.getString("imgSaveType"));
+                                        productImage.setImageType(innerQuery.getString("imgType"));
+                                        productImage.setImageSource(innerQuery.getString("imgSource"));
+                                        product.getProductImages().add(productImage);
+                                    } while (innerQuery.next());
+
+                                }
+                                productList.add(product);
+
+                            }while(resultSet.next());
+
+                            return Result.SUCCESS.setContent(productList);
+
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     /**
      *
@@ -418,6 +421,16 @@ public class DBProduct {
     
     
     // </editor-fold>  
+    
+    
+    
+    
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
     
     // <editor-fold defaultstate="collapsed" desc="Product INSERT Operations">
     /**

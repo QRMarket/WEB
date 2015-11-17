@@ -5,8 +5,12 @@
  */
 package com.generic.db;
 
+import com.generic.entity.CompanyProduct;
 import com.generic.result.Result;
 import com.generic.entity.MarketProductImage;
+import com.generic.resources.ResourceProperty;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,45 +33,47 @@ public class DBProductImage extends DBGeneric {
     
     //**************************************************************************
     //**************************************************************************
-    //**                    GET CITY LIST
+    //**                    GET PRODUCT IMAGE LIST
     //**************************************************************************
     //**************************************************************************
     /**
      * 
-     * @param pID product id
+     * @param productId
      * @return 
      */
-    public static Result getProductImageList(String pID){
-            
+    public static Result getProductImageList(String productId){
+        
             MysqlDBOperations mysql = new MysqlDBOperations();
-            ResourceBundle rs = ResourceBundle.getBundle("com.generic.resources.mysqlQuery");
-            List<MarketProductImage> pImages;
+            ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+            Connection conn = mysql.getConnection();            
+            List<MarketProductImage> productImages;
                         
-            try{                                                
-                String query;
-                pImages = new ArrayList<>();
-                                           
-                query = String.format(  rs.getString("mysql.productImage.select.3") , pID);                
-                                                
-                ResultSet mysqlResult = mysql.getResultSet(query);                                                
+            try{       
                 
-                if(mysqlResult.first()){
-                    
-                    do{
-                        MarketProductImage pImage = new MarketProductImage();
-                        pImage.setImageID(mysqlResult.getString("imageID"));
-                        pImage.setImageContentType(mysqlResult.getString("imgContType"));
-                        pImage.setImageSource(mysqlResult.getString("imgSource"));
-                        pImage.setImageSourceType(mysqlResult.getString("imgSaveType"));
-                        pImage.setImageType(mysqlResult.getString("imgType"));
-                        pImages.add(pImage);                        
-                    }while(mysqlResult.next());
-                    
-                    return Result.SUCCESS.setContent(pImages);
+                // -1- Check address exist
+                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.select.3"));
+                    preStat.setString(1, productId);
+                        
+                    ResultSet resultSet = preStat.executeQuery();
                 
-                }else{
-                    return Result.SUCCESS_EMPTY;
-                }                
+                // -2- Get Result
+                    if(resultSet.first()){
+                        productImages = new ArrayList<>();
+                        do{
+                            MarketProductImage pImage = new MarketProductImage();
+                            pImage.setImageID(resultSet.getString("imageID"));
+                            pImage.setImageContentType(resultSet.getString("imgContType"));
+                            pImage.setImageSource(resultSet.getString("imgSource"));
+                            pImage.setImageSourceType(resultSet.getString("imgSaveType"));
+                            pImage.setImageType(resultSet.getString("imgType"));
+                            productImages.add(pImage);                        
+                        }while(resultSet.next());
+
+                        return Result.SUCCESS.setContent(productImages);
+
+                    }else{
+                        return Result.SUCCESS_EMPTY;
+                    }                
                 
             } catch (SQLException ex) {
                 Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);

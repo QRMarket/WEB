@@ -43,6 +43,22 @@ public class ControllerOrder {
         //**                        GET ORDER LIST
         //**************************************************************************
         //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result getOrder(HttpServletRequest request){
+        
+                Result result = Result.FAILURE_PROCESS;
+                if (request.getParameter("orderId") != null) {
+                    return DBOrder.getOrder(request.getParameter("orderId"));
+                }else{
+                    result = Result.FAILURE_PARAM_MISMATCH;
+                }
+
+            return result;
+        }
+        
     
     // </editor-fold>
     

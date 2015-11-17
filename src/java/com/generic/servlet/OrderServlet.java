@@ -6,6 +6,7 @@
 package com.generic.servlet;
 
 import com.generic.controller.ControllerOrder;
+import com.generic.controller.ControllerProduct;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -32,18 +33,24 @@ import javax.servlet.http.HttpServletResponse;
 public class OrderServlet extends HttpServlet {
 
     private static enum ServletOperations{
+        NULL,
         CONFIRM_ORDER,
+        GET_ORDER
     }
     
     private ServletOperations getRequestOperation(HttpServletRequest request){
         if(request.getParameter("do") != null){
             switch (request.getParameter("do")) {
-                case "getBrandList":
-                    return ServletOperations.CONFIRM_ORDER;             
+                case "getOrder":
+                    return ServletOperations.GET_ORDER;
             }
         }  
-        return null;
+        return ServletOperations.NULL;
     }
+    
+    
+    
+    
     
     /**
      * @param request servlet request
@@ -58,7 +65,8 @@ public class OrderServlet extends HttpServlet {
             PrintWriter out = response.getWriter();
 
             Gson gson = new Gson();
-            Result res = Result.FAILURE_PROCESS;
+            Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> initial error");
+            
             try {
 
                 switch (Util.getContentType(request)) {
@@ -71,9 +79,38 @@ public class OrderServlet extends HttpServlet {
                     case APPLICATION_JSON:
                             res = ControllerOrder.confirmOrder(request);
                         break;
+                        
+                        
+                        
+                        
+                        
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: application/json
+                    //**************************************************************
+                    //**************************************************************
+                    case APPLICATION_FORM_URLENCODED:
+                            
+                            switch (getRequestOperation(request)){
+
+                        
+                                    case GET_ORDER:
+                                            res = ControllerOrder.getOrder(request);
+                                        break;
 
 
 
+                                    default:
+                                            res = Result.FAILURE_PARAM_MISMATCH.setContent("ProductServlet -> APPLICATION_FORM_URLENCODED -> Default Case");
+                                        break;
+                                    }
+                            
+                        break;
+                        
+                        
+                        
+                        
+                        
                     //**************************************************************
                     //**************************************************************
                     //**        Content-Type :: Default
@@ -93,6 +130,11 @@ public class OrderServlet extends HttpServlet {
                 out.close();
             }
         
+            
+            
+            
+            
+            
         
 //        try {
 //            

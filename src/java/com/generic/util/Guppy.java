@@ -1,4 +1,4 @@
-package com.generic.entity;
+package com.generic.util;
 
 /**
  *

@@ -6,7 +6,7 @@
 package com.generic.filter;
 
 import com.generic.checker.Checker;
-import com.generic.entity.Guppy;
+import com.generic.util.Guppy;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
