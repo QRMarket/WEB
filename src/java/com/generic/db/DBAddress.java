@@ -5,6 +5,7 @@ import com.generic.locale.UtilLocaleHandler;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.entity.Address;
+import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -57,18 +58,7 @@ public class DBAddress extends DBGeneric{
 
                         // -2- Get Result
                             if(resultSet.first()){
-
-                                do{
-                                    address = new Address();
-                                    address.setAid(addressID);
-                                    address.setCity(resultSet.getString("city"));
-                                    address.setBorough(resultSet.getString("borough"));
-                                    address.setLocality(resultSet.getString("locality"));
-
-                                }while(resultSet.next());
-
-                                return Result.SUCCESS.setContent(address);
-
+                                return Result.SUCCESS.setContent(ORMHandler.resultSetToAddress(resultSet));
                             }else{
                                 return Result.SUCCESS_EMPTY;
                             }       
@@ -123,7 +113,7 @@ public class DBAddress extends DBGeneric{
 
                             do{
                                 Address address = new Address();
-                                address.setAid(resultSet.getString("aid"));
+                                address.setId(resultSet.getString("aid"));
                                 address.setCity(resultSet.getString("city"));
                                 address.setBorough(resultSet.getString("borough"));
                                 address.setLocality(resultSet.getString("locality"));

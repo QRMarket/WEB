@@ -11,13 +11,10 @@ package com.generic.entity;
 public class Address  {
     
     
-    private String aid;
+    private String id;
     private String city;
     private String borough;
     private String locality;
-    private String street;
-    private String avenue;
-    private String desc;
 
     public Address(){
         
@@ -66,61 +63,17 @@ public class Address  {
     }
 
     /**
-     * @return the street
+     * @return the id
      */
-    public String getStreet() {
-        return street;
+    public String getId() {
+        return id;
     }
 
     /**
-     * @param street the street to set
+     * @param id the id to set
      */
-    public void setStreet(String street) {
-        this.street = street;
+    public void setId(String id) {
+        this.id = id;
     }
-
-    /**
-     * @return the avenue
-     */
-    public String getAvenue() {
-        return avenue;
-    }
-
-    /**
-     * @param avenue the avenue to set
-     */
-    public void setAvenue(String avenue) {
-        this.avenue = avenue;
-    }
-
-    /**
-     * @return the desc
-     */
-    public String getDesc() {
-        return desc;
-    }
-
-    /**
-     * @param desc the desc to set
-     */
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    /**
-     * @return the aid
-     */
-    public String getAid() {
-        return aid;
-    }
-
-    /**
-     * @param aid the aid to set
-     */
-    public void setAid(String aid) {
-        this.aid = aid;
-    }
-    
-    
     
 }

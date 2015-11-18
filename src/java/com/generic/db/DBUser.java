@@ -127,13 +127,13 @@ public class DBUser extends DBGeneric{
                         do{
 
                             Address userAddress = new Address();
-                            userAddress.setAid(mysqlResult.getString("aid"));
+                            userAddress.setId(mysqlResult.getString("aid"));
                             userAddress.setCity(mysqlResult.getString("city"));
                             userAddress.setBorough(mysqlResult.getString("borough"));
                             userAddress.setLocality(mysqlResult.getString("locality"));
-                            userAddress.setStreet(mysqlResult.getString("street"));
-                            userAddress.setAvenue(mysqlResult.getString("avenue"));
-                            userAddress.setDesc(mysqlResult.getString("desc"));
+//                            userAddress.setStreet(mysqlResult.getString("street"));
+//                            userAddress.setAvenue(mysqlResult.getString("avenue"));
+//                            userAddress.setDesc(mysqlResult.getString("desc"));
 
                             userAddressList.add(userAddress);
 

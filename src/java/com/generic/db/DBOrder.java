@@ -7,6 +7,7 @@ import com.generic.entity.Orders;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketUser;
 import com.generic.entity.OrderProduct;
+import com.generic.entity.UserAddress;
 import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
 import java.sql.Connection;
@@ -68,23 +69,28 @@ public class DBOrder {
                         
                     // -2- Get Result
                         if(resultSet.first()){
+                         
+                            // -2.1- Get Order Object
+                                order = ORMHandler.resultSetToOrder(resultSet);
                             
-                            order = ORMHandler.resultSetToOrder(resultSet);
-                            MarketUser user = ORMHandler.resultSetToUser(resultSet);
-                            order.setUser(user);
-                            productList = new ArrayList<>();
-                            
-                            do{
+                            // -2.2- Get User & UserAddress Object
+                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                UserAddress userAddress = ORMHandler.resultSetToUserAddress(resultSet);
+                                userAddress.setAddress(ORMHandler.resultSetToAddress(resultSet));
                                 
-                                MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
-                                productList.add(product);
-                                
-                            }while(resultSet.next());
+                            // -2.3- Get MarketProduct list 
+                                productList = new ArrayList<>();
+                                do{
+                                    MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
+                                    productList.add(product);
+                                }while(resultSet.next());
                             
-                            order.setProductList(productList);
+                            // -2.4- Set 
+                                order.setUserAddress(userAddress);
+                                order.setUser(user);
+                                order.setProductList(productList);
+                                
                             return Result.SUCCESS.setContent(order);
-                            
-                            
                         }else{
                             return Result.SUCCESS_EMPTY;
                         }                                                                      
@@ -176,11 +182,7 @@ public class DBOrder {
         //**************************************************************************
         /**
          * 
-         * @param session
-         * @param addID
-         * @param date
-         * @param ptype
-         * @param note
+         * @param orderObj
          * @return 
          */
         public static Result confirmOrder(Orders orderObj){
@@ -206,7 +208,7 @@ public class DBOrder {
                     preStat.setLong(5, orderObj.getDelay());
                     preStat.setString(6, orderObj.getNote());
                     preStat.setDouble(7, -1);
-                    preStat.setString(8, orderObj.getUserID());
+                    preStat.setString(8, orderObj.getUserAddressID());
                     preStat.setString(9, orderObj.getDistributerAddressID());
                     
                     

@@ -7,11 +7,13 @@ package com.generic.orm;
 
 import com.generic.constant.OrdersPaymentType;
 import com.generic.constant.OrdersState;
+import com.generic.entity.Address;
 import com.generic.entity.CompanyProduct;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.entity.MarketUser;
 import com.generic.entity.Orders;
+import com.generic.entity.UserAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -29,6 +31,8 @@ public class ORMHandler {
     
     
     public static String userTableAs = "users";
+    public static String addressTableAs = "address";
+    public static String userAddressTableAs = "userAddress";
     public static String productTableAs = "product";
     public static String productImageTableAs = "productImage";
     public static String ordersTableAs = "orders";
@@ -44,6 +48,28 @@ public class ORMHandler {
             user.setUserMail(resultSet.getString(userTableAs+".mu_mail"));
             user.setUserPhoneNumber(resultSet.getString(userTableAs+".mu_phone"));
             return user;
+    }
+    
+    
+    public static UserAddress resultSetToUserAddress(ResultSet resultSet) throws SQLException{
+            
+            UserAddress userAddress = new UserAddress();
+            userAddress.setId(resultSet.getString(userAddressTableAs+".ua_id"));
+            userAddress.setStreet(resultSet.getString(userAddressTableAs+".street"));
+            userAddress.setAvenue(resultSet.getString(userAddressTableAs+".avenue"));
+            userAddress.setDescription(resultSet.getString(userAddressTableAs+".desc"));
+            return userAddress;
+    }
+    
+    
+    public static Address resultSetToAddress(ResultSet resultSet) throws SQLException{
+            
+            Address address = new Address();
+            address.setId(resultSet.getString(addressTableAs+".aid"));
+            address.setCity(resultSet.getString(addressTableAs+".city"));
+            address.setBorough(resultSet.getString(addressTableAs+".borough"));
+            address.setLocality(resultSet.getString(addressTableAs+".locality"));
+            return address;
     }
     
     
@@ -82,7 +108,7 @@ public class ORMHandler {
             orders.setDate(resultSet.getLong(ordersTableAs+".date"));
             orders.setDelay(resultSet.getLong(ordersTableAs+".delay"));
             orders.setPayment(resultSet.getDouble(ordersTableAs+".payment"));
-            orders.setUserID(resultSet.getString(ordersTableAs+".user_id"));
+            orders.setUserAddressID(resultSet.getString(ordersTableAs+".userAddress_id"));
             orders.setDistributerAddressID(resultSet.getString(ordersTableAs+".distributerAddress_id"));
             return orders;
     }

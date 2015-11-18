@@ -30,11 +30,12 @@ public class Orders {
     // -- ** -- // One-To-Many Relation Properties
         private List<OrderProduct> orderProductList;
     // -- ** -- // Many-To-One Relation Properties
-        private String userID;
+        private String userAddressID;
         private String distributerAddressID;
         
     // -- ** -- // Other Object
         private MarketUser user;
+        private UserAddress userAddress;
         private List<MarketProduct> productList;
     // -- ** -- // Generic object for append
         //    private Map<String , List<? extends Object>> GenericObjectList;
@@ -84,20 +85,6 @@ public class Orders {
      */
     public void setOrderProductList(List<OrderProduct> orderProductList) {
         this.orderProductList = orderProductList;
-    }
-
-    /**
-     * @return the userID
-     */
-    public String getUserID() {
-        return userID;
-    }
-
-    /**
-     * @param userID the userID to set
-     */
-    public void setUserID(String userID) {
-        this.userID = userID;
     }
 
     /**
@@ -210,6 +197,34 @@ public class Orders {
      */
     public void setUser(MarketUser user) {
         this.user = user;
+    }
+
+    /**
+     * @return the userAddressID
+     */
+    public String getUserAddressID() {
+        return userAddressID;
+    }
+
+    /**
+     * @param userAddressID the userAddressID to set
+     */
+    public void setUserAddressID(String userAddressID) {
+        this.userAddressID = userAddressID;
+    }
+
+    /**
+     * @return the userAddress
+     */
+    public UserAddress getUserAddress() {
+        return userAddress;
+    }
+
+    /**
+     * @param userAddress the userAddress to set
+     */
+    public void setUserAddress(UserAddress userAddress) {
+        this.userAddress = userAddress;
     }
     
     
