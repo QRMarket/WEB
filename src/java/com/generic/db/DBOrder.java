@@ -90,7 +90,7 @@ public class DBOrder {
                         }                                                                      
 
                 } catch (SQLException ex) {                
-                    return Result.FAILURE_DB;
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
                 }finally{
                     mysql.closeAllConnection();
                 }                
