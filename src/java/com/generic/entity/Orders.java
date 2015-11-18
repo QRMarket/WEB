@@ -5,6 +5,8 @@
  */
 package com.generic.entity;
 
+import com.generic.constant.OrdersPaymentType;
+import com.generic.constant.OrdersState;
 import java.util.List;
 import java.util.Map;
 
@@ -19,16 +21,20 @@ import java.util.Map;
 public class Orders {
         
         private String id;
-        private String paymentType;
         private String note;
         private Long date;  
         private Long delay;  
+        private OrdersState state;
+        private OrdersPaymentType paymentType;
+        private Double payment;
     // -- ** -- // One-To-Many Relation Properties
         private List<OrderProduct> orderProductList;
     // -- ** -- // Many-To-One Relation Properties
         private String userID;
         private String distributerAddressID;
+        
     // -- ** -- // Other Object
+        private MarketUser user;
         private List<MarketProduct> productList;
     // -- ** -- // Generic object for append
         //    private Map<String , List<? extends Object>> GenericObjectList;
@@ -37,20 +43,6 @@ public class Orders {
         
     }
     
-
-    /**
-     * @return the paymentType
-     */
-    public String getPaymentType() {
-        return paymentType;
-    }
-
-    /**
-     * @param paymentType the paymentType to set
-     */
-    public void setPaymentType(String paymentType) {
-        this.paymentType = paymentType;
-    }
 
     /**
      * @return the note
@@ -163,8 +155,62 @@ public class Orders {
     public void setProductList(List<MarketProduct> productList) {
         this.productList = productList;
     }
-    
-    
+
+    /**
+     * @return the state
+     */
+    public OrdersState getState() {
+        return state;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(OrdersState state) {
+        this.state = state;
+    }
+
+    /**
+     * @return the paymentType
+     */
+    public OrdersPaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    /**
+     * @param paymentType the paymentType to set
+     */
+    public void setPaymentType(OrdersPaymentType paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    /**
+     * @return the payment
+     */
+    public Double getPayment() {
+        return payment;
+    }
+
+    /**
+     * @param payment the payment to set
+     */
+    public void setPayment(Double payment) {
+        this.payment = payment;
+    }
+
+    /**
+     * @return the user
+     */
+    public MarketUser getUser() {
+        return user;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(MarketUser user) {
+        this.user = user;
+    }
     
     
 }

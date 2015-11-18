@@ -5,9 +5,12 @@
  */
 package com.generic.orm;
 
+import com.generic.constant.OrdersPaymentType;
+import com.generic.constant.OrdersState;
 import com.generic.entity.CompanyProduct;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
+import com.generic.entity.MarketUser;
 import com.generic.entity.Orders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,11 +28,23 @@ import java.util.logging.Logger;
 public class ORMHandler {
     
     
+    public static String userTableAs = "users";
     public static String productTableAs = "product";
     public static String productImageTableAs = "productImage";
     public static String ordersTableAs = "orders";
     public static String companyProductTableAs = "companyProduct";
     
+    
+    public static MarketUser resultSetToUser(ResultSet resultSet) throws SQLException{
+            
+            MarketUser user = new MarketUser();
+            user.setUserId(resultSet.getString(userTableAs+".mu_id"));
+            user.setUserName(resultSet.getString(userTableAs+".mu_name"));
+            user.setUserSurname(resultSet.getString(userTableAs+".mu_surname"));
+            user.setUserMail(resultSet.getString(userTableAs+".mu_mail"));
+            user.setUserPhoneNumber(resultSet.getString(userTableAs+".mu_phone"));
+            return user;
+    }
     
     
     public static MarketProduct resultSetToProduct(ResultSet resultSet) throws SQLException{
@@ -62,7 +77,13 @@ public class ORMHandler {
             Orders orders = new Orders();
             orders.setId(resultSet.getString(ordersTableAs+".id"));
             orders.setNote(resultSet.getString(ordersTableAs+".note"));
-            orders.setPaymentType(resultSet.getString(ordersTableAs+".payment_type"));
+            orders.setState(OrdersState.valueOf(Integer.parseInt(resultSet.getString(ordersTableAs+".state"))));
+            orders.setPaymentType(OrdersPaymentType.valueOf(Integer.parseInt(resultSet.getString(ordersTableAs+".payment_type"))));
+            orders.setDate(resultSet.getLong(ordersTableAs+".date"));
+            orders.setDelay(resultSet.getLong(ordersTableAs+".delay"));
+            orders.setPayment(resultSet.getDouble(ordersTableAs+".payment"));
+            orders.setUserID(resultSet.getString(ordersTableAs+".user_id"));
+            orders.setDistributerAddressID(resultSet.getString(ordersTableAs+".distributerAddress_id"));
             return orders;
     }
     

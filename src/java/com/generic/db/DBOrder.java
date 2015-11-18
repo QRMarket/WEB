@@ -5,6 +5,7 @@ import com.generic.result.Result;
 import com.generic.entity.Address;
 import com.generic.entity.Orders;
 import com.generic.entity.MarketProduct;
+import com.generic.entity.MarketUser;
 import com.generic.entity.OrderProduct;
 import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
@@ -69,6 +70,8 @@ public class DBOrder {
                         if(resultSet.first()){
                             
                             order = ORMHandler.resultSetToOrder(resultSet);
+                            MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                            order.setUser(user);
                             productList = new ArrayList<>();
                             
                             do{
@@ -91,7 +94,65 @@ public class DBOrder {
                 }finally{
                     mysql.closeAllConnection();
                 }                
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                    GET ORDER 
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *     
+     * @param distributerId
+     * @param limit
+         * @return  
+         */
+        public static Result getOrderList(String distributerId, int limit){
+            
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                List<Orders> orderList;
 
+                try{
+
+                    // -1- Prepare Statement
+                        PreparedStatement preStat=conn.prepareStatement(rs.getPropertyValue("mysql.order.select.1"));
+                        if(distributerId!=null){
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.6"));
+                            preStat.setString(1, distributerId);
+                            preStat.setInt(2, limit);
+                        }else{
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.5"));
+                            preStat.setInt(1, limit);
+                        }
+                        
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if(resultSet.first()){
+                            
+                            orderList = new ArrayList<>();
+                            do{
+                                Orders order = ORMHandler.resultSetToOrder(resultSet);
+                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                order.setUser(user);
+                                
+                                orderList.add(order);
+                            }while(resultSet.next());
+                            
+                            return Result.SUCCESS.setContent(orderList);
+                        }else{
+                            return Result.SUCCESS_EMPTY;
+                        }                                                                      
+
+                } catch (SQLException ex) {                
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                }finally{
+                    mysql.closeAllConnection();
+                }                
         }
       
     // </editor-fold>
@@ -323,7 +384,7 @@ public class DBOrder {
                     do{
                         Orders marketOrder = new Orders();
                         marketOrder.setId(mysqlResult.getString("oid"));
-                        marketOrder.setPaymentType(mysqlResult.getString("ptype"));
+//                        marketOrder.setPaymentType(mysqlResult.getString("ptype"));
                         marketOrder.setNote(mysqlResult.getString("note"));
 //                        marketOrder.setDate(mysqlResult.getString("date"));
 //                        marketOrder.setCompanyName(mysqlResult.getString("companyName"));

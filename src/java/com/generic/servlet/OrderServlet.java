@@ -35,7 +35,8 @@ public class OrderServlet extends HttpServlet {
     private static enum ServletOperations{
         NULL,
         CONFIRM_ORDER,
-        GET_ORDER
+        GET_ORDER,
+        GET_ORDER_LIST
     }
     
     private ServletOperations getRequestOperation(HttpServletRequest request){
@@ -43,6 +44,8 @@ public class OrderServlet extends HttpServlet {
             switch (request.getParameter("do")) {
                 case "getOrder":
                     return ServletOperations.GET_ORDER;
+                case "getOrderList":
+                    return ServletOperations.GET_ORDER_LIST;
             }
         }  
         return ServletOperations.NULL;
@@ -97,9 +100,15 @@ public class OrderServlet extends HttpServlet {
                                     case GET_ORDER:
                                             res = ControllerOrder.getOrder(request);
                                         break;
-
-
-
+                                        
+                                        
+                                        
+                                    case GET_ORDER_LIST:
+                                            res = ControllerOrder.getOrderList(request);
+                                        break;
+                                        
+                                        
+                                        
                                     default:
                                             res = Result.FAILURE_PARAM_MISMATCH.setContent("ProductServlet -> APPLICATION_FORM_URLENCODED -> Default Case");
                                         break;

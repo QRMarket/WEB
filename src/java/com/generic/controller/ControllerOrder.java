@@ -40,7 +40,7 @@ public class ControllerOrder {
     
         //**************************************************************************
         //**************************************************************************
-        //**                        GET ORDER LIST
+        //**                        GET ORDER
         //**************************************************************************
         //**************************************************************************
         /**
@@ -57,6 +57,34 @@ public class ControllerOrder {
                 }
 
             return result;
+        }
+        
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET ORDER LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result getOrderList(HttpServletRequest request){
+        
+                Result result = Result.FAILURE_PROCESS;
+                int limit = 20;
+                
+                try {
+                    limit = Integer.parseInt(request.getParameter("limit"))>0 ? Integer.parseInt(request.getParameter("limit")) : limit;
+                } catch (Exception ex){
+                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                return DBOrder.getOrderList(request.getParameter("distributerId"), limit);
+                                
+//            return result;
         }
         
     
