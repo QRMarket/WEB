@@ -13,9 +13,10 @@ public class CompanyProduct {
     
     
     private String id;
-    private String distributer_id;
-    private Double product_price;
-    private String product_price_type;    
+    private String distributerID;
+    private String productID;
+    private Double productPrice;
+    private String productPriceType;    
     private MarketProduct product;          // One-To-One Relation Properties
 
     public CompanyProduct(){}
@@ -34,47 +35,6 @@ public class CompanyProduct {
         this.id = id;
     }
 
-    /**
-     * @return the distributer_id
-     */
-    public String getDistributer_id() {
-        return distributer_id;
-    }
-
-    /**
-     * @param distributer_id the distributer_id to set
-     */
-    public void setDistributer_id(String distributer_id) {
-        this.distributer_id = distributer_id;
-    }
-
-    /**
-     * @return the product_price
-     */
-    public Double getProduct_price() {
-        return product_price;
-    }
-
-    /**
-     * @param product_price the product_price to set
-     */
-    public void setProduct_price(Double product_price) {
-        this.product_price = product_price;
-    }
-
-    /**
-     * @return the product_price_type
-     */
-    public String getProduct_price_type() {
-        return product_price_type;
-    }
-
-    /**
-     * @param product_price_type the product_price_type to set
-     */
-    public void setProduct_price_type(String product_price_type) {
-        this.product_price_type = product_price_type;
-    }
 
     /**
      * @return the product
@@ -88,6 +48,62 @@ public class CompanyProduct {
      */
     public void setProduct(MarketProduct product) {
         this.product = product;
+    }
+
+    /**
+     * @return the productID
+     */
+    public String getProductID() {
+        return productID;
+    }
+
+    /**
+     * @param productID the productID to set
+     */
+    public void setProductID(String productID) {
+        this.productID = productID;
+    }
+
+    /**
+     * @return the distributerID
+     */
+    public String getDistributerID() {
+        return distributerID;
+    }
+
+    /**
+     * @param distributerID the distributerID to set
+     */
+    public void setDistributerID(String distributerID) {
+        this.distributerID = distributerID;
+    }
+
+    /**
+     * @return the productPrice
+     */
+    public Double getProductPrice() {
+        return productPrice;
+    }
+
+    /**
+     * @param productPrice the productPrice to set
+     */
+    public void setProductPrice(Double productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    /**
+     * @return the productPriceType
+     */
+    public String getProductPriceType() {
+        return productPriceType;
+    }
+
+    /**
+     * @param productPriceType the productPriceType to set
+     */
+    public void setProductPriceType(String productPriceType) {
+        this.productPriceType = productPriceType;
     }
     
     

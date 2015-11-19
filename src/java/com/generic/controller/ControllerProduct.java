@@ -7,6 +7,7 @@ import com.generic.result.Result;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.constant.UserRole;
+import com.generic.entity.CompanyProduct;
 import com.generic.servlet.ProductServlet;
 import com.generic.util.Util;
 import java.io.File;
@@ -60,6 +61,8 @@ public class ControllerProduct {
                     return DBProduct.getProductOfDistributer(request.getParameter("companyProductId"));
                 }else if (request.getParameter("productId") != null) {
                     return DBProduct.getProduct(request.getParameter("productId"));
+                }else if(request.getParameter("productCode") != null){
+                    return DBProduct.getProductByCode(request.getParameter("productCode"));
                 }else{
                     result = Result.FAILURE_PARAM_MISMATCH;
                 }
@@ -93,7 +96,7 @@ public class ControllerProduct {
                             Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
-                    return DBProduct.getProductListOfDistributer(request.getParameter("distributerId"), limit);
+                    return DBProduct.getDistributerProductList(request.getParameter("distributerId"), limit);
                     
                 }else{
                         try {
@@ -144,7 +147,7 @@ public class ControllerProduct {
         public static Result insertProduct(HttpServletRequest request){
 
                 Result result = Result.FAILURE_PROCESS.setContent("Controller>Product>insert>initial case");;
-                try {                                
+                try {
 
                     // -1.1- Create Product Object
                         MarketProduct productObj = new MarketProduct();
@@ -212,6 +215,55 @@ public class ControllerProduct {
 
             // return result;
 
+        }
+        
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                    ADD DISTRIBUTER PRODUCT 
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result addDistributerProduct(HttpServletRequest request){
+        
+                Result result = Result.FAILURE_PROCESS;
+                
+                String productId = request.getParameter("productId");
+                String distributerId = request.getParameter("distributerId");
+                double productPrice = -1;
+                try {
+                    productPrice = Double.parseDouble(request.getParameter("productPrice"))>0 ? Double.parseDouble(request.getParameter("productPrice")) : productPrice;
+                } catch (Exception ex){
+                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                try {
+                    
+                    // -1.1- Check Distibuter Product  Values
+                        if(!Checker.anyNull( productId,distributerId) && productPrice>0){ 
+                            
+                            CompanyProduct companyProduct = new CompanyProduct();
+                            companyProduct.setId(Util.generateID());
+                            companyProduct.setDistributerID(distributerId);
+                            companyProduct.setProductID(productId);
+                            companyProduct.setProductPrice(productPrice);
+                            companyProduct.setProductPriceType("TL");
+                            
+                            return DBProduct.addDistributerProduct(companyProduct);
+                        }else {
+                            return Result.FAILURE_PARAM_MISMATCH;
+                        }
+                    
+                }catch(Exception ex){
+                    result = Result.FAILURE_PROCESS.setContent(ex.getMessage());
+                }
+
+            return result;
         }
         
         // </editor-fold>

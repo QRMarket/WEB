@@ -10,14 +10,31 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <!-- JQuery UI -->
         <link rel="stylesheet" href="../plugins/jQueryUI/jquery-ui.css">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
     </head>
+    
+    
     
     <body>
         
-        Çalışan tüm servislerinn detaylı açıklaması aşağıda verilmiştir. 
+        <div class="row">
+            <div class="col-sm-8">
+                
+                <div class="panel panel-default">
+                <div class="panel-heading">Senaryolar</div>
+                <div class="panel-body">
+                    Market Ürün ekleme senaryosuda, market yöneticisi kendi marketine ürün yüklerken ilk olarak ürün barcode numarasını girer. 
+                    <ul>
+                        <li>Eğer sistem bu barcode numarasına sahip bir ürün içeriyorsa bir sonraki işlemde sadece ürünün id değeri, distributer id değeri, ürünün fiyatı ve ürün fiyat type değeri ile istekte bulunulur</li>
+                        <li>Sistemde bulunmuyorsa ürün ekleme işlemini aynı değerlerin yanında distibuter_id değeri ile alınarak ürün eklenir ve ilgili distributer ile ilişkilendirilir.</li>
+                    </ul>
+                </div>
+              </div>
+                
+            </div>
+        </div>
+        
         
         <div class="accordion">
             <h3>Auth Service</h3>
@@ -43,6 +60,9 @@ and open the template in the editor.
                     <a href="https://docs.google.com/document/d/1TZ5R0F1s04X4zoJ-14vKmvdKtSP5zB4VN65qObZQiNY/edit#heading=h.94pns9nlhfiv" target="_blank">Get Product</a>
                 </p>
                 <p>
+                    <a href="https://docs.google.com/document/d/1TZ5R0F1s04X4zoJ-14vKmvdKtSP5zB4VN65qObZQiNY/edit#heading=h.9x8cvtoy302t" target="_blank">Get Product By Product Code</a>
+                </p>                
+                <p>
                     <a href="https://docs.google.com/document/d/1TZ5R0F1s04X4zoJ-14vKmvdKtSP5zB4VN65qObZQiNY/edit#heading=h.yfex8n42xoz1" target="_blank">Get Company Product</a>
                 </p>
             </div>
@@ -54,7 +74,7 @@ and open the template in the editor.
                     <a href="https://docs.google.com/document/d/1vWbCHPX0k6GiAEQ2fNBbN-RslXHF9TqxayJK2yNDyYQ/edit#heading=h.yfex8n42xoz1" target="_blank">confirm Order (OnProgress)</a>
                 </p>
                 <p>
-                    <a href="https://docs.google.com/document/d/1vWbCHPX0k6GiAEQ2fNBbN-RslXHF9TqxayJK2yNDyYQ/edit#heading=h.31ej2bxnykl2" target="_blank">Get Order (OnProgress :: Sipariş sahibinin birçok adresinin olması sebebiyle sadece kullanıcı id'si yerine kullanıcı adres id değeri gerekmektedir)</a>
+                    <a href="https://docs.google.com/document/d/1vWbCHPX0k6GiAEQ2fNBbN-RslXHF9TqxayJK2yNDyYQ/edit#heading=h.31ej2bxnykl2" target="_blank">Get Order </a>
                 </p>                
                 <p>
                     <a href="https://docs.google.com/document/d/1vWbCHPX0k6GiAEQ2fNBbN-RslXHF9TqxayJK2yNDyYQ/edit#heading=h.31ej2bxnykl2" target="_blank">Get Order List (all - distributer)</a>
@@ -104,6 +124,8 @@ and open the template in the editor.
         <script src="../plugins/jQuery/jQuery-2.1.4.min.js"></script>
         <!-- jQuery UI -->
         <script src="../plugins/jQueryUI/jquery-ui.js"></script>
+        <!-- Bootstrap -->
+        <script src="../bootstrap/js/bootstrap.js"></script>
         
         <script>
             $(function() {

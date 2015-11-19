@@ -1,21 +1,12 @@
 package com.generic.servlet;
 
 import com.generic.controller.ControllerProduct;
-import com.generic.db.DBProduct;
 import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -24,11 +15,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.ftp.FTPClient;
-import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -46,6 +32,7 @@ public class ProductServlet extends HttpServlet {
     private static enum ProductServletOperations{
         NULL,
         INSERT_PRODUCT,
+        ADD_DISTRIBUTER_PRODUCT,
         GET_PRODUCT,
         GET_PRODUCT_LIST,
         GET_CAMPAIGN_PRODUCT_LIST,
@@ -59,6 +46,8 @@ public class ProductServlet extends HttpServlet {
             switch (request.getParameter("do")) {
                 case "addProduct":
                     return ProductServletOperations.INSERT_PRODUCT; 
+                case "addDistributerProduct":
+                    return ProductServletOperations.ADD_DISTRIBUTER_PRODUCT; 
                 case "getProduct":
                     return ProductServletOperations.GET_PRODUCT; 
                 case "getProductList":
@@ -90,27 +79,7 @@ public class ProductServlet extends HttpServlet {
         PrintWriter out = response.getWriter();              
         
         Gson gson = new Gson();
-        Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> initial error");
-        
-        /**
-         *  cdpsDo :: 
-         *      getProduct :: 
-         *              cdpUID || cdpCID
-         *
-         *
-         * !! KISALTMALAR !! 
-         * carpe diem product --> cdp 
-         * carpe dirm product servlet --> cdps 
-         * carpe diem product unique id --> cdpUID 
-         * carpe diem product common id --> cdpCID 
-         * carpe diem product market id --> cdpmID
-         *
-         */
-           
-        System.out.println("----- ----- ----- ----- ----- -----");
-        System.out.println("----- ----- ----- ----- ----- -----");
-        LoggerGuppy.verboseURL(request);
-        LoggerGuppy.verboseHeader(request);
+        Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> processRequest -> initial error");
         
         try {
                         
@@ -152,11 +121,15 @@ public class ProductServlet extends HttpServlet {
             
                         switch (getRequestOperation(request)){
 
-                        
+                            
+                                case ADD_DISTRIBUTER_PRODUCT:
+                                       res = ControllerProduct.addDistributerProduct(request);
+                                    break;
+                                    
+                                    
                                 case GET_PRODUCT:
                                         res = ControllerProduct.getProduct(request);
                                     break;
-                                    
                                     
                                     
                                 case GET_PRODUCT_LIST:
@@ -164,16 +137,14 @@ public class ProductServlet extends HttpServlet {
                                     break;
                                     
                                     
-                                    
                                 case GET_CAMPAIGN_PRODUCT_LIST:
 //                                        res = DBProduct.getActiveCampaignProducts();
                                     break;
-
-                            
+                                    
+                                    
                                 case REMOVE_PRODUCT:
                                         res = Result.SUCCESS_EMPTY.setContent("onProgress");
                                     break;
-                                    
                                     
                                     
                                 default:
