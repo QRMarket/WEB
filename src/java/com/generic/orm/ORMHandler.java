@@ -57,7 +57,7 @@ public class ORMHandler {
             userAddress.setId(resultSet.getString(userAddressTableAs+".ua_id"));
             userAddress.setStreet(resultSet.getString(userAddressTableAs+".street"));
             userAddress.setAvenue(resultSet.getString(userAddressTableAs+".avenue"));
-            userAddress.setDescription(resultSet.getString(userAddressTableAs+".desc"));
+            userAddress.setDescription(resultSet.getString(userAddressTableAs+".description"));
             return userAddress;
     }
     

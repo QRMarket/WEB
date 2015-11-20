@@ -12,6 +12,7 @@ import com.generic.servlet.Auth;
 import com.generic.entity.Address;
 import com.generic.entity.MarketUser;
 import com.generic.constant.UserRole;
+import com.generic.entity.CompanyProduct;
 import com.generic.entity.UserAddress;
 import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
@@ -107,13 +108,66 @@ public class DBUser extends DBGeneric{
     
     // </editor-fold>  
     
+        
+        
     
+        
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
     
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
     
+        //**************************************************************************
+        //**************************************************************************
+        //**                  ADD USER ADDRESS
+        //**************************************************************************
+        //**************************************************************************
+        public static Result addUserAddress(UserAddress userAddress) {
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                try {
+
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.useraddress.insert.1"));
+                        preStat.setString(1, userAddress.getId());
+                        preStat.setString(2, userAddress.getUserID());
+                        preStat.setString(3, userAddress.getAddressID());
+                        preStat.setString(4, userAddress.getStreet());
+                        preStat.setString(5, userAddress.getAvenue());
+                        preStat.setString(6, userAddress.getDescription());
+                        
+                        int executeResult = preStat.executeUpdate();
+
+                    // -2- Get&Check insert result
+                        if (executeResult == 0) {
+                            return Result.SUCCESS_EMPTY;
+                        } else if (executeResult > 1) {
+                            return Result.FAILURE_PROCESS;
+                        }
+                     
+                    // -1.3- Commit if product added                    
+                        mysql.commit();
+                        return Result.SUCCESS.setContent("Kullanıcı adresi başarılı bir şekilde eklenmiştir");
+
+                } catch (SQLException ex) {
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
     
+    // </editor-fold>
     
     
 
+                
+                
+                
     /**
      *       
      * @param uid

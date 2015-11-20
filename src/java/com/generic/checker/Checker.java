@@ -160,6 +160,23 @@ public class Checker {
      * @param args
      * @return 
      * 
+     * This function check that all parameter is null 
+     */
+    public static <T> boolean allStringSizeZero(String... args){
+        
+        boolean allSizeZero=true;
+        for(String arg:args)
+            allSizeZero = allSizeZero && ( arg.length()==0 );
+                
+        return allSizeZero;
+    }
+    
+    
+    /**
+     * 
+     * @param args
+     * @return 
+     * 
      * This function check that user has role 
      */
     public static <T> boolean hasRole(UserRole userRole, T... args){

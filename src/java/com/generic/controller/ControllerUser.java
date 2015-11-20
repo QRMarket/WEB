@@ -11,6 +11,9 @@ import com.generic.db.DBUser;
 import com.generic.result.Result;
 import com.generic.servlet.Auth;
 import com.generic.constant.UserRole;
+import com.generic.entity.MarketProduct;
+import com.generic.entity.UserAddress;
+import com.generic.util.Util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.internet.AddressException;
@@ -62,13 +65,66 @@ public class ControllerUser {
             return result;
         }
     
-    
     // </editor-fold>
     
         
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            INSERT OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        ADD ADDRESS TO USER
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param request
+         * @return 
+         */
+        public static Result addUserAddress(HttpServletRequest request){
+                
+                Result result = Result.FAILURE_PROCESS;
+                
+                String userId = request.getParameter("userId");
+                String addressId = request.getParameter("addressId");
+                if( !Checker.anyNull(userId,addressId) ){
+                    
+                    try {
+
+                    // -1.1- Create Product Object
+                        UserAddress userAddress = new UserAddress();
+                        userAddress.setId("test"+Util.generateID());
+                        userAddress.setUserID(userId);
+                        userAddress.setAddressID(addressId);
+                        userAddress.setStreet(request.getParameter("street"));
+                        userAddress.setAvenue(request.getParameter("avenue"));
+                        userAddress.setDescription(request.getParameter("description"));                        
+                                                
+                        if(Checker.allNull(userAddress.getStreet(), userAddress.getAvenue(), userAddress.getDescription()) || 
+                                Checker.allStringSizeZero( userAddress.getStreet(), userAddress.getAvenue(), userAddress.getDescription() )){
+                            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerUser -> adduserAddress -> at least one address parameter should be filled");
+                        }
+                        
+                        return DBUser.addUserAddress(userAddress);
+                        
+                    } catch (Exception ex) {
+                        Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                        return Result.FAILURE_PROCESS.setContent(ex.toString());
+                    }
+                    
+                }else{
+                    result = Result.FAILURE_PARAM_MISMATCH;
+                }
+            
+            return result;
+        }
         
-        
-        
+    // </editor-fold>
         
         
         
