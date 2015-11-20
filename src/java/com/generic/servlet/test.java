@@ -10,6 +10,9 @@ import com.generic.logger.LoggerGuppy;
 import com.generic.result.Result;
 import com.generic.entity.Orders;
 import com.generic.constant.UserRole;
+import com.generic.entity.Address;
+import com.generic.entity.MarketUser;
+import com.generic.util.ApplicationJson;
 import com.generic.util.Util;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
@@ -49,7 +52,7 @@ public class test extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {                
         
-        response.setContentType("text/html;charset=UTF-8");        
+        response.setContentType("application/json;charset=UTF-8");       
         PrintWriter outTemp = response.getWriter();                
         Result res = Result.FAILURE_PROCESS;
         Gson gson = new Gson();
@@ -125,15 +128,19 @@ public class test extends HttpServlet {
             
             System.out.println(json);
             
-            Orders mo = gson.fromJson(json, Orders.class);
-            System.out.println(mo.getId());
             
+            
+            ApplicationJson appJson = gson.fromJson(json, ApplicationJson.class);
+            
+            
+            res = res.setContent(appJson.getOrdersContent());
             
             outTemp.write(gson.toJson(res));
             outTemp.close();
         }
         
     }
+    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

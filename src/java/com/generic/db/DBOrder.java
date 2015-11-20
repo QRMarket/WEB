@@ -111,8 +111,8 @@ public class DBOrder {
         //**************************************************************************
         /**
          *     
-     * @param distributerId
-     * @param limit
+         * @param distributerId
+         * @param limit
          * @return  
          */
         public static Result getOrderList(String distributerId, int limit){
@@ -159,6 +159,46 @@ public class DBOrder {
                 }finally{
                     mysql.closeAllConnection();
                 }                
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                    GET ORDER COUNT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @return 
+         */
+        public static Result getOrderCount(){
+            
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                
+                try{                                                
+
+                    // -1- Get Query
+                        PreparedStatement preStat=conn.prepareStatement(rs.getPropertyValue("mysql.order.select.1"));
+                        ResultSet resultSet = preStat.executeQuery();
+
+                    // -2- Get Result
+                    if(resultSet.first()){
+                        int count = resultSet.getInt(1);
+                        return Result.SUCCESS.setContent(count);
+                    }else{
+                        return Result.SUCCESS_EMPTY;
+                    }       
+                        
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;                
+                }finally{
+                    mysql.closeAllConnection();
+                } 
+
         }
       
     // </editor-fold>
@@ -284,42 +324,7 @@ public class DBOrder {
         
         
         
-        //**************************************************************************
-        //**************************************************************************
-        //**                    GET ORDER COUNT
-        //**************************************************************************
-        //**************************************************************************
-        public static Result getOrderCount(){
-                MysqlDBOperations mysql = new MysqlDBOperations();            
-                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-                Connection conn = mysql.getConnection();  
-
-                try{                                                
-
-                    // -1- Get Query
-                    PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.count.1"));
-                    ResultSet resultSet = preStat.executeQuery();
-
-                    // -2- Get Result
-                    if(resultSet.first()){
-                        
-                        int count = resultSet.getInt(1);
-                        return Result.SUCCESS.setContent(count);
-
-                    }else{
-                        return Result.SUCCESS_EMPTY;
-                    }       
-                        
-
-                } catch (SQLException ex) {
-                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
-                    return Result.FAILURE_DB;                
-                }finally{
-                    mysql.closeAllConnection();
-                } 
-
-                //return Result.FAILURE_PROCESS;
-        }
+        
       
         
     //------------------------------------------------------------------------------

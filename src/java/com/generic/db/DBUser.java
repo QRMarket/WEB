@@ -12,6 +12,8 @@ import com.generic.servlet.Auth;
 import com.generic.entity.Address;
 import com.generic.entity.MarketUser;
 import com.generic.constant.UserRole;
+import com.generic.entity.UserAddress;
+import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,6 +44,73 @@ import javax.servlet.http.HttpSession;
  * @last 13.04.2015
  */
 public class DBUser extends DBGeneric{
+    
+    
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="GET Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET USER ADDRESS LIST
+        //**************************************************************************
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param userId
+         * @return 
+         */
+        public static Result getUserAddressList(String userId){
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+                PreparedStatement preStat;
+                List<UserAddress> userAddressList;
+
+                try{                  
+
+                    // -1- Prepare Statement
+                        preStat = conn.prepareStatement(rs.getPropertyValue("mysql.useraddress.select.3"));
+                        preStat.setString(1, userId);
+
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if(resultSet.first()){
+                            
+                            userAddressList = new ArrayList<>();
+                            do{
+                                UserAddress userAddress = ORMHandler.resultSetToUserAddress(resultSet);
+                                userAddress.setAddress(ORMHandler.resultSetToAddress(resultSet));
+                                userAddressList.add(userAddress);
+                            }while(resultSet.next());
+
+                            return Result.SUCCESS.setContent(userAddressList);
+                        }else{
+                            return Result.SUCCESS_EMPTY;
+                        }                
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB.setContent(ex.getMessage());                
+                }finally{
+                    mysql.closeAllConnection();
+                } 
+        }
+    
+    // </editor-fold>  
+    
+    
+    
+    
+    
     
     
 
@@ -91,71 +160,6 @@ public class DBUser extends DBGeneric{
                 mysql.closeAllConnection();
             }                        
     }
-    
-    
-    
-    
-    
-    //**************************************************************************
-    //**************************************************************************
-    //**                    GET USER ADDRESS
-    //**************************************************************************
-    //**************************************************************************
-    /**
-     * 
-     * @param uid user-id
-     * @return 
-     */
-    public static Result getUserAddressList(String uid){
-            
-            ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
-            MysqlDBOperations mysql = new MysqlDBOperations();
-            Connection conn = mysql.getConnection();
-            PreparedStatement preStat;
-            
-            List<Address> userAddressList;
-            
-            try{                  
-                
-                    preStat = conn.prepareStatement(resource.getPropertyValue("mysql.useraddress.select.3"));
-                    preStat.setString(1, uid);
-                                
-                    ResultSet mysqlResult = preStat.executeQuery();
-                    if(mysqlResult.first()){
-
-                        userAddressList = new ArrayList<>();
-                        do{
-
-                            Address userAddress = new Address();
-                            userAddress.setId(mysqlResult.getString("aid"));
-                            userAddress.setCity(mysqlResult.getString("city"));
-                            userAddress.setBorough(mysqlResult.getString("borough"));
-                            userAddress.setLocality(mysqlResult.getString("locality"));
-//                            userAddress.setStreet(mysqlResult.getString("street"));
-//                            userAddress.setAvenue(mysqlResult.getString("avenue"));
-//                            userAddress.setDesc(mysqlResult.getString("desc"));
-
-                            userAddressList.add(userAddress);
-
-                        }while(mysqlResult.next());
-
-                        return Result.SUCCESS.setContent(userAddressList);
-
-                    }else{
-                        return Result.SUCCESS_EMPTY;
-                    }                
-                
-            } catch (SQLException ex) {
-                Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
-                return Result.FAILURE_DB;                
-            }finally{
-                mysql.closeAllConnection();
-            } 
-            
-            //return Result.FAILURE_PROCESS;
-    }
-    
-    
     
     
     

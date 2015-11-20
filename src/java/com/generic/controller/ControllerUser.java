@@ -29,6 +29,51 @@ import javax.servlet.http.HttpSession;
 public class ControllerUser {
     
     
+    
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
+    // <editor-fold defaultstate="collapsed" desc="GET Operations">
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET USER ADDRESS LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param request
+         * @return 
+         */
+        public static Result getUserAddressList(HttpServletRequest request){
+                
+                Result result = Result.FAILURE_PROCESS;
+                
+                String userId = request.getParameter("userId");
+                if( !Checker.anyNull(userId) ){
+                    result = DBUser.getUserAddressList(userId);
+                }else{
+                    result = Result.FAILURE_PARAM_MISMATCH;
+                }
+            
+            return result;
+        }
+    
+    
+    // </editor-fold>
+    
+        
+        
+        
+        
+        
+        
+        
+        
+    
     public static Result callLoginOperation(HttpServletRequest request){
         
             Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callLoginOperation -> INITIAL ERROR");
@@ -83,31 +128,6 @@ public class ControllerUser {
             }
                           
         return result;
-    }
-           
-    
-    public static Result callLogoutOperation(HttpServletRequest request){
-            
-            Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callLogoutOperation -> INITIAL ERROR");
-            
-            if(!Checker.anyNull(request.getParameter("token"))){
-            
-                // Check User Permission
-                String sessionId = request.getParameter("token");
-                ServletContext sc = request.getServletContext();
-                HttpSession session = (HttpSession)sc.getAttribute(sessionId);
-
-                if(session==null){
-                    return Result.FAILURE_CACHE.setContent("CACHE NOT FOUND ERROR");
-                }else{
-                    sc.removeAttribute(sessionId);
-                    session.invalidate();
-                    return Result.SUCCESS;
-                }
-
-            }else{
-                return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct -> getProductList");
-            }
     }
     
 }

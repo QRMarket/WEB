@@ -10,6 +10,7 @@ import com.generic.result.Result;
 import com.generic.entity.Orders;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.OrderProduct;
+import com.generic.util.ApplicationJson;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -83,8 +84,24 @@ public class ControllerOrder {
                 }
 
                 return DBOrder.getOrderList(request.getParameter("distributerId"), limit);
-                                
-//            return result;
+                              
+        }
+        
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET ORDER COUNT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result getOrderCount(HttpServletRequest request){
+                
+                return DBOrder.getOrderCount();
         }
         
     
@@ -124,11 +141,9 @@ public class ControllerOrder {
                            builder.append(line);
                         }
                         
-                        
                     // -- 2 -- Parse data to "Order" object
                         json = builder.toString();
                         Orders orderObject = gson.fromJson(json, Orders.class);
-                        
                         
                     // -- 3 -- Insert order products to 
                         List<OrderProduct> orderProductList = orderObject.getOrderProductList();

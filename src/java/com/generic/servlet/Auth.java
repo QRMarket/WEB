@@ -41,6 +41,7 @@ public class Auth extends HttpServlet {
             NULL,
             USER_LOGIN,
             USER_REGISTER,
+            GET_ADDRESS_LIST
         }        
 
         private ServletOperations getRequestOperation(HttpServletRequest request){
@@ -50,6 +51,8 @@ public class Auth extends HttpServlet {
                         return ServletOperations.USER_LOGIN;
                     case "register":
                         return ServletOperations.USER_REGISTER;
+                    case "getAddressList":
+                        return ServletOperations.GET_ADDRESS_LIST;
                     default:
                         return ServletOperations.NULL;
                 }
@@ -104,6 +107,10 @@ public class Auth extends HttpServlet {
                                 
                             case USER_REGISTER:
                                     res = ControllerUser.callRegisterOperation(request);
+                                break;
+                                
+                            case GET_ADDRESS_LIST:
+                                    res = ControllerUser.getUserAddressList(request);
                                 break;
                                 
                             default:
