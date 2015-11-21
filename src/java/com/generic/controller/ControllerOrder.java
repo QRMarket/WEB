@@ -83,8 +83,12 @@ public class ControllerOrder {
                     Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                return DBOrder.getOrderList(request.getParameter("distributerId"), limit);
-                              
+                if (request.getParameter("userId") != null) {
+                    return DBOrder.getOrderListByUser(request.getParameter("userId"), limit);
+                }else{
+                    return DBOrder.getOrderList(request.getParameter("distributerId"), limit);
+                }
+                
         }
         
         

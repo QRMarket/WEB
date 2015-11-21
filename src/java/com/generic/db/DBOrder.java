@@ -106,7 +106,7 @@ public class DBOrder {
         
         //**************************************************************************
         //**************************************************************************
-        //**                    GET ORDER 
+        //**                    GET ORDER LIST
         //**************************************************************************
         //**************************************************************************
         /**
@@ -129,6 +129,65 @@ public class DBOrder {
                         if(distributerId!=null){
                             preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.6"));
                             preStat.setString(1, distributerId);
+                            preStat.setInt(2, limit);
+                        }else{
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.5"));
+                            preStat.setInt(1, limit);
+                        }
+                        
+                        ResultSet resultSet = preStat.executeQuery();
+                        
+                    // -2- Get Result
+                        if(resultSet.first()){
+                            
+                            orderList = new ArrayList<>();
+                            do{
+                                Orders order = ORMHandler.resultSetToOrder(resultSet);
+                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                order.setUser(user);
+                                
+                                orderList.add(order);
+                            }while(resultSet.next());
+                            
+                            return Result.SUCCESS.setContent(orderList);
+                        }else{
+                            return Result.SUCCESS_EMPTY;
+                        }                                                                      
+
+                } catch (SQLException ex) {                
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                }finally{
+                    mysql.closeAllConnection();
+                }                
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                    GET ORDER LIST BY USER 
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *     
+         * @param userId
+         * @param limit
+         * @return  
+         */
+        public static Result getOrderListByUser(String userId, int limit){
+            
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                List<Orders> orderList;
+
+                try{
+
+                    // -1- Prepare Statement
+                        PreparedStatement preStat=conn.prepareStatement(rs.getPropertyValue("mysql.order.select.1"));
+                        if(userId!=null){
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.7"));
+                            preStat.setString(1, userId);
                             preStat.setInt(2, limit);
                         }else{
                             preStat = conn.prepareStatement(rs.getPropertyValue("mysql.order.select.5"));
