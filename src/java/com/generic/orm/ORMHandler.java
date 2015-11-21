@@ -9,6 +9,8 @@ import com.generic.constant.OrdersPaymentType;
 import com.generic.constant.OrdersState;
 import com.generic.entity.Address;
 import com.generic.entity.CompanyProduct;
+import com.generic.entity.Distributer;
+import com.generic.entity.DistributerAddress;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.entity.MarketUser;
@@ -31,12 +33,35 @@ public class ORMHandler {
     
     
     public static String userTableAs = "users";
-    public static String addressTableAs = "address";
     public static String userAddressTableAs = "userAddress";
+    public static String addressTableAs = "address";    
     public static String productTableAs = "product";
     public static String productImageTableAs = "productImage";
     public static String ordersTableAs = "orders";
     public static String companyProductTableAs = "companyProduct";
+    public static String distributerTableAs = "distributers";
+    public static String distributerAddressTableAs = "distributerAddress";
+    
+    
+    public static Distributer resultSetToDistributer(ResultSet resultSet) throws SQLException{
+            Distributer distributer = new Distributer();
+            distributer.setId(resultSet.getString(distributerTableAs+".id"));
+            distributer.setCompanyId(resultSet.getString(distributerTableAs+".company_id"));
+            distributer.setOpenHourAt(resultSet.getTime(distributerTableAs+".time_open"));
+            distributer.setCloseHourAt(resultSet.getTime(distributerTableAs+".time_close"));
+            distributer.setState(resultSet.getInt(distributerTableAs+".state"));
+            return distributer;
+    }
+    
+    public static DistributerAddress resultSetToDistributerAddress(ResultSet resultSet) throws SQLException{
+            DistributerAddress distributerAddress = new DistributerAddress();
+            distributerAddress.setId(resultSet.getString(distributerAddressTableAs+".id"));
+            distributerAddress.setDistributerId(resultSet.getString(distributerAddressTableAs+".distributer_id"));
+            distributerAddress.setAddressId(resultSet.getString(distributerAddressTableAs+".address_id"));
+            distributerAddress.setAddressType(resultSet.getString(distributerAddressTableAs+".address_type"));
+            distributerAddress.setMinimumPriceForDeliver(resultSet.getDouble(distributerAddressTableAs+".minPriceForDeliver"));
+            return distributerAddress;
+    }
     
     
     public static MarketUser resultSetToUser(ResultSet resultSet) throws SQLException{
