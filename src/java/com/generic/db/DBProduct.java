@@ -25,8 +25,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -280,6 +282,89 @@ public class DBProduct {
         
         //**************************************************************************
         //**************************************************************************
+        //**            GET DISTRIBUTER SECTION PRODUCT LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param sectionId
+         * @param limit 
+         * @return
+         * @description Product list of given section
+         */
+        public static Result getDistributerProductListBySection(String distributerId, String sectionId, Integer limit) {
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+                Result result = Result.FAILURE_PROCESS;
+                ArrayList<MarketProduct> productList;
+                
+            
+                try {
+                    
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productSection.select.1"));
+                        preStat.setString(1, distributerId);
+                        preStat.setString(2, sectionId);
+                        preStat.setInt(3, limit);
+                        ResultSet resultSet = preStat.executeQuery();
+                        Map<String, MarketProduct> productMap;
+                    
+                    // -2- Get Result
+                        if (resultSet.first()) {
+
+                            productMap = new HashMap<String, MarketProduct>();
+                            do {
+                                
+                                // -2.1- If map is not contain product then create product
+                                    MarketProduct product;
+                                    if(productMap.get(resultSet.getString("p.pid"))==null){
+                                        product = new MarketProduct();
+                                        product.setBranchName(resultSet.getString("cpr.id"));
+                                        product.setBrandID(resultSet.getString("p.brands_id"));
+                                        product.setPrice(resultSet.getDouble("cpr.p_price"));
+                                        product.setPriceType(resultSet.getString("cpr.p_priceType"));
+                                        product.setProductCode(resultSet.getString("p.productCode"));
+                                        product.setProductDesc(resultSet.getString("p.productDesc"));
+                                        product.setProductID(resultSet.getString("p.pid"));
+                                        product.setProductName(resultSet.getString("p.productName"));
+                                        product.setSectionID(resultSet.getString("p.section_id"));
+                                        product.setUserID(resultSet.getString("p.user_id"));
+                                // -2.2- Otherwise get product
+                                    }else {
+                                       product = productMap.get(resultSet.getString("p.pid"));
+                                    }
+
+                                    MarketProductImage productImage = new MarketProductImage();
+                                    productImage.setImageID(resultSet.getString("pi.imageID"));
+                                    productImage.setImageContentType(resultSet.getString("pi.imgContType"));
+                                    productImage.setImageSourceType(resultSet.getString("pi.imgSaveType"));
+                                    productImage.setImageType(resultSet.getString("pi.imgType"));
+                                    productImage.setImageSource(resultSet.getString("pi.imgSource"));
+                                    product.getProductImages().add(productImage);
+                                    productMap.put(product.getProductID(), product);
+                            } while (resultSet.next());
+
+                            productList = new ArrayList<MarketProduct>(productMap.values());
+                            return Result.SUCCESS.setContent(productList);
+
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
         //**                  GET PRODUCT LIST
         //**************************************************************************
         //**************************************************************************
@@ -358,69 +443,7 @@ public class DBProduct {
     
     
 
-    /**
-     *
-     * @param sectionId
-     * @param limit
-     * @return
-     * @description Product list of given section
-     */
-    public static Result getProductListBySection(String sectionId, Integer limit) {
-
-        Result result = Result.FAILURE_PROCESS;
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Connection conn = mysql.getConnection();
-        ArrayList<MarketProduct> productList;
-
-        try {
-            // PREPARE QUERY                
-            
-            PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productSection.select.1"));
-            preStat.setString(1, sectionId);
-            preStat.setInt(2, limit);
-            ResultSet mysqlResult =  preStat.executeQuery();
-            if (mysqlResult.first()) {
-
-                productList = new ArrayList<>();
-                // GET CITIES FOR DB
-                
-                do {
-                    MarketProduct product = new MarketProduct();
-                    //product.setAmount(mysqlResult.getString("cprID"));
-                    product.setBranchName(mysqlResult.getString("cpr.cprID"));
-                    product.setBrandID(mysqlResult.getString("p.brands_id"));
-                    product.setPrice(mysqlResult.getDouble("cpr.p_price"));
-                    product.setPriceType(mysqlResult.getString("cpr.p_priceType"));
-                    product.setProductCode(mysqlResult.getString("p.productCode"));
-                    product.setProductDesc(mysqlResult.getString("p.productDesc"));
-                    product.setProductID(mysqlResult.getString("p.pid"));
-                    product.setProductName(mysqlResult.getString("p.productName"));
-                    product.setSectionID(mysqlResult.getString("p.section_id"));
-                    product.setUserID(mysqlResult.getString("p.user_id"));
-                    MarketProductImage productImage = new MarketProductImage();
-                    productImage.setImageID(mysqlResult.getString("pi.imageID"));
-                    productImage.setImageContentType(mysqlResult.getString("pi.imgContType"));
-                    productImage.setImageSourceType(mysqlResult.getString("pi.imgSaveType"));
-                    productImage.setImageType(mysqlResult.getString("pi.imgType"));
-                    productImage.setImageSource(mysqlResult.getString("pi.imgSource"));
-                    product.getProductImages().add(productImage);
-                    productList.add(product);
-                } while (mysqlResult.next());
-
-                return Result.SUCCESS.setContent(productList);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(DBProduct.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
-        }
-    }
+    
     
     
     public static Result getActiveCampaignProducts() {

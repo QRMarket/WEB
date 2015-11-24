@@ -134,7 +134,7 @@ public class AddressServlet extends HttpServlet {
                                     break;
                                     
                                 default:
-                                        res = Result.FAILURE_PARAM_MISMATCH.setContent("Unexpected Error On BrandServlet>APPLICATION_FORM_URLENCODED>default case");
+                                        res = Result.FAILURE_PARAM_MISMATCH.setContent("Unexpected Error On AddressServlet>APPLICATION_FORM_URLENCODED>default case");
                                     break;
                             }
 

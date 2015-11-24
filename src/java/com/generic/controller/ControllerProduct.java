@@ -88,7 +88,7 @@ public class ControllerProduct {
                 Result result = Result.FAILURE_PROCESS;
                 int limit = 20;
                 
-                if(request.getParameter("distributerId") != null){
+                if(request.getParameter("distributerId") != null && request.getParameter("sectionId") == null){
                     
                         try {
                             limit = Integer.parseInt(request.getParameter("limit"))>0 ? Integer.parseInt(request.getParameter("limit")) : limit;
@@ -97,6 +97,16 @@ public class ControllerProduct {
                         }
                         
                     return DBProduct.getDistributerProductList(request.getParameter("distributerId"), limit);
+                   
+                }else if(request.getParameter("distributerId") != null && request.getParameter("sectionId") != null){
+                    
+                        try {
+                            limit = Integer.parseInt(request.getParameter("limit"))>0 ? Integer.parseInt(request.getParameter("limit")) : limit;
+                        } catch (Exception ex){
+                            Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    
+                    return DBProduct.getDistributerProductListBySection(request.getParameter("distributerId"), request.getParameter("sectionId"), limit);
                     
                 }else{
                         try {
@@ -107,17 +117,6 @@ public class ControllerProduct {
                         
                     return DBProduct.getProductList(limit);
                 }
-                
-                
-                
-//                if (request.getParameter("sectionId") != null) {
-//
-//                    res = ControllerProduct.getProductListBySection(request);
-//
-//                } else if (request.getParameter("distributerId") != null) {
-//                    res = ControllerProduct.getProductListByDistributer(request);
-//
-//                } 
 
         }
     
@@ -267,36 +266,7 @@ public class ControllerProduct {
         }
         
         // </editor-fold>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public static Result getProductListBySection(HttpServletRequest request){
-        
-        String sectionId = request.getParameter("sectionId");
-
-    // -1.1- Check Product Common Id
-        if(!Checker.anyNull( sectionId)){ 
-            String limit = request.getParameter("limit");
-            if(limit == null){
-                limit = "20";
-            }
-            return DBProduct.getProductListBySection(sectionId, Integer.parseInt(limit));
-
-        }else{
-            return Result.FAILURE_PARAM_MISMATCH.setContent("ControllerProduct>");
-        }
-        
-    }
+  
     
     
 }
