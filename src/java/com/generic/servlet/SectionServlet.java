@@ -113,15 +113,15 @@ public class SectionServlet extends HttpServlet {
                         switch (getRequestOperation(request)){
 
                             case GET_SECTION_LIST:
-                                    res = ControllerSection.getSections(request);
+                                    res = ControllerSection.getSectionList(request);
                                 break;
 
                             case REMOVE_SECTION:
-                                    res = ControllerSection.removeSection(request);
+//                                    res = ControllerSection.removeSection(request);
                                 break;
 
                             case UPDATE_SECTION:
-                                    res = ControllerSection.updateSection(request);
+//                                    res = ControllerSection.updateSection(request);
                                 break;
 
                             default:

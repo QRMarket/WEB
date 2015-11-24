@@ -5,15 +5,21 @@
  */
 package com.generic.entity;
 
+import java.util.List;
+
 /**
  *
  * @author ulakbim
  */
 public class Section {
-    private String sid;
-    private String sec_parent_id;
-    private String sec_name;
-    private String sec_image;
+    
+    
+        private String sid;
+        private String sec_parent_id;
+        private String sec_name;
+        private String sec_image;
+    // -- ** -- // Other Object
+        private List<Section> childList;
 
     /**
      * @return the sid
@@ -69,6 +75,20 @@ public class Section {
      */
     public void setSec_image(String sec_image) {
         this.sec_image = sec_image;
+    }
+
+    /**
+     * @return the childList
+     */
+    public List<Section> getChildList() {
+        return childList;
+    }
+
+    /**
+     * @param childList the childList to set
+     */
+    public void setChildList(List<Section> childList) {
+        this.childList = childList;
     }
     
 }

@@ -7,74 +7,156 @@ package com.generic.db;
 
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
-import com.generic.servlet.Auth;
 import com.generic.entity.Section;
+import com.generic.orm.ORMHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 /**
  *
- * @author ulakbim
+ * @author Kemal Sami KARACA
+ * @since 03.2015
+ * @version 1.01
+ *
+ * @last 24.11.2015
  */
 public class DBSection {
 
     
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //--                            GET OPERATIONs
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    
     // <editor-fold defaultstate="collapsed" desc="Section GET Operations">
-    public static Result getSections(String parentId) {
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Connection conn = mysql.getConnection();
-
-        List<Section> sections = new ArrayList<>();
-        try {
-
-            // SET PREPARE STATEMENT
-                PreparedStatement preStat;
-                if (parentId != null) {
-                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.2"));
-                    preStat.setString(1, parentId);
-                } else {
-                    preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.3"));
-                }
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET SECTION LIST
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param parentId
+         * @return
+         */
+        public static Result getSectionList(String parentId) {
             
-            // GET RESULT
-                ResultSet mysqlResult = preStat.executeQuery();
-                if (mysqlResult.first()) {
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+                Result result = Result.FAILURE_PROCESS;
+                List<Section> sections = new ArrayList<>();
+                
+                try {
 
-                    do {
-                        Section section;
-                        section = new Section();
-                        section.setSid(mysqlResult.getString("sid"));
-                        section.setSec_parent_id(mysqlResult.getString("sec_parent_id"));
-                        section.setSec_name(mysqlResult.getString("sec_name"));
-                        section.setSec_image(mysqlResult.getString("sec_image"));
-                        sections.add(section);
-                    } while (mysqlResult.next());
+                    // -1- SET PREPARE STATEMENT
+                        PreparedStatement preStat;
+                        if (parentId != null) {
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.2"));
+                            preStat.setString(1, parentId);
+                        } else {
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.3"));
+                        }
+                        ResultSet resultSet = preStat.executeQuery();
 
-                    return Result.SUCCESS.setContent(sections);
+                    // -2- GET RESULT
+                        if (resultSet.first()) {
+                            
+                            do {
+                                Section section = ORMHandler.resultSetToSection(resultSet);
+                                sections.add(section);
+                            } while (resultSet.next());
 
-                } else {
-                    return Result.SUCCESS_EMPTY;
+                            return Result.SUCCESS.setContent(sections);
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (Exception ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;
+                } finally {
+                    mysql.closeAllConnection();
                 }
-
-        } catch (Exception ex) {
-            Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
         }
-    }
-    // </editor-fold>
+                
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        GET SECTION TREE
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @param parentSection
+         * @param height
+         * @return
+         */
+        public static Result getSectionTree(Section parentSection, int height) {
+            
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();
+                Result result = Result.FAILURE_PROCESS;
+                List<Section> childSections;
+                
+                try {
+
+                    // -0- Check to escape from recursive function
+                        if(height==0){
+                            return null;
+                        }
+                        height = height - 1;
+                    
+                    // -1- SET PREPARE STATEMENT
+                        PreparedStatement preStat;
+                        if (parentSection.getSid() != null) {
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.2"));
+                            preStat.setString(1, parentSection.getSid());
+                        } else {
+                            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.section.select.3"));
+                        }
+                        ResultSet resultSet = preStat.executeQuery();
+
+                    // -2- GET RESULT
+                        if (resultSet.first()) {
+                                                
+                            childSections = new ArrayList<>();
+                            do{
+                                // -2.1- GET SECTION
+                                    Section section = ORMHandler.resultSetToSection(resultSet);
+                                    childSections.add(section);
+                                // -2.2- *** RECURSIVE CALL ***
+                                    getSectionTree(section, height);
+                                
+                            }while(resultSet.next());
+                            parentSection.setChildList(childSections);
+
+                            return Result.SUCCESS.setContent(parentSection);
+                        } else {
+                            return Result.SUCCESS_EMPTY;
+                        }
+
+                } catch (Exception ex) {
+                    Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_DB;
+                } finally {
+                    mysql.closeAllConnection();
+                }         
+        }
+    
+    // </editor-fold>  
+    
 
     // <editor-fold defaultstate="collapsed" desc="Section INSERT Operations">
     public static Result addSection(String pid, String sName, String sImage) {
@@ -146,6 +228,7 @@ public class DBSection {
     }
     // </editor-fold>
 
+    
     // <editor-fold defaultstate="collapsed" desc="Section DELETE Operations">
     public static Result deleteSection(String sid) {
         ResourceProperty resource = new ResourceProperty("com.generic.resources.mysqlQuery");
@@ -176,6 +259,7 @@ public class DBSection {
         }
     }
     // </editor-fold>
+    
     
     // <editor-fold defaultstate="collapsed" desc="Section UPDATE Operations">    
     public static Result updateSection(String sid, String sName, String sImage, String pid) {

@@ -15,6 +15,7 @@ import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.entity.MarketUser;
 import com.generic.entity.Orders;
+import com.generic.entity.Section;
 import com.generic.entity.UserAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,6 +42,7 @@ public class ORMHandler {
     public static String companyProductTableAs = "companyProduct";
     public static String distributerTableAs = "distributers";
     public static String distributerAddressTableAs = "distributerAddress";
+    public static String sectionTableAs = "sections";
     
     
     public static Distributer resultSetToDistributer(ResultSet resultSet) throws SQLException{
@@ -138,14 +140,16 @@ public class ORMHandler {
             return orders;
     }
     
-    public static CompanyProduct resultSetToCompanyProduct(){
-     
-            CompanyProduct companyProduct = new CompanyProduct();
-            
-            return companyProduct;
-            
-    }
     
-   
+    public static Section resultSetToSection(ResultSet resultSet) throws SQLException{
+            
+            Section section = new Section();
+            section.setSid(sectionTableAs+".");
+            section.setSid(resultSet.getString(sectionTableAs+".sid"));
+            section.setSec_parent_id(resultSet.getString(sectionTableAs+".sec_parent_id"));
+            section.setSec_name(resultSet.getString(sectionTableAs+".sec_name"));
+            section.setSec_image(resultSet.getString(sectionTableAs+".sec_image"));
+            return section;
+    }
     
 }
