@@ -7,52 +7,92 @@ package com.generic.entity;
 
 /**
  *
- * @author ulakbim
+ * @author Kemal Sami KARACA
+ * @since 03.2015
+ * @version 1.01
+ *
+ * @last 24.11.2015
  */
-public class CampaignProduct extends MarketProduct{
-    private long c_start_date;
-    private long c_end_date;
-    private double c_price;
+public class CampaignProduct extends CompanyProduct{
+    
+    private String id;
+    private String companyProductId;
+    private long startAt;
+    private long finishAt;
+    private double campaignPrice;
+
     /**
-     * @return the c_start_date
+     * @return the id
      */
-    public long getC_start_date() {
-        return c_start_date;
+    public String getId() {
+        return id;
     }
 
     /**
-     * @param c_start_date the c_start_date to set
+     * @param id the id to set
      */
-    public void setC_start_date(long c_start_date) {
-        this.c_start_date = c_start_date;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
-     * @return the c_end_date
+     * @return the startAt
      */
-    public long getC_end_date() {
-        return c_end_date;
+    public long getStartAt() {
+        return startAt;
     }
 
     /**
-     * @param c_end_date the c_end_date to set
+     * @param startAt the startAt to set
      */
-    public void setC_end_date(long c_end_date) {
-        this.c_end_date = c_end_date;
+    public void setStartAt(long startAt) {
+        this.startAt = startAt;
     }
 
     /**
-     * @return the c_price
+     * @return the finishAt
      */
-    public double getC_price() {
-        return c_price;
+    public long getFinishAt() {
+        return finishAt;
     }
 
     /**
-     * @param c_price the c_price to set
+     * @param finishAt the finishAt to set
      */
-    public void setC_price(double c_price) {
-        this.c_price = c_price;
+    public void setFinishAt(long finishAt) {
+        this.finishAt = finishAt;
     }
+
+    /**
+     * @return the campaignPrice
+     */
+    public double getCampaignPrice() {
+        return campaignPrice;
+    }
+
+    /**
+     * @param campaignPrice the campaignPrice to set
+     */
+    public void setCampaignPrice(double campaignPrice) {
+        this.campaignPrice = campaignPrice;
+    }
+
+    /**
+     * @return the companyProductId
+     */
+    public String getCompanyProductId() {
+        return companyProductId;
+    }
+
+    /**
+     * @param companyProductId the companyProductId to set
+     */
+    public void setCompanyProductId(String companyProductId) {
+        this.companyProductId = companyProductId;
+    }
+    
+    
+    
+    
     
 }

@@ -44,7 +44,7 @@ import org.apache.commons.net.ftp.FTPClient;
  * @since 03.2015
  * @version 1.01
  *
- * @last 11.03.2015
+ * @last 24.11.2015
  */
 public class DBProduct {
 
@@ -469,15 +469,15 @@ public class DBProduct {
                     CampaignProduct product;
                     product = new CampaignProduct();
                     product.setProductID(mysqlResult.getString("p.pid"));
-                    product.setProductName(mysqlResult.getString("p.productName"));
-                    product.setPriceType(mysqlResult.getString("cp.p_priceType"));
-                    product.setBranchName(mysqlResult.getString("p.productBranch"));
-                    product.setProductCode(mysqlResult.getString("p.productCode"));
-                    product.setProductDesc(mysqlResult.getString("p.productDesc"));
-                    product.setC_start_date(mysqlResult.getLong("c_start_date"));
-                    product.setC_end_date(mysqlResult.getLong("c_end_date"));
-                    product.setPrice(mysqlResult.getDouble("cp.p_price"));
-                    product.setC_price(mysqlResult.getDouble("c.c_price"));
+//                    product.setProductName(mysqlResult.getString("p.productName"));
+//                    product.setPriceType(mysqlResult.getString("cp.p_priceType"));
+//                    product.setBranchName(mysqlResult.getString("p.productBranch"));
+//                    product.setProductCode(mysqlResult.getString("p.productCode"));
+//                    product.setProductDesc(mysqlResult.getString("p.productDesc"));
+//                    product.setStartAt(mysqlResult.getLong("c_start_date"));
+//                    product.setFinishAt(mysqlResult.getLong("c_end_date"));
+//                    product.setPrice(mysqlResult.getDouble("cp.p_price"));
+//                    product.setCampaignPrice(mysqlResult.getDouble("c.c_price"));
                     products.add(product);
                 } while (mysqlResult.next());
 
@@ -635,6 +635,53 @@ public class DBProduct {
                     // -1.3- Commit if product added                    
                         mysql.commit();
                         return Result.SUCCESS.setContent("Markete ürün başarılı bir şekilde eklenmiştir");
+
+                } catch (SQLException ex) {
+                    return Result.FAILURE_DB.setContent(ex.getMessage());
+                } finally {
+                    mysql.closeAllConnection();
+                }
+        }
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                  ADD CAMPAING PRODUCT
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         *
+         * @return
+         */
+        public static Result addCampaignProduct(CampaignProduct campaignProduct) {
+
+                MysqlDBOperations mysql = new MysqlDBOperations();
+                ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
+                Connection conn = mysql.getConnection();            
+
+                try {
+
+                    // -1- Prepare Statement
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.campaignProduct.insert.1"));
+                        preStat.setString(1, campaignProduct.getId());
+                        preStat.setString(2, campaignProduct.getCompanyProductId());
+                        preStat.setLong(3, campaignProduct.getStartAt());
+                        preStat.setLong(4, campaignProduct.getFinishAt());
+                        preStat.setDouble(5, campaignProduct.getCampaignPrice());
+                        
+                        int executeResult = preStat.executeUpdate();
+
+                    // -2- Get&Check insert result
+                        if (executeResult == 0) {
+                            return Result.SUCCESS_EMPTY;
+                        } else if (executeResult > 1) {
+                            return Result.FAILURE_PROCESS;
+                        }
+                     
+                    // -3- Commit if product added                    
+                        mysql.commit();
+                        return Result.SUCCESS.setContent("Kampanya başarılı bir şekilde eklenmiştir");
 
                 } catch (SQLException ex) {
                     return Result.FAILURE_DB.setContent(ex.getMessage());

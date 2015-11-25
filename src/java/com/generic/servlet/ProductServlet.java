@@ -33,6 +33,7 @@ public class ProductServlet extends HttpServlet {
         NULL,
         INSERT_PRODUCT,
         ADD_DISTRIBUTER_PRODUCT,
+        ADD_CAMPAIGN_PRODUCT,
         GET_PRODUCT,
         GET_PRODUCT_LIST,
         GET_CAMPAIGN_PRODUCT_LIST,
@@ -48,6 +49,8 @@ public class ProductServlet extends HttpServlet {
                     return ProductServletOperations.INSERT_PRODUCT; 
                 case "addDistributerProduct":
                     return ProductServletOperations.ADD_DISTRIBUTER_PRODUCT; 
+                case "addCampaignProduct":
+                    return ProductServletOperations.ADD_CAMPAIGN_PRODUCT; 
                 case "getProduct":
                     return ProductServletOperations.GET_PRODUCT; 
                 case "getProductList":
@@ -126,6 +129,9 @@ public class ProductServlet extends HttpServlet {
                                        res = ControllerProduct.addDistributerProduct(request);
                                     break;
                                     
+                                case ADD_CAMPAIGN_PRODUCT:
+                                       res = ControllerProduct.addCampaignProduct(request);
+                                    break;
                                     
                                 case GET_PRODUCT:
                                         res = ControllerProduct.getProduct(request);

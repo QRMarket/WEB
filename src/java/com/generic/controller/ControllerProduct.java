@@ -7,6 +7,7 @@ import com.generic.result.Result;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.constant.UserRole;
+import com.generic.entity.CampaignProduct;
 import com.generic.entity.CompanyProduct;
 import com.generic.servlet.ProductServlet;
 import com.generic.util.Util;
@@ -265,8 +266,57 @@ public class ControllerProduct {
             return result;
         }
         
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                    ADD CAMPAIGN PRODUCT 
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result addCampaignProduct(HttpServletRequest request){
+            
+                Result result = Result.FAILURE_PROCESS.setContent("ControllerProduct" + " -- " + "addCampaignProduct :: initial case");
+                String distributerProductId;
+                long campaignStartAt,campaignFinishAt;
+                double productNewPrice;
+                
+                try{
+                    // - 1 - Initialization
+                        distributerProductId = request.getParameter("distributerProductId");
+                        productNewPrice = Double.parseDouble(request.getParameter("newPrice"));
+                        campaignStartAt = Long.parseLong(request.getParameter("campaignStartAt"));
+                        campaignFinishAt = Long.parseLong(request.getParameter("campaignFinishAt"));
+                        
+                }catch(ClassCastException ex){
+                    return result.setContent(ex.getMessage());
+                }
+                
+                
+                try {
+                    // -2- Check Values
+                        if(!Checker.anyNull( distributerProductId,productNewPrice,campaignStartAt,campaignFinishAt) && productNewPrice>=0){
+                            CampaignProduct campaignProduct = new CampaignProduct();
+                            campaignProduct.setId(Util.generateID());
+                            campaignProduct.setCompanyProductId(distributerProductId);
+                            campaignProduct.setStartAt(campaignStartAt);
+                            campaignProduct.setFinishAt(campaignFinishAt);
+                            campaignProduct.setCampaignPrice(productNewPrice);
+                            return DBProduct.addCampaignProduct(campaignProduct);
+                        }else {
+                            return Result.FAILURE_PARAM_MISMATCH;
+                        }
+                }catch(Exception ex){
+                    result = Result.FAILURE_PROCESS.setContent(ex.getMessage());
+                }
+
+            return result;
+        }
+        
         // </editor-fold>
-  
-    
     
 }
