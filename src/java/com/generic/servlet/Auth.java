@@ -5,12 +5,7 @@
  */
 package com.generic.servlet;
 
-
-import com.generic.checker.Checker;
 import com.generic.controller.ControllerUser;
-import com.generic.db.DBUser;
-import com.generic.logger.LoggerGuppy;
-import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -21,7 +16,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -86,45 +80,48 @@ public class Auth extends HttpServlet {
         try{     
             switch (Util.getContentType(request)){
                     
-                //**************************************************************
-                //**************************************************************
-                //**        Content-Type :: multipart/form-data
-                //**************************************************************
-                //**************************************************************
-                case MULTIPART_FORM_DATA:                                            
-                    break;
-                    
-                    
-                    
-                //**************************************************************
-                //**************************************************************
-                //**        Content-Type :: default case
-                //**************************************************************
-                //**************************************************************
-                default:
-                        switch (getRequestOperation(request)){
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: application/x-www-form-urlencoded
+                    //**************************************************************
+                    //**************************************************************
+                    case APPLICATION_FORM_URLENCODED:  
+                        
+                            switch (getRequestOperation(request)){
+
+                                case USER_LOGIN:
+                                        res = ControllerUser.callLoginOperation(request);
+                                    break;
+
+                                case USER_REGISTER:
+                                        res = ControllerUser.userRegister(request);
+                                    break;
+
+                                case GET_ADDRESS_LIST:
+                                        res = ControllerUser.getUserAddressList(request);
+                                    break;
+
+                                case ADD_ADDRESS:
+                                        res = ControllerUser.addUserAddress(request);
+                                    break;
+
+                                default:
+                                        res = Result.FAILURE_PARAM_MISMATCH.setContent("Auth Servlet -> Default Content-Type -> Default Case");
+                                    break;
+                            }
                             
-                            case USER_LOGIN:
-                                    res = ControllerUser.callLoginOperation(request);
-                                break;
-                                
-                            case USER_REGISTER:
-                                    res = ControllerUser.callRegisterOperation(request);
-                                break;
-                                
-                            case GET_ADDRESS_LIST:
-                                    res = ControllerUser.getUserAddressList(request);
-                                break;
-                                
-                            case ADD_ADDRESS:
-                                    res = ControllerUser.addUserAddress(request);
-                                break;
-                                
-                            default:
-                                    res = Result.FAILURE_PARAM_MISMATCH.setContent("Auth Servlet -> Default Content-Type -> Default Case");
-                                break;
-                        }
-                    break;
+                        break;
+                    
+                    
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: default case
+                    //**************************************************************
+                    //**************************************************************
+                    default:
+                            res = Result.FAILURE_PARAM_MISMATCH.setContent("AuthServlet -> Default Content-Type Error");
+                        break;
+                                       
             }
          
         }catch (Exception ex){

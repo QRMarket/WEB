@@ -321,7 +321,6 @@ public class DBProduct {
                                     MarketProduct product;
                                     if(productMap.get(resultSet.getString("p.pid"))==null){
                                         product = new MarketProduct();
-                                        product.setBranchName(resultSet.getString("cpr.id"));
                                         product.setBrandID(resultSet.getString("p.brands_id"));
                                         product.setPrice(resultSet.getDouble("cpr.p_price"));
                                         product.setPriceType(resultSet.getString("cpr.p_priceType"));
@@ -557,7 +556,7 @@ public class DBProduct {
                         for (MarketProductImage productImage : product.getProductImages()) {
 
                             preStat = conn.prepareStatement(rs.getPropertyValue("mysql.productImage.update.insert.1"));
-                            preStat.setString(1, productImage.getImageID());
+                            preStat.setString(1, Util.generateID());
                             preStat.setString(2, product.getProductID());
                             preStat.setString(3, productImage.getImageContentType());
                             preStat.setString(4, productImage.getImageSourceType());
@@ -575,6 +574,9 @@ public class DBProduct {
                             }
                         }
 
+                    // -2.2- Commit for insert images
+                        mysql.commit();
+                        
                     return Result.SUCCESS.setContent(product);
 
                 } catch (NullPointerException ex) {
@@ -593,11 +595,10 @@ public class DBProduct {
             // -- ** --UNREACHABLE STATE
             return result;
         }
-
-    
-    
-    
-    
+        
+        
+        
+        
         //**************************************************************************
         //**************************************************************************
         //**                  ADD DISTRIBUTER PRODUCT

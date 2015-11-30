@@ -7,6 +7,7 @@ package com.generic.orm;
 
 import com.generic.constant.OrdersPaymentType;
 import com.generic.constant.OrdersState;
+import com.generic.constant.UserRole;
 import com.generic.entity.Address;
 import com.generic.entity.CompanyProduct;
 import com.generic.entity.Distributer;
@@ -16,6 +17,7 @@ import com.generic.entity.MarketProductImage;
 import com.generic.entity.MarketUser;
 import com.generic.entity.Orders;
 import com.generic.entity.Section;
+import com.generic.entity.User;
 import com.generic.entity.UserAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +36,7 @@ public class ORMHandler {
     
     
     public static String userTableAs = "users";
+    public static String marketUserTableAs = "marketUser";
     public static String userAddressTableAs = "userAddress";
     public static String addressTableAs = "address";    
     public static String productTableAs = "product";
@@ -66,14 +69,27 @@ public class ORMHandler {
     }
     
     
-    public static MarketUser resultSetToUser(ResultSet resultSet) throws SQLException{
+    public static User resultSetToUser(ResultSet resultSet) throws SQLException{
+            
+            User user = new User();
+            user.setId(resultSet.getString(userTableAs+".id"));
+            user.setMail(resultSet.getString(userTableAs+".mail"));
+            user.setName(resultSet.getString(userTableAs+".name"));
+            user.setSurname(resultSet.getString(userTableAs+".surname"));
+            user.setPhone(resultSet.getString(userTableAs+".phone"));
+            return user;
+    }
+    
+    
+    public static MarketUser resultSetToMarketUser(ResultSet resultSet) throws SQLException{
             
             MarketUser user = new MarketUser();
-            user.setUserId(resultSet.getString(userTableAs+".mu_id"));
-            user.setUserName(resultSet.getString(userTableAs+".mu_name"));
-            user.setUserSurname(resultSet.getString(userTableAs+".mu_surname"));
-            user.setUserMail(resultSet.getString(userTableAs+".mu_mail"));
-            user.setUserPhoneNumber(resultSet.getString(userTableAs+".mu_phone"));
+            user.setUserId(resultSet.getString(marketUserTableAs+".mu_id"));
+            user.setUserName(resultSet.getString(marketUserTableAs+".mu_name"));
+            user.setUserSurname(resultSet.getString(marketUserTableAs+".mu_surname"));
+            user.setUserMail(resultSet.getString(marketUserTableAs+".mu_mail"));
+            user.setUserPhoneNumber(resultSet.getString(marketUserTableAs+".mu_phone"));
+            user.setUserRole(UserRole.valueOf(Integer.parseInt(resultSet.getString(marketUserTableAs+".mu_type"))));
             return user;
     }
     

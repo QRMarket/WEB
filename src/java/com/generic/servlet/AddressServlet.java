@@ -91,18 +91,7 @@ public class AddressServlet extends HttpServlet {
         
         try {
                 
-            switch (Util.getContentType(request)) {
-                
-                    //**************************************************************
-                    //**************************************************************
-                    //**        Content-Type :: multipart/form-data
-                    //**************************************************************
-                    //**************************************************************
-                    case MULTIPART_FORM_DATA:
-                            res = Result.SUCCESS_EMPTY.setContent("This Servlet On Progress > MULTIPART_CONTENT_TYPE");
-                        break;
-                        
-                        
+            switch (Util.getContentType(request)) {   
                         
                     //**************************************************************
                     //**************************************************************
@@ -139,7 +128,16 @@ public class AddressServlet extends HttpServlet {
                             }
 
                         break;
-
+                    
+                    //**************************************************************
+                    //**************************************************************
+                    //**        Content-Type :: Default content-type
+                    //**************************************************************
+                    //**************************************************************
+                    default:
+                            res = Result.FAILURE_PARAM_MISMATCH.setContent("AddressServlet -> Default Content-Type Error");
+                        break;
+                    
                 
             }
                     

@@ -22,7 +22,6 @@ public class MarketProduct {
         private String productName;
         private String productCode;
         private String productDesc;    
-        private String branchName;
         private String priceType;
         private double price; 
         private double amount;
@@ -130,20 +129,6 @@ public class MarketProduct {
     public void setAmount(double amount) {
         this.amount = amount;
     }    
-
-    /**
-     * @return the branchName
-     */
-    public String getBranchName() {
-        return branchName;
-    }
-
-    /**
-     * @param branchName the branchName to set
-     */
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
-    }
 
     /**
      * @return the productCode

@@ -12,6 +12,7 @@ import com.generic.result.Result;
 import com.generic.servlet.Auth;
 import com.generic.constant.UserRole;
 import com.generic.entity.MarketProduct;
+import com.generic.entity.MarketUser;
 import com.generic.entity.UserAddress;
 import com.generic.util.Util;
 import java.util.logging.Level;
@@ -41,6 +42,40 @@ public class ControllerUser {
     
     // <editor-fold defaultstate="collapsed" desc="GET Operations">
     
+    
+        //**************************************************************************
+        //**************************************************************************
+        //**                        OPERATION LOGIN
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * 
+         * @param request
+         * @return 
+         */
+        public static Result callLoginOperation(HttpServletRequest request){
+        
+            
+                Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callLoginOperation -> INITIAL ERROR");
+                String mail = request.getParameter("mail");
+                String pass = request.getParameter("pass");
+                String type = request.getParameter("type");
+
+                if( !Checker.anyNull(mail,pass,type) ){
+                    if(type.equalsIgnoreCase("admin")){
+                        result = DBUser.adminUserLogin(mail, pass);
+                    }else if(type.equalsIgnoreCase("customer")){
+                        result = DBUser.userLogin(mail, pass);
+                    }else {
+                        result = Result.FAILURE_PARAM_MISMATCH.setContent("ControllerUser -> callLoginOperation -> user type parameter mismatch"); 
+                    }
+                }else{
+                        result = Result.FAILURE_PARAM_MISMATCH;
+                }
+
+            return result;
+        }
+    
         //**************************************************************************
         //**************************************************************************
         //**                        GET USER ADDRESS LIST
@@ -68,6 +103,7 @@ public class ControllerUser {
     // </editor-fold>
     
         
+        
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
     //--                            INSERT OPERATIONs
@@ -75,7 +111,77 @@ public class ControllerUser {
     //------------------------------------------------------------------------------
     
     // <editor-fold defaultstate="collapsed" desc="INSERT Operations">
-    
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                        REGISTER
+        //**************************************************************************
+        //**************************************************************************
+        public static Result userRegister(HttpServletRequest request){
+        
+                Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callRegisterOperation -> INITIAL ERROR");
+
+                String mail = request.getParameter("mail");
+                String pass = request.getParameter("pass");
+                String passConfirm = request.getParameter("passconfirm");
+                String name = request.getParameter("name");
+                String surname = request.getParameter("surname");
+                String phone = request.getParameter("phone");
+                String type = request.getParameter("registerType");
+
+                if( !Checker.anyNull( mail, pass, passConfirm, name, surname, phone, type)){
+
+                    try {    
+                        // -1- Check mail address vaild or not
+                            InternetAddress emailAddr = new InternetAddress(mail);
+                            emailAddr.validate();
+
+                        // -2- Check password is valid
+                            if(!(pass.equalsIgnoreCase(passConfirm))){                     
+                                return Result.FAILURE_PARAM_INVALID.setContent("Mismatch password failure");
+                            }
+
+                        // -3- is phone number valid
+
+                        // -4- Call function
+                            if(type.equalsIgnoreCase("admin")){
+                                
+                                // -4.1- is TCKN valid
+                                    MarketUser marketUser = new MarketUser();
+                                    marketUser.setUserMail(mail);
+                                    marketUser.setUserPassword(pass);
+                                    marketUser.setUserName(name);
+                                    marketUser.setUserSurname(surname);
+                                    marketUser.setUserPhoneNumber(phone);
+                                    marketUser.setIdentityNo(request.getParameter("idNo"));
+                                    marketUser.setIdentityType(request.getParameter("idType"));
+                                    marketUser.setRole(request.getParameter("role"));
+                                    result = DBUser.adminRegister(marketUser);
+                                    
+                            }else if(type.equalsIgnoreCase("customer")){
+                                    result = DBUser.userRegister( mail, pass, name, surname, phone);
+                            }else{
+                                    result = Result.FAILURE_PARAM_MISMATCH.setContent("ControllerUser -> userRegister -> user type parameter mismatch"); 
+                            }
+                            
+
+                    } catch (AddressException ex) {                    
+                        Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
+                        return Result.FAILURE_PARAM_INVALID.setContent("Invalid mail");
+                    } catch (Exception ex) {
+                        Logger.getLogger(ControllerUser.class.getName()).log(Level.SEVERE, null, ex);
+                        return Result.FAILURE_PROCESS.setContent(ex.getMessage());
+                    }
+
+                }else{
+                    result = Result.FAILURE_PARAM_MISMATCH;
+                }
+
+            return result;
+        }
+        
+        
+        
         //**************************************************************************
         //**************************************************************************
         //**                        ADD ADDRESS TO USER
@@ -125,65 +231,5 @@ public class ControllerUser {
         }
         
     // </editor-fold>
-        
-        
-        
-        
-    
-    public static Result callLoginOperation(HttpServletRequest request){
-        
-            Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callLoginOperation -> INITIAL ERROR");
-            String mail = request.getParameter("mail");
-            String pass = request.getParameter("pass");
-                        
-            if( !Checker.anyNull(mail,pass) ){
-                    result = DBUser.userLogin(mail, pass);
-            }else{
-                    result = Result.FAILURE_PARAM_MISMATCH;
-            }
-        
-        return result;
-    }
-    
-    
-    public static Result callRegisterOperation(HttpServletRequest request){
-        
-            Result result = Result.FAILURE_PROCESS.setContent("Auth_Controller -> callRegisterOperation -> INITIAL ERROR");
-            
-            String mail = request.getParameter("mail");
-            String pass = request.getParameter("pass");
-            String passConfirm = request.getParameter("passconfirm");
-            String name = request.getParameter("name");
-            String surname = request.getParameter("surname");
-            String phone = request.getParameter("phone");
-            
-            if( !Checker.anyNull( mail, pass, passConfirm, name, surname, phone )){
-                 
-                try {    
-                    // -1- Check mail address vaild or not
-                        InternetAddress emailAddr = new InternetAddress(mail);
-                        emailAddr.validate();
-                    
-                    // -2- Check password is valid
-                        if(!(pass.equalsIgnoreCase(passConfirm))){                     
-                            return Result.FAILURE_PARAM_INVALID.setContent("Mismatch password failure");
-                        }
-                    
-                    // -3- Check number is valid
-                    
-                    // -4- Call function
-                        result = DBUser.userRegister( mail, pass, name, surname, phone);
-                    
-                } catch (AddressException ex) {                    
-                    Logger.getLogger(Auth.class.getName()).log(Level.SEVERE, null, ex);
-                    return Result.FAILURE_PARAM_INVALID.setContent("Invalid mail");
-                }
-                
-            }else{
-                result = Result.FAILURE_PARAM_MISMATCH;
-            }
-                          
-        return result;
-    }
-    
+     
 }

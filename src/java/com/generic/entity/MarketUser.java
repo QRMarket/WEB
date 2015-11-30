@@ -17,9 +17,13 @@ public class MarketUser {
     
     private String userId;
     private String userMail;
+    private String userPassword;
     private String userName;
     private String userSurname;
     private String userPhoneNumber;
+    private String identityNo;
+    private String identityType;
+    private String role;
     private UserRole userRole;
     private String userToken;
     private String userSession;
@@ -161,6 +165,62 @@ public class MarketUser {
      */
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    /**
+     * @return the userPassword
+     */
+    public String getUserPassword() {
+        return userPassword;
+    }
+
+    /**
+     * @param userPassword the userPassword to set
+     */
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+
+    /**
+     * @return the identityNo
+     */
+    public String getIdentityNo() {
+        return identityNo;
+    }
+
+    /**
+     * @param identityNo the identityNo to set
+     */
+    public void setIdentityNo(String identityNo) {
+        this.identityNo = identityNo;
+    }
+
+    /**
+     * @return the identityType
+     */
+    public String getIdentityType() {
+        return identityType;
+    }
+
+    /**
+     * @param identityType the identityType to set
+     */
+    public void setIdentityType(String identityType) {
+        this.identityType = identityType;
+    }
+
+    /**
+     * @return the role
+     */
+    public String getRole() {
+        return role;
+    }
+
+    /**
+     * @param role the role to set
+     */
+    public void setRole(String role) {
+        this.role = role;
     }
     
 }

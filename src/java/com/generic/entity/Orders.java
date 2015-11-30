@@ -34,7 +34,7 @@ public class Orders {
         private String distributerAddressID;
         
     // -- ** -- // Other Object
-        private MarketUser user;
+        private User user;
         private UserAddress userAddress;
         private List<MarketProduct> productList;
     // -- ** -- // Generic object for append
@@ -185,19 +185,6 @@ public class Orders {
         this.payment = payment;
     }
 
-    /**
-     * @return the user
-     */
-    public MarketUser getUser() {
-        return user;
-    }
-
-    /**
-     * @param user the user to set
-     */
-    public void setUser(MarketUser user) {
-        this.user = user;
-    }
 
     /**
      * @return the userAddressID
@@ -225,6 +212,20 @@ public class Orders {
      */
     public void setUserAddress(UserAddress userAddress) {
         this.userAddress = userAddress;
+    }
+
+    /**
+     * @return the user
+     */
+    public User getUser() {
+        return user;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(User user) {
+        this.user = user;
     }
     
     

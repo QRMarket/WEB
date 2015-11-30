@@ -82,7 +82,7 @@ public class ProductServlet extends HttpServlet {
         PrintWriter out = response.getWriter();              
         
         Gson gson = new Gson();
-        Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> processRequest -> initial error");
+        Result res = Result.FAILURE_PROCESS.setContent("ProductServlet -> processRequest -> initial error");                
         
         try {
                         
@@ -100,15 +100,25 @@ public class ProductServlet extends HttpServlet {
                             case INSERT_PRODUCT:
                                     res = ControllerProduct.insertProduct(request);
                                 break;
-                                
-                                
-                                
+                                         
                             default:
                                     res = Result.FAILURE_PARAM_MISMATCH.setContent("ProductServlet -> MULTIPART_FORM_DATA");
                                 break;
-                                
                         }
                         
+                    break;
+                    
+                    
+                    
+                    
+                    
+                //**************************************************************
+                //**************************************************************
+                //**        Content-Type :: application/json
+                //**************************************************************
+                //**************************************************************
+                case APPLICATION_JSON:
+                        res = ControllerProduct.insertProductVia_ApplicationJson(request);
                     break;
                     
                     
@@ -123,7 +133,10 @@ public class ProductServlet extends HttpServlet {
                 case APPLICATION_FORM_URLENCODED:            
             
                         switch (getRequestOperation(request)){
-
+                            
+                                case INSERT_PRODUCT:
+                                        res = ControllerProduct.insertProductViaURLEncoded(request);
+                                    break;
                             
                                 case ADD_DISTRIBUTER_PRODUCT:
                                        res = ControllerProduct.addDistributerProduct(request);
@@ -172,8 +185,6 @@ public class ProductServlet extends HttpServlet {
                 default:
                         res = Result.FAILURE_PROCESS.setContent("ProductServlet -> Default Content-Type Case");
                     break;
-                
-                
                 
             } // content-type switch end
                 

@@ -7,6 +7,7 @@ import com.generic.entity.Orders;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketUser;
 import com.generic.entity.OrderProduct;
+import com.generic.entity.User;
 import com.generic.entity.UserAddress;
 import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
@@ -74,7 +75,7 @@ public class DBOrder {
                                 order = ORMHandler.resultSetToOrder(resultSet);
                             
                             // -2.2- Get User & UserAddress Object
-                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                User user = ORMHandler.resultSetToUser(resultSet);
                                 UserAddress userAddress = ORMHandler.resultSetToUserAddress(resultSet);
                                 userAddress.setAddress(ORMHandler.resultSetToAddress(resultSet));
                                 
@@ -143,7 +144,7 @@ public class DBOrder {
                             orderList = new ArrayList<>();
                             do{
                                 Orders order = ORMHandler.resultSetToOrder(resultSet);
-                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                User user = ORMHandler.resultSetToUser(resultSet);
                                 order.setUser(user);
                                 
                                 orderList.add(order);
@@ -202,7 +203,7 @@ public class DBOrder {
                             orderList = new ArrayList<>();
                             do{
                                 Orders order = ORMHandler.resultSetToOrder(resultSet);
-                                MarketUser user = ORMHandler.resultSetToUser(resultSet);
+                                User user = ORMHandler.resultSetToUser(resultSet);
                                 order.setUser(user);
                                 
                                 orderList.add(order);

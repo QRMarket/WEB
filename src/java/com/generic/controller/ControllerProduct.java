@@ -1,6 +1,7 @@
 package com.generic.controller;
 
 import com.generic.checker.Checker;
+import com.generic.constant.CharsetList;
 import com.generic.db.DBProduct;
 import com.generic.ftp.FTPHandler;
 import com.generic.result.Result;
@@ -9,13 +10,19 @@ import com.generic.entity.MarketProductImage;
 import com.generic.constant.UserRole;
 import com.generic.entity.CampaignProduct;
 import com.generic.entity.CompanyProduct;
+import com.generic.locale.UtilLocaleHandler;
 import com.generic.servlet.ProductServlet;
 import com.generic.util.Util;
+import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
@@ -137,7 +144,51 @@ public class ControllerProduct {
     
         //**************************************************************************
         //**************************************************************************
-        //**                        INSERT PRODUCT
+        //**       INSERT PRODUCT VIA APPLICATION JSON WITH IMAGE URLs
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result insertProductVia_ApplicationJson(HttpServletRequest request){
+
+                Gson gson = new Gson();
+                Result result = Result.FAILURE_PROCESS.setContent("ControllerOrder -> insertProductVia_ApplicationJson -> :: initial case");
+                String json = "";
+
+                try {
+
+                    // -- 1 -- Read data
+                        BufferedReader bufferReader = new BufferedReader(new InputStreamReader(request.getInputStream()));
+                        StringBuilder builder = new StringBuilder();
+
+                        String line;
+                        while( (line = bufferReader.readLine()) != null) {
+                           builder.append(line);
+                        }
+
+                    // -- 2 -- Parse data to "Order" object
+                        json = builder.toString();
+                        MarketProduct productObj = gson.fromJson(json, MarketProduct.class);
+
+                    // -- 3 -- Insert order products to 
+                        productObj.setProductID(Util.generateID());
+                        return DBProduct.addProduct(productObj);
+
+                } catch (Exception ex) {
+                    Logger.getLogger(ControllerOrder.class.getName()).log(Level.SEVERE, null, ex);
+                    result = Result.FAILURE_PROCESS.setContent("ControllerOrder -> confirmOrder -> :: " + ex.getMessage());
+                }
+
+            return result;
+
+        }
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                INSERT PRODUCT VIA FILES
         //**************************************************************************
         //**************************************************************************
         /**
@@ -146,7 +197,7 @@ public class ControllerProduct {
          */
         public static Result insertProduct(HttpServletRequest request){
 
-                Result result = Result.FAILURE_PROCESS.setContent("Controller>Product>insert>initial case");;
+                Result result = Result.FAILURE_PROCESS.setContent("ControllerOrder -> insertProduct -> :: initial case");
                 try {
 
                     // -1.1- Create Product Object
@@ -157,11 +208,11 @@ public class ControllerProduct {
                         productObj.setProductDesc(request.getParameter("desc"));
                         productObj.setBrandID(request.getParameter("brand_id"));
                         productObj.setSectionID(request.getParameter("section_id"));
-                        productObj.setUserID("123459");
+                        productObj.setUserID(request.getParameter("admin_id"));
 
 
                     // -1.2- Check Product Object Values
-                        if(!Checker.anyNull( productObj.getProductName(), productObj.getBrandID(), productObj.getUserID())){ 
+                        if(!Checker.anyNull( productObj.getProductName(), productObj.getProductCode(), productObj.getBrandID(), productObj.getUserID())){ 
 
                             Collection<Part> parts = request.getParts();
                             Iterator<Part> partsIterator = parts.iterator();
@@ -182,7 +233,6 @@ public class ControllerProduct {
                                         if(client.storeFile(FTPHandler.dirTemps + imageFileName, imageInputStream)){
 
                                             MarketProductImage productImageObject = new MarketProductImage();
-                                            productImageObject.setImageID(generatedID);
                                             productImageObject.setImageFileName(imageFileName);
                                             productImageObject.setImageSource(String.format("http://%s/%s", FTPHandler.ftpHost, FTPHandler.dirProducts) + imageFileName);
                                             productImageObject.setImageSourceType("FTP");          
@@ -209,6 +259,51 @@ public class ControllerProduct {
                         return DBProduct.addProduct(productObj);
 
                 } catch (IOException | ServletException ex) {
+                    Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    return Result.FAILURE_PROCESS.setContent(ex.toString());
+                }
+
+            // return result;
+
+        }
+        
+        
+        
+        
+        //**************************************************************************
+        //**************************************************************************
+        //**                INSERT PRODUCT VIA FILES
+        //**************************************************************************
+        //**************************************************************************
+        /**
+         * @param request
+         * @return 
+         */
+        public static Result insertProductViaURLEncoded(HttpServletRequest request){
+
+                Result result = Result.FAILURE_PROCESS.setContent("ControllerOrder -> insertProduct -> :: initial case");
+                try {
+
+                    // -1.1- Create Product Object
+                        MarketProduct productObj = new MarketProduct();
+                        productObj.setProductID("t_" + Util.generateID());
+                        productObj.setProductName(UtilLocaleHandler.useCharset(request.getParameter("name"), CharsetList.TR));
+                        productObj.setProductCode(request.getParameter("barcode"));
+                        productObj.setProductDesc(request.getParameter("desc"));
+                        productObj.setBrandID(request.getParameter("brandID"));
+                        productObj.setSectionID(request.getParameter("sectionID"));
+                        productObj.setPriceType(request.getParameter("priceType"));
+                        productObj.setUserID(request.getParameter("userID"));
+
+                        
+                        MarketProductImage productImageObject = new MarketProductImage();
+                        productImageObject.setImageSource(request.getParameter("imageSource"));
+                        productImageObject.setImageSourceType("URL");   
+                        productObj.getProductImages().add(productImageObject);
+                       
+                        return DBProduct.addProduct(productObj);
+
+                } catch (Exception ex) {
                     Logger.getLogger(ControllerProduct.class.getName()).log(Level.SEVERE, null, ex);
                     return Result.FAILURE_PROCESS.setContent(ex.toString());
                 }
