@@ -1,5 +1,6 @@
-package com.generic.db;
+package com.generic.modal;
 
+import com.generic.db.MysqlDBOperations;
 import com.generic.checker.Checker;
 import com.generic.locale.UtilLocaleHandler;
 import com.generic.resources.ResourceProperty;

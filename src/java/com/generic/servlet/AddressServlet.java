@@ -7,7 +7,7 @@ package com.generic.servlet;
 
 import com.generic.checker.Checker;
 import com.generic.controller.ControllerAddress;
-import com.generic.db.DBAddress;
+import com.generic.modal.DBAddress;
 import com.generic.db.MysqlDBOperations;
 import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceMysql;

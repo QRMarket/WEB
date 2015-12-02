@@ -9,7 +9,7 @@ package com.generic.entity;
  *
  * @author kemalsamikaraca
  */
-public class CompanyProduct {
+public class DistributerProduct {
     
     
     private String id;
@@ -19,7 +19,7 @@ public class CompanyProduct {
     private String productPriceType;    
     private MarketProduct product;          // One-To-One Relation Properties
 
-    public CompanyProduct(){}
+    public DistributerProduct(){}
 
     /**
      * @return the id

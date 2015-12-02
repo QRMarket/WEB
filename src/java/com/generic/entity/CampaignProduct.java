@@ -13,13 +13,17 @@ package com.generic.entity;
  *
  * @last 24.11.2015
  */
-public class CampaignProduct extends CompanyProduct{
+public class CampaignProduct{
     
-    private String id;
-    private String companyProductId;
-    private long startAt;
-    private long finishAt;
-    private double campaignPrice;
+    
+        private String id;
+        private String companyProductId;
+        private long startAt;
+        private long finishAt;
+        private double campaignPrice;
+    // -- ** -- // Other Object
+        private MarketProduct product;        
+    
 
     /**
      * @return the id
@@ -90,9 +94,19 @@ public class CampaignProduct extends CompanyProduct{
     public void setCompanyProductId(String companyProductId) {
         this.companyProductId = companyProductId;
     }
-    
-    
-    
-    
-    
+
+    /**
+     * @return the product
+     */
+    public MarketProduct getProduct() {
+        return product;
+    }
+
+    /**
+     * @param product the product to set
+     */
+    public void setProduct(MarketProduct product) {
+        this.product = product;
+    }
+     
 }

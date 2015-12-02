@@ -3,39 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.generic.db;
+package com.generic.modal;
 
-import com.generic.checker.Checker;
-import com.generic.entity.Address;
+import com.generic.db.MysqlDBOperations;
 import com.generic.ftp.FTPHandler;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.entity.CampaignProduct;
-import com.generic.entity.CompanyProduct;
+import com.generic.entity.DistributerProduct;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.orm.ORMHandler;
 import com.generic.util.Util;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 import org.apache.commons.net.ftp.FTPClient;
 
 /**
@@ -65,43 +56,40 @@ public class DBProduct {
         //**************************************************************************
         /**
          *
-         * @param companyProductId
+         * @param distributerProductId
          * @return
          */
-        public static Result getProductOfDistributer(String companyProductId) {
+        public static Result getProductOfDistributer(String distributerProductId) {
 
                 MysqlDBOperations mysql = new MysqlDBOperations();
                 ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
                 Connection conn = mysql.getConnection();            
-                CompanyProduct companyProduct;
+                DistributerProduct distributerProduct;
                 
                 try {
 
                     // -1- Prepare Statement
-                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.companyProduct.select.3"));
-                        preStat.setString(1, companyProductId);
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.distributerProduct.select.3"));
+                        preStat.setString(1, distributerProductId);
                         
                         ResultSet resultSet = preStat.executeQuery();
                         
                     // -2- Get Result
                         if(resultSet.first()){
                                 
-                            companyProduct = new CompanyProduct();
-                            companyProduct.setId(resultSet.getString("id"));
-                            companyProduct.setDistributerID(resultSet.getString("d_id"));
-                            companyProduct.setProductPrice(resultSet.getDouble("p_price"));
+                        // -2.1- Get data with ORM Handler
+                            distributerProduct = ORMHandler.resultSetToDistributerProduct(resultSet);
                             
-                        // -2.1- Get Product Object
-                            MarketProduct product = ORMHandler.resultSetToProduct(resultSet);
-                            companyProduct.setProduct(product);
+                        // -2.2- Get Product Object
+                            distributerProduct.setProduct(ORMHandler.resultSetToProduct(resultSet));
                             
-                        // -2.2- After getting product from db then take the product images
-                            Result imageResult = DBProductImage.getProductImageList(companyProduct.getProduct().getProductID());
+                        // -2.3- After getting product from db then take the product images
+                            Result imageResult = DBProductImage.getProductImageList(distributerProduct.getProduct().getProductID());
                             if (imageResult.checkResult(Result.SUCCESS)) {
-                                companyProduct.getProduct().setProductImages((ArrayList<MarketProductImage>) imageResult.getContent());
+                                distributerProduct.getProduct().setProductImages((ArrayList<MarketProductImage>) imageResult.getContent());
                             }
                             
-                            return Result.SUCCESS.setContent(companyProduct);
+                            return Result.SUCCESS.setContent(distributerProduct);
 
                         }else{
                             return Result.SUCCESS_EMPTY;
@@ -124,7 +112,7 @@ public class DBProduct {
         //**************************************************************************
         /**
          *
-         * @param pid
+         * @param productId
          * @return
          */
         public static Result getProduct(String productId) {
@@ -245,7 +233,7 @@ public class DBProduct {
                 try {
                                                 
                     // -1- Prepare Statement
-                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.companyProduct.select.4"));
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.distributerProduct.select.4"));
                         preStat.setString(1, distributerId);
                         preStat.setInt(2, limit);
                         ResultSet resultSet = preStat.executeQuery();
@@ -287,6 +275,7 @@ public class DBProduct {
         //**************************************************************************
         /**
          *
+         * @param distributerId
          * @param sectionId
          * @param limit 
          * @return
@@ -322,8 +311,8 @@ public class DBProduct {
                                     if(productMap.get(resultSet.getString("p.pid"))==null){
                                         product = new MarketProduct();
                                         product.setBrandID(resultSet.getString("p.brands_id"));
-                                        product.setPrice(resultSet.getDouble("cpr.p_price"));
-                                        product.setPriceType(resultSet.getString("cpr.p_priceType"));
+                                        product.setPrice(resultSet.getDouble("distributerProduct.price"));
+                                        product.setPriceType(resultSet.getString("distributerProduct.priceType"));
                                         product.setProductCode(resultSet.getString("p.productCode"));
                                         product.setProductDesc(resultSet.getString("p.productDesc"));
                                         product.setProductID(resultSet.getString("p.pid"));
@@ -428,72 +417,6 @@ public class DBProduct {
                     mysql.closeAllConnection();
                 }
         }
-   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    public static Result getActiveCampaignProducts() {
-        MysqlDBOperations mysql = new MysqlDBOperations();
-        ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
-        Connection conn = mysql.getConnection();
-
-        List<CampaignProduct> products = new ArrayList<>();
-        try {
-
-            // GET ADDRESS
-            PreparedStatement preStat;
-            Date now = new Date();
-            long test = now.getTime();
-            preStat = conn.prepareStatement(rs.getPropertyValue("mysql.campaignProduct.select.1"));
-            preStat.setLong(1, now.getTime());
-            preStat.setLong(2, now.getTime());
-            ResultSet mysqlResult = preStat.executeQuery();
-
-            if (mysqlResult.first()) {
-
-                do {
-                    CampaignProduct product;
-                    product = new CampaignProduct();
-                    product.setProductID(mysqlResult.getString("p.pid"));
-//                    product.setProductName(mysqlResult.getString("p.productName"));
-//                    product.setPriceType(mysqlResult.getString("cp.p_priceType"));
-//                    product.setBranchName(mysqlResult.getString("p.productBranch"));
-//                    product.setProductCode(mysqlResult.getString("p.productCode"));
-//                    product.setProductDesc(mysqlResult.getString("p.productDesc"));
-//                    product.setStartAt(mysqlResult.getLong("c_start_date"));
-//                    product.setFinishAt(mysqlResult.getLong("c_end_date"));
-//                    product.setPrice(mysqlResult.getDouble("cp.p_price"));
-//                    product.setCampaignPrice(mysqlResult.getDouble("c.c_price"));
-                    products.add(product);
-                } while (mysqlResult.next());
-
-                return Result.SUCCESS.setContent(products);
-
-            } else {
-                return Result.SUCCESS_EMPTY;
-            }
-
-        } catch (Exception ex) {
-            Logger.getLogger(DBAddress.class.getName()).log(Level.SEVERE, null, ex);
-            return Result.FAILURE_DB;
-        } finally {
-            mysql.closeAllConnection();
-        }
-    }
-    
     
     // </editor-fold>  
     
@@ -608,7 +531,7 @@ public class DBProduct {
          *
          * @return
          */
-        public static Result addDistributerProduct(CompanyProduct companyProduct) {
+        public static Result addDistributerProduct(DistributerProduct companyProduct) {
 
                 MysqlDBOperations mysql = new MysqlDBOperations();
                 ResourceProperty rs = new ResourceProperty("com.generic.resources.mysqlQuery");
@@ -617,7 +540,7 @@ public class DBProduct {
                 try {
 
                     // -1- Prepare Statement
-                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.companyProduct.insert.1"));
+                        PreparedStatement preStat = conn.prepareStatement(rs.getPropertyValue("mysql.distributerProduct.insert.1"));
                         preStat.setString(1, companyProduct.getId());
                         preStat.setString(2, companyProduct.getDistributerID());
                         preStat.setString(3, companyProduct.getProductID());

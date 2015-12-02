@@ -7,7 +7,7 @@ package com.generic.servlet;
 
 import com.generic.checker.Checker;
 import com.generic.controller.ControllerSection;
-import com.generic.db.DBSection;
+import com.generic.modal.DBSection;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;

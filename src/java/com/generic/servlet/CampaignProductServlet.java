@@ -5,7 +5,7 @@
  */
 package com.generic.servlet;
 
-import com.generic.controller.ControllerOrder;
+import com.generic.controller.ControllerCampaignProduct;
 import com.generic.result.Result;
 import com.generic.util.Util;
 import com.google.gson.Gson;
@@ -22,32 +22,28 @@ import javax.servlet.http.HttpServletResponse;
 /**
  *
  * @author Kemal Sami KARACA
- * @since 02.2015
+ * @since 02.12.2015
  * @version 1.01
  * 
- * @last 15.11.2015
+ * @last 02.12.2015
  */
 
-@WebServlet(name = "OrderServlet", urlPatterns = {"/OrderServlet"})
-public class OrderServlet extends HttpServlet {
+@WebServlet(name = "CampaignProductServlet", urlPatterns = {"/CampaignProductServlet"})
+public class CampaignProductServlet extends HttpServlet {
 
     private static enum ServletOperations{
         NULL,
-        CONFIRM_ORDER,
-        GET_ORDER,
-        GET_ORDER_LIST,
-        GET_ORDER_COUNT
+        GET_CAMPAIGN_PRODUCT,
+        GET_CAMPAIGN_PRODUCT_LIST,
     }
     
     private ServletOperations getRequestOperation(HttpServletRequest request){
         if(request.getParameter("do") != null){
             switch (request.getParameter("do")) {
-                case "getOrder":
-                    return ServletOperations.GET_ORDER;
-                case "getOrderList":
-                    return ServletOperations.GET_ORDER_LIST;
-                case "getOrderCount":
-                    return ServletOperations.GET_ORDER_COUNT;
+                case "getCampaignProduct":
+                    return ServletOperations.GET_CAMPAIGN_PRODUCT;
+                case "getCampaignProductList":
+                    return ServletOperations.GET_CAMPAIGN_PRODUCT_LIST;
             }
         }  
         return ServletOperations.NULL;
@@ -74,18 +70,7 @@ public class OrderServlet extends HttpServlet {
 
                 switch (Util.getContentType(request)) {
 
-                    //**************************************************************
-                    //**************************************************************
-                    //**        Content-Type :: application/json
-                    //**************************************************************
-                    //**************************************************************
-                    case APPLICATION_JSON:
-                            res = ControllerOrder.confirmOrder(request);
-                        break;
-                        
-                        
-                        
-                        
+                   
                         
                     //**************************************************************
                     //**************************************************************
@@ -97,23 +82,16 @@ public class OrderServlet extends HttpServlet {
                             switch (getRequestOperation(request)){
 
                         
-                                    case GET_ORDER:
-                                            res = ControllerOrder.getOrder(request);
+                                    case GET_CAMPAIGN_PRODUCT:
+                                            res = Result.SUCCESS_EMPTY.setContent("aa");
                                         break;
-                                                        
-                                        
-                                    case GET_ORDER_LIST:
-                                            res = ControllerOrder.getOrderList(request);
+                                    
+                                    case GET_CAMPAIGN_PRODUCT_LIST:
+                                            res = ControllerCampaignProduct.getCampaignProductList(request);
                                         break;
-                                        
-                                        
-                                    case GET_ORDER_COUNT:
-                                            res = ControllerOrder.getOrderCount(request);
-                                        break;
-                                        
                                         
                                     default:
-                                            res = Result.FAILURE_PARAM_MISMATCH.setContent("OrderServlet -> APPLICATION_FORM_URLENCODED -> Default Case");
+                                            res = Result.FAILURE_PARAM_MISMATCH.setContent("CampaignProductServlet -> APPLICATION_FORM_URLENCODED -> Default Case");
                                         break;
                                     }
                             
@@ -129,7 +107,7 @@ public class OrderServlet extends HttpServlet {
                     //**************************************************************
                     //**************************************************************
                     default: 
-                            res = Result.FAILURE_PROCESS.setContent("OrderServlet -> Default Content-Type -> This content-type not used for that service");
+                            res = Result.FAILURE_PROCESS.setContent("CampaignProductServlet -> Default Content-Type -> This content-type not used for that service");
                         break;
 
                 }

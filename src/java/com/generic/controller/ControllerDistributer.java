@@ -1,7 +1,7 @@
 package com.generic.controller;
 
-import com.generic.db.DBDistributer;
-import com.generic.db.DBProduct;
+import com.generic.modal.DBDistributer;
+import com.generic.modal.DBProduct;
 import com.generic.result.Result;
 import java.util.logging.Level;
 import java.util.logging.Logger;

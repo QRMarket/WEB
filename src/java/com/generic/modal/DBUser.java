@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.generic.db;
+package com.generic.modal;
 
+import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
@@ -12,7 +13,7 @@ import com.generic.servlet.Auth;
 import com.generic.entity.Address;
 import com.generic.entity.MarketUser;
 import com.generic.constant.UserRole;
-import com.generic.entity.CompanyProduct;
+import com.generic.entity.DistributerProduct;
 import com.generic.entity.User;
 import com.generic.entity.UserAddress;
 import com.generic.orm.ORMHandler;

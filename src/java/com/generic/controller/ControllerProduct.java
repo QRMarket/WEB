@@ -2,14 +2,14 @@ package com.generic.controller;
 
 import com.generic.checker.Checker;
 import com.generic.constant.CharsetList;
-import com.generic.db.DBProduct;
+import com.generic.modal.DBProduct;
 import com.generic.ftp.FTPHandler;
 import com.generic.result.Result;
 import com.generic.entity.MarketProduct;
 import com.generic.entity.MarketProductImage;
 import com.generic.constant.UserRole;
 import com.generic.entity.CampaignProduct;
-import com.generic.entity.CompanyProduct;
+import com.generic.entity.DistributerProduct;
 import com.generic.locale.UtilLocaleHandler;
 import com.generic.servlet.ProductServlet;
 import com.generic.util.Util;
@@ -65,8 +65,8 @@ public class ControllerProduct {
         public static Result getProduct(HttpServletRequest request){
         
                 Result result = Result.FAILURE_PROCESS;
-                if (request.getParameter("companyProductId") != null) {
-                    return DBProduct.getProductOfDistributer(request.getParameter("companyProductId"));
+                if (request.getParameter("distributerProductId") != null) {
+                    return DBProduct.getProductOfDistributer(request.getParameter("distributerProductId"));
                 }else if (request.getParameter("productId") != null) {
                     return DBProduct.getProduct(request.getParameter("productId"));
                 }else if(request.getParameter("productCode") != null){
@@ -342,7 +342,7 @@ public class ControllerProduct {
                     // -1.1- Check Distibuter Product  Values
                         if(!Checker.anyNull( productId,distributerId) && productPrice>0){ 
                             
-                            CompanyProduct companyProduct = new CompanyProduct();
+                            DistributerProduct companyProduct = new DistributerProduct();
                             companyProduct.setId(Util.generateID());
                             companyProduct.setDistributerID(distributerId);
                             companyProduct.setProductID(productId);

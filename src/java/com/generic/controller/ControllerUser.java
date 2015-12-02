@@ -6,8 +6,8 @@
 package com.generic.controller;
 
 import com.generic.checker.Checker;
-import com.generic.db.DBProduct;
-import com.generic.db.DBUser;
+import com.generic.modal.DBProduct;
+import com.generic.modal.DBUser;
 import com.generic.result.Result;
 import com.generic.servlet.Auth;
 import com.generic.constant.UserRole;

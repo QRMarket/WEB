@@ -6,10 +6,10 @@
 package com.generic.servlet;
 
 import com.generic.checker.Checker;
-import com.generic.db.DBMarket;
-import com.generic.db.DBOrder;
-import com.generic.db.DBProduct;
-import com.generic.db.DBUser;
+import com.generic.modal.DBMarket;
+import com.generic.modal.DBOrder;
+import com.generic.modal.DBProduct;
+import com.generic.modal.DBUser;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceMysql;
 import com.generic.resources.ResourceProperty;

@@ -9,7 +9,8 @@ import com.generic.constant.OrdersPaymentType;
 import com.generic.constant.OrdersState;
 import com.generic.constant.UserRole;
 import com.generic.entity.Address;
-import com.generic.entity.CompanyProduct;
+import com.generic.entity.CampaignProduct;
+import com.generic.entity.DistributerProduct;
 import com.generic.entity.Distributer;
 import com.generic.entity.DistributerAddress;
 import com.generic.entity.MarketProduct;
@@ -35,6 +36,7 @@ import java.util.logging.Logger;
 public class ORMHandler {
     
     
+    public static String campaignProductTableAs = "campaignProduct";
     public static String userTableAs = "users";
     public static String marketUserTableAs = "marketUser";
     public static String userAddressTableAs = "userAddress";
@@ -44,8 +46,27 @@ public class ORMHandler {
     public static String ordersTableAs = "orders";
     public static String companyProductTableAs = "companyProduct";
     public static String distributerTableAs = "distributers";
+    public static String distributerProductTableAs = "distributerProduct";
     public static String distributerAddressTableAs = "distributerAddress";
     public static String sectionTableAs = "sections";
+    
+    
+    
+    
+    public static DistributerProduct resultSetToDistributerProduct(ResultSet resultSet) throws SQLException{
+            DistributerProduct distributerProduct = new DistributerProduct();
+            distributerProduct.setId(resultSet.getString("id"));
+            distributerProduct.setDistributerID(resultSet.getString("distributer_id"));
+            distributerProduct.setProductPrice(resultSet.getDouble("price"));
+            return distributerProduct;
+    }
+            
+    public static CampaignProduct resultSetToCampaignProduct(ResultSet resultSet) throws SQLException{
+            CampaignProduct campaignProduct = new CampaignProduct();
+            campaignProduct.setId(resultSet.getString(campaignProductTableAs+".id"));
+            campaignProduct.setCampaignPrice(resultSet.getDouble(campaignProductTableAs+".c_price"));
+            return campaignProduct;
+    }
     
     
     public static Distributer resultSetToDistributer(ResultSet resultSet) throws SQLException{

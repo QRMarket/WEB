@@ -7,7 +7,7 @@ package com.generic.controller;
 
 import com.generic.checker.Checker;
 import com.generic.constant.CharsetList;
-import com.generic.db.DBAddress;
+import com.generic.modal.DBAddress;
 import com.generic.locale.UtilLocaleHandler;
 import com.generic.result.Result;
 import javax.servlet.http.HttpServletRequest;

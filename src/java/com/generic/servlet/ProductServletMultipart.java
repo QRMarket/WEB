@@ -5,7 +5,7 @@
  */
 package com.generic.servlet;
 
-import com.generic.db.DBProduct;
+import com.generic.modal.DBProduct;
 import com.generic.logger.LoggerGuppy;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;

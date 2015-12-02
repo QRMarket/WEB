@@ -5,7 +5,7 @@
  */
 package com.generic.test;
 
-import com.generic.db.DBUser;
+import com.generic.modal.DBUser;
 import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;

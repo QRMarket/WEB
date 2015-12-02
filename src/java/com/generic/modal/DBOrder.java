@@ -1,5 +1,6 @@
-package com.generic.db;
+package com.generic.modal;
 
+import com.generic.db.MysqlDBOperations;
 import com.generic.resources.ResourceProperty;
 import com.generic.result.Result;
 import com.generic.entity.Address;
@@ -303,7 +304,7 @@ public class DBOrder {
                     preStat = conn.prepareStatement(rs.getString("mysql.order.update.insert.1"));
                     preStat.setString(1, order_id);
                     preStat.setString(2, "1" );
-                    preStat.setString(3, null);
+                    preStat.setInt(3, 0);
                     preStat.setLong(4, orderObj.getDate());
                     preStat.setLong(5, orderObj.getDelay());
                     preStat.setString(6, orderObj.getNote());
@@ -333,7 +334,7 @@ public class DBOrder {
                         // - * - Return success
                             if(isSuccessInsertion){
                                 mysql.commitAndCloseConnection();
-                                return Result.SUCCESS.setContent("onProgress");
+                                return Result.SUCCESS.setContent("Siparişiniz başarılı bir şekilde verilmiştir...");
                             }
 
                         // - * - If operation fail then rollback 

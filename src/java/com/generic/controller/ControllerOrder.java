@@ -5,7 +5,7 @@
  */
 package com.generic.controller;
 
-import com.generic.db.DBOrder;
+import com.generic.modal.DBOrder;
 import com.generic.result.Result;
 import com.generic.entity.Orders;
 import com.generic.entity.MarketProduct;
@@ -85,7 +85,7 @@ public class ControllerOrder {
 
                 if (request.getParameter("userId") != null) {
                     return DBOrder.getOrderListByUser(request.getParameter("userId"), limit);
-                }else{
+                }else {
                     return DBOrder.getOrderList(request.getParameter("distributerId"), limit);
                 }
                 

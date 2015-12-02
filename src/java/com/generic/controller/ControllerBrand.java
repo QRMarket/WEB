@@ -6,7 +6,7 @@
 package com.generic.controller;
 
 import com.generic.checker.Checker;
-import com.generic.db.DBBrand;
+import com.generic.modal.DBBrand;
 import com.generic.result.Result;
 import com.generic.entity.Brands;
 import java.util.logging.Level;

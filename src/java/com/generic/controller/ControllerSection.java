@@ -1,7 +1,7 @@
 package com.generic.controller;
 
 import com.generic.checker.Checker;
-import com.generic.db.DBSection;
+import com.generic.modal.DBSection;
 import com.generic.entity.Section;
 import com.generic.result.Result;
 import java.util.logging.Level;
